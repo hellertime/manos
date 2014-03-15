@@ -6,7 +6,7 @@
  */
 
 #ifdef USE_YAMALLOC
-#include <yamalloc.h>
+#include <manos/yamalloc.h>
 #else
 #include <stdlib.h>
 #endif

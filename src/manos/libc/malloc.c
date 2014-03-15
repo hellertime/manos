@@ -1,5 +1,5 @@
 /**
- * yamalloc.c - a C memory allocater library targeting the K70 platform
+ * malloc.c - a C memory allocater library targeting the K70 platform
  *
  * Single threaded allocator. Stores free chunks in segregated lists.
  * Uses bitmap to protect memory space.
@@ -9,12 +9,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include <util.h>
-#include <yamalloc.h>
+#include <manos/util.h>
+#include <manos/libc.h>
 
 /*
  * Define some constants for padding and aligning data.
- * Memory from yamalloc will be double-word aligned.
+ * Memory from malloc will be double-word aligned.
  */
 #define WORD_BYTES 4
 #define WORD_PAD(n) (((n) + WORD_BYTES - 1) & ~(WORD_BYTES - 1))
@@ -131,7 +131,7 @@ static char *ramHighAddress = NULL; /* top of ram offset from ram0       */
 #define MAX_RANGE_BIN (1<<26)         /* K70 will have at most 1<<27 addresses */
 
 /*
- * YAMallocHeader
+ * AllocHeader
  *
  * This structure is located at ram0, and is the metadata of the allocator.
  *
@@ -141,19 +141,19 @@ static char *ramHighAddress = NULL; /* top of ram offset from ram0       */
  * and so chunks are normalized onto bins 1:127
  * Splits only happen on clean bin chunks. No two clean chunks are adjacent in physical mem.
  */
-struct YAMallocHeader {
+struct AllocHeader {
   uint32_t lastAllocSize; /* track previous allocation to determine if we should preallocate */
   struct ChunkBin bins[MAX_BINS];
-  char allocationBitmap[ALLOCATION_BITMAP_SIZE];
+  char bitmap[ALLOCATION_BITMAP_SIZE];
 };
 
 /*
  * Two values which are needed at runtime, and must be computed then.
- * 'yamallocHeap' is the base of the heap.
+ * 'heap' is the base of the heap.
  * 'numChunkOffsets' is the number of MIN_ALLOC_BYTES chunks the memory can 
  * provide. This is used by the bitmap to track allocations.
  */
-static char *yamallocHeap;
+static char *heap;
 static size_t numChunkOffsets;
 
 /*
@@ -162,18 +162,18 @@ static size_t numChunkOffsets;
  * From that we can select the byte of the bitmap buffer to load
  * the bit to operate on.
  */
-#define getAddrBitmapOffset(addr) (size_t)(((numChunkOffsets * (uintptr_t)((char*)(addr) - yamallocHeap)) / (uintptr_t)(ramHighAddress - yamallocHeap)))
+#define getAddrBitmapOffset(addr) (size_t)(((numChunkOffsets * (uintptr_t)((char*)(addr) - heap)) / (uintptr_t)(ramHighAddress - heap)))
 #define getAddrBit(addr) ((DWORD_BYTES - 1) - (getAddrBitmapOffset((addr)) & (DWORD_BYTES - 1)))
 #define getAddrByte(addr) (getAddrBitmapOffset((addr)) / DWORD_BYTES)
 
-#define setBitmap(addr) (yamallocHeader->allocationBitmap[getAddrByte((addr))] |= (1 << getAddrBit((addr))))
-#define clearBitmap(addr) (yamallocHeader->allocationBitmap[getAddrByte((addr))] &= ~(1 << getAddrBit((addr))))
-#define checkBitmap(addr) (yamallocHeader->allocationBitmap[getAddrByte((addr))] & (1 << getAddrBit((addr))))
+#define setBitmap(addr) (header->bitmap[getAddrByte((addr))] |= (1 << getAddrBit((addr))))
+#define clearBitmap(addr) (header->bitmap[getAddrByte((addr))] &= ~(1 << getAddrBit((addr))))
+#define checkBitmap(addr) (header->bitmap[getAddrByte((addr))] & (1 << getAddrBit((addr))))
 
 /*
  * the header is a global value in the allocator
  */
-static struct YAMallocHeader *yamallocHeader = NULL;
+static struct AllocHeader *header = NULL;
 
 /*
  * Macros for addressing into the bins.
@@ -181,15 +181,15 @@ static struct YAMallocHeader *yamallocHeader = NULL;
  * Range bins can actually address fast bins, and subdivide then
  * entire chunk space.
  */
-#define getRecentBin() (yamallocHeader->bins[0].dirty)
-#define getLastSplitRem() (yamallocHeader->bins[0].clean)
+#define getRecentBin() (header->bins[0].dirty)
+#define getLastSplitRem() (header->bins[0].clean)
 #define isFastBinSize(sz) (((sz) < MAX_FAST_BIN) && !((sz) & (DWORD_BYTES -1)))
 #define isRangeBinSize(sz) ((sz) >= MAX_FAST_BIN && (sz) < MAX_RANGE_BIN)
 #define isTopBinSize(sz) ((sz) >= MAX_RANGE_BIN)
 #define fastBinIndex(sz) (((sz) - MIN_ALLOC_BYTES) / DWORD_BYTES)
 #define rangeBinIndex(sz) ((((MAX_RANGE_BINS - 1)*((sz) - MIN_ALLOC_BYTES)) / (MAX_RANGE_BIN - MIN_ALLOC_BYTES)))
 #define getBinIndex(sz) (1 + (isFastBinSize((sz)) ? fastBinIndex((sz)) : rangeBinIndex((sz))))
-#define getBinByIndex(idx) (yamallocHeader->bins[(idx)])
+#define getBinByIndex(idx) (header->bins[(idx)])
 #define getBin(sz) (getBinByIndex(getBinIndex((sz))))
 
 /*
@@ -331,22 +331,22 @@ static void initRam(void) {
     ramHighAddress = ram0 + ONE_MEBIBYTE;
 
     /* Overlay the header at the base of ram */
-    yamallocHeader = (struct YAMallocHeader*)ram0;
+    header = (struct AllocHeader*)ram0;
 
     /* align things for the heap. Since a chunk has a WORD sized tag at boths ends
      * and our allocator is required to return pointers which align on DOUBLE WORD
      * boundaries we need to push the start of the heap to a WORD aligned address
      * so that the first chunk user data will be on a DOUBLE WORD address.
      */
-    yamallocHeap = ram0 + WORD_PAD(sizeof(struct YAMallocHeader));
+    heap = ram0 + WORD_PAD(sizeof(struct AllocHeader));
 
-    numChunkOffsets = (ramHighAddress - yamallocHeap) / MIN_ALLOC_BYTES;
+    numChunkOffsets = (ramHighAddress - heap) / MIN_ALLOC_BYTES;
 
     for (int i = 0; i < ALLOCATION_BITMAP_SIZE; i++) {
-      yamallocHeader->allocationBitmap[i] = (char)0;
+      header->bitmap[i] = (char)0;
     }
 
-    struct ChunkHeader *firstChunk = initChunk(yamallocHeap, ramHighAddress - yamallocHeap);
+    struct ChunkHeader *firstChunk = initChunk(heap, ramHighAddress - heap);
     getBinByIndex(MAX_BINS - 1).clean = firstChunk;
     firstChunk->prev = &getBinByIndex(MAX_BINS - 1).clean;
   }
@@ -560,7 +560,7 @@ split:
   /* Step 9: carve off a chunk of memory */
   chunk = splitChunk(chunk, size, &rest);
 
-  if (yamallocHeader->lastAllocSize == size) {
+  if (header->lastAllocSize == size) {
     for (int i = 0; i < MAX_PRE_ALLOCATIONS && getSize(rest) > size; i++) {
       struct ChunkHeader *pre = splitChunk(rest, size, &rest);
       binChunk(pre, BinRecent);
@@ -575,13 +575,13 @@ exit:
 }
 
 /*
- * yamalloc :: Integer -> Ptr
+ * malloc :: Integer -> Ptr
  *
  * allocate chunk of at least 'size' size.
  * Returned pointer will be double word aligned.
  * If size is 0, a chunk of MIN_ALLOC_BYTES is returned.
  */
-void* yamalloc(size_t size) {
+void* malloc(size_t size) {
   size_t newSize = size;
 
   initRam();
@@ -597,7 +597,7 @@ void* yamalloc(size_t size) {
   if (chunk) {
     void *mem = getPayload(chunk);
 
-    yamallocHeader->lastAllocSize = getSize(chunk);
+    header->lastAllocSize = getSize(chunk);
 
     /* store the PID of the caller in the previously reserved byte just before the footer */
     getTag(chunk).pid = getFooter(chunk)->pid = getCurrentPID();
@@ -615,26 +615,26 @@ void* yamalloc(size_t size) {
 }
 
 /*
- * yafree :: Ptr -> ()
+ * free :: Ptr -> ()
  *
- * free allocated chunk. If ptr is NULL or not from yamalloc, this is a noop.
+ * free allocated chunk. If ptr is NULL or not from malloc, this is a noop.
  */
-void yafree(void *ptr) {
+void free(void *ptr) {
   /*
    * Safety check #0: NULL has no effect.
    */
   if (! ptr) return;
 
   /*
-   * Safety check #1: A valid pointer from yamalloc will be aligned to DWORD_BYTES
+   * Safety check #1: A valid pointer from malloc will be aligned to DWORD_BYTES
    */
   int isAligned = !((uintptr_t)ptr & (DWORD_BYTES - 1)); /* check the low bits are zero */
   if (isAligned) {
     /*
-     * Safetey check #2: A valid pointer from yamalloc will have its address recorded in
-     * the allocationBitmap. This is the address that is given to the yamalloc caller.
+     * Safetey check #2: A valid pointer from malloc will have its address recorded in
+     * the bitmap. This is the address that is given to the malloc caller.
      */
-    assert(checkBitmap(ptr) && "Memory error. Cannot free address not allocated by yamalloc");
+    assert(checkBitmap(ptr) && "Memory error. Cannot free address not allocated by malloc");
     if (checkBitmap(ptr)) {
       struct ChunkHeader *chunk = (struct ChunkHeader*)((uintptr_t)ptr - sizeof(struct ChunkTag));
       getTag(chunk).free = 1;
@@ -663,7 +663,7 @@ void hexdump(FILE* out, void *buf, size_t length) {
         fprintf(out, "  %s\n", ascii);
       }
 
-      fprintf(out, " %.8x ", (uintptr_t)yamallocHeap + i);
+      fprintf(out, " %.8x ", (uintptr_t)heap + i);
     }
 
     fprintf(out, " %.2x", (uint8_t)p[i]);
@@ -728,17 +728,17 @@ void yadump(FILE *out) {
   fprintf(out, "\n");
   fprintf(out, "Allocator Header Info:\n\n");
   fprintf(out, "    # Chunk Offsets In Bitmap: %d\n", numChunkOffsets);
-  fprintf(out, "    Size of bin area (B) : %d\n", sizeof(yamallocHeader->bins[0]) * MAX_BINS);
+  fprintf(out, "    Size of bin area (B) : %d\n", sizeof(header->bins[0]) * MAX_BINS);
   fprintf(out, "    Size of Bitmap (B)   : %d\n", ALLOCATION_BITMAP_SIZE);
-  fprintf(out, "    Size of Header (B)   : %d\n", sizeof(struct YAMallocHeader));
-  fprintf(out, "    Addr of header (should be ram0): 0x%08x\n", (uintptr_t)yamallocHeader);
-  fprintf(out, "    Addr of bin 0                  : 0x%08x\n", (uintptr_t)yamallocHeader->bins);
-  fprintf(out, "    Addr of bin 127                : 0x%08x\n", (uintptr_t)yamallocHeader->bins + MAX_BINS);
-  fprintf(out, "    Addr of bitmap start           : 0x%08x\n", (uintptr_t)yamallocHeader->allocationBitmap);
-  fprintf(out, "    Addr of bitmap end             : 0x%08x\n", (uintptr_t)yamallocHeader->allocationBitmap + ALLOCATION_BITMAP_SIZE);
-  fprintf(out, "    Addr of header end             : 0x%08x\n", (uintptr_t)((char*)yamallocHeader + sizeof(struct YAMallocHeader)));
-  fprintf(out, "    Addr of heap start : 0x%08x\n", (uintptr_t)yamallocHeap);
-  fprintf(out, "    Size of heap (B)   : %d\n", (uintptr_t)(ramHighAddress - yamallocHeap));
+  fprintf(out, "    Size of Header (B)   : %d\n", sizeof(struct AllocHeader));
+  fprintf(out, "    Addr of header (should be ram0): 0x%08x\n", (uintptr_t)header);
+  fprintf(out, "    Addr of bin 0                  : 0x%08x\n", (uintptr_t)header->bins);
+  fprintf(out, "    Addr of bin 127                : 0x%08x\n", (uintptr_t)header->bins + MAX_BINS);
+  fprintf(out, "    Addr of bitmap start           : 0x%08x\n", (uintptr_t)header->bitmap);
+  fprintf(out, "    Addr of bitmap end             : 0x%08x\n", (uintptr_t)header->bitmap + ALLOCATION_BITMAP_SIZE);
+  fprintf(out, "    Addr of header end             : 0x%08x\n", (uintptr_t)((char*)header + sizeof(struct AllocHeader)));
+  fprintf(out, "    Addr of heap start : 0x%08x\n", (uintptr_t)heap);
+  fprintf(out, "    Size of heap (B)   : %d\n", (uintptr_t)(ramHighAddress - heap));
   fprintf(out, "    Last address is DWORD aligned : %s\n", (IS_DWORD_ALIGNED(ramHighAddress) ? "yes" : "no"));
   fprintf(out, "\n");
   fprintf(out, "Bitmap Info:\n\n");
@@ -749,12 +749,12 @@ void yadump(FILE *out) {
         fprintf(out, "\n");
       }
 
-      fprintf(out, " %.8x ", (uintptr_t)yamallocHeader->allocationBitmap + i);
+      fprintf(out, " %.8x ", (uintptr_t)header->bitmap + i);
     } else if (i != 0) {
       fprintf(out, " ");
     }
 
-    char c = yamallocHeader->allocationBitmap[i];
+    char c = header->bitmap[i];
     for (int j = 8; j > 0; j--) {
       fputc('.' + (3 * ((c >> (j - 1)) & 1)), out); /* unset print '.', set print '1' (hence the multiple of 3) */
     }
@@ -763,7 +763,7 @@ void yadump(FILE *out) {
 
   fprintf(out, "Heap Info:\n\n");
 
-  for (uintptr_t i = (uintptr_t)yamallocHeap; i < (uintptr_t)ramHighAddress; ) {
+  for (uintptr_t i = (uintptr_t)heap; i < (uintptr_t)ramHighAddress; ) {
     fprintf(out, "** Chunk Offset 0x%08x\n", i);
     struct ChunkHeader *chunk = (struct ChunkHeader*)i;
 
