@@ -37,3 +37,6 @@ the mount point and restarts the walk relative to the new path.
 
 In the end the walk will result in a new VNodeHandle at either the requested node or the node parent if 
 the requested node is missing.
+
+NOTE: This behaviour is just a contract. A Vdev can screw it up and the system will collapse. There is
+no protections in place to ensure contract adherence. Just common sense.
