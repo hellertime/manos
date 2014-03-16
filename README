@@ -1,0 +1,39 @@
+manos - a Plan9 like operating system, but worse.
+=================================================
+
+Manos is an operating system which takes inspiration from the Plan9 operating system.
+That is in manos, everything is a file. It does not actually implement the distributed
+nature of Plan9, as manos is written for a system which does not yet have networking
+and may never have it at all (we shall see). 
+
+It does have a simmilar API to the 9p protocol, and so could be extended to a full
+fledged Plan9 clone with some effort.
+
+The Kernel
+----------
+
+Kernel devices are represented by a common virtual device API. Each VDev presents itself
+as a tree of VNodes. The kernel accesses these nodes using a VNodeHandle which is a cursor
+on the device tree. The VDev tree can be represented as a filesystem with interior nodes
+representing directories and leaf nodes representing files. VNodes have no physical representation
+and are only relaized as a VNodeHandle.
+
+The kernel maintains a table of VDev objects. In addition to the VDev table, the kernel also maintains
+a per-process Mount table. The Mount table maps a VDev path onto another VDev path, this allows for
+certains paths in the global filesystem to be managed by an individual VDev. These Mount objects are 
+realized as pairs of VNodeHandles. In addition a VNode handle can link to sibling VNodeHandles. This
+allows a single Mount point to actually be the union of multiple mountpoints.
+
+(When walking a union of VNodeHandles the walk will be done in a depth first manner).
+
+Walking
+-------
+
+To navigate the global filesystem, a process first obtains a VNodeHandle at some path in the filesystem.
+This path can be relative to another path, it can be absolute to the '/' root path, or it can be absolute
+to a specific VDev tree. The walk proceeds down the tree following nodes. If a node is missing the walk 
+'fails' and results in the parent to the missing node. If the walk crosses a mount point it decends into 
+the mount point and restarts the walk relative to the new path.
+
+In the end the walk will result in a new VNodeHandle at either the requested node or the node parent if 
+the requested node is missing.
