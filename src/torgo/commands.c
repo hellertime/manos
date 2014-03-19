@@ -12,10 +12,10 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include <shell/commands.h>
-#include <shell/err.h>
+#include <torgo/commands.h>
+#include <torgo/err.h>
 
-#include <yamalloc.h>
+#include <libc.h>
 
 int cmdDate(int argc, char *argv[]);
 int cmdDate2(int argc, char *argv[]);
@@ -35,9 +35,7 @@ struct CmdTable builtinCmds[] = {
                   ,{ "d2"       , cmdDate2 }
                   ,{ "echo"     , cmdEcho }
                   ,{ "exit"     , cmdExit }
-                  ,{ "free"     , cmdFree }
                   ,{ "help"     , cmdHelp }
-                  ,{ "malloc"   , cmdMalloc }
                   ,{ "memorymap", cmdMemmap }
                   };
 
@@ -283,27 +281,6 @@ int cmdExit(int argc, char *argv[]) {
 }
 
 /*
- * cmdFree :: ADDR
- *
- * Free passed address. If allocated.
- */
-int cmdFree(int argc, char *argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "usage: free ADDR\n\n");
-    return SE_BADARG;
-  }
-
-  errno = 0;
-  intptr_t addr = strtol(argv[1], NULL, 0);
-
-  if (addr == LONG_MIN || addr == LONG_MAX)
-    return errno;
-
-  yafree((void*)addr);
-  return SE_OK;
-}
-
-/*
  * cmdHelp :: String
  *
  * Displays a help message.
@@ -320,41 +297,14 @@ int cmdHelp(int argc, char *argv[]) {
   fputs("date              Prints the current date\n", stdout);
   fputs("echo [ARG...]     Echo arguments to output\n", stdout);
   fputs("exit              Exit the shell\n", stdout);
-  fputs("free ADDR         Free allocated memory at address ADDR\n", stdout);
   fputs("perror            Print the exit status of the last command\n", stdout);
   fputs("help              Display this help\n", stdout);
-  fputs("malloc SIZE       Allocate memory of SIZE\n", stdout);
   fputs("memorymap         Dumps the memory allocator state\n", stdout);
   fputs("set NAME = VALUE  Set an environment variable\n", stdout);
   fputs("unset NAME        Unsets environment variable\n", stdout);
   fputs("\n", stdout);
   fputs("Report bugs to <christopherheller@fas.harvard.edu>\n", stdout);
   fputs("\n", stdout);
-  return SE_OK;
-}
-
-/*
- * cmdMalloc :: Integer
- *
- * Allocates memory of a given size
- */
-int cmdMalloc(int argc, char *argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "usage: malloc SIZE\n\n");
-    return SE_BADARG;
-  }
-
-  errno = 0;
-  long int size = strtol(argv[1], NULL, 0);
-
-  if (size == LONG_MIN || size == LONG_MAX)
-    return errno;
-
-  char* mem = yamalloc(size);
-  if (mem == NULL)
-    return SE_MEMERR;
-
-  fprintf(stdout, "0x%08x\n", (uintptr_t)mem);
   return SE_OK;
 }
 
@@ -367,6 +317,6 @@ int cmdMemmap(int argc, char *argv[]) {
   if (argc > 1)
     fprintf(stderr, "usage: memorymap\n\n");
 
-  yadump(stdout);
+  /* yadump(stdout); */
   return SE_OK;
 }

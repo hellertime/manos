@@ -6,7 +6,7 @@
  */
 
 #ifdef USE_YAMALLOC
-#include <manos/yamalloc.h>
+#include <libc.h>
 #else
 #include <stdlib.h>
 #endif
@@ -17,11 +17,7 @@
  * Wraps the system malloc
  */
 void* shellMalloc(size_t size) {
-#ifdef USE_YAMALLOC
-  return yamalloc(size);
-#else
   return malloc(size);
-#endif
 }
 
 /*
@@ -30,11 +26,7 @@ void* shellMalloc(size_t size) {
  * Wraps the system free
  */
 void shellFree(void *ptr) {
-#ifdef USE_YAMALLOC
-  yafree(ptr);
-#else
   free(ptr);
-#endif
 }
 
 /*

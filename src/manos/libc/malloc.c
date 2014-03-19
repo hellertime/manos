@@ -615,6 +615,23 @@ void* malloc(size_t size) {
 }
 
 /*
+ * mallocz :: Integer -> Ptr
+ *
+ * allocate chunk via malloc and zero the memory
+ */
+void* mallocz(size_t size) {
+  char *mem = malloc(size);
+
+  if (mem) {
+    for (size_t i = 0; i < size; i++) {
+      *mem++ = (char)0;
+    }
+  }
+
+  return mem;
+}
+
+/*
  * free :: Ptr -> ()
  *
  * free allocated chunk. If ptr is NULL or not from malloc, this is a noop.

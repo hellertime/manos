@@ -1,7 +1,83 @@
 #ifndef MANOS_DEV_H
 #define MANOS_DEV_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include <manos/err.h>
+#include <manos/portal.h>
+
 typedef char DevId;
+typedef unsigned int DevInst;
+typedef uint8_t FidType;
+typedef unsigned int Mode;
+typedef uint32_t Offset;  /* We only need to support filesystems up to 128MB large, so this is a more than fine offset value */
+typedef unsigned long Perm;
+typedef unsigned long Time;
+
+/*
+ * FidTypeFlags
+ *
+ * The flags tell us about the object identified by .tag in a struct Fid.
+ */
+typedef enum {
+  FID_ISDIR      = 0x80, /* .tag is a directory */
+  FID_APPENDONLY = 0x40, /* .tag is an append only file */
+  FID_EXCLUSIVE  = 0x20, /* .tag has exclusive access restrictions */
+  FID_ISMOUNT    = 0x10, /* .tag exits in the mount table */
+  FID_ISFILE     = 0x00  /* .tag is a file */
+} FidTypeFlags;
+
+/*
+ * Fid = (Int, Int)
+ *
+ * This structure is used by a device to uniquely identify an object in its
+ * local namespace. The first field, 'tag' is an opaque word which uniquely
+ * identifies the object with the server. The second field 'type' contains
+ * meta information about the object.
+ */
+struct Fid {
+  uint32_t tag;
+  FidType type;
+};
+
+/*
+ * ModeFlags
+ *
+ * These flags tell us about the object identified by a DevInfo struct.
+ * They mirror those of FidTypeFlags in meaning in the high bits, and
+ * in the low they are the rwx bits of the file.
+ */
+typedef enum {
+  MODE_ISDIR      = 0x80,
+  MODE_APPENDONLY = 0x40,
+  MODE_EXCLUSIVE  = 0x20,
+  MODE_ISMOUNT    = 0x10,
+  MODE_ISREAD     = 0x4,
+  MODE_ISWRITE    = 0x2,
+  MODE_ISEXEC     = 0x1, /* EXEC, EXPLORE (SEARCH) */
+} ModeFlags;
+
+/*
+ * DevInfo = (DevId, DevInst, Fid, Mode, Time, Time, Offset, CStr, CStr, CStr)
+ *
+ * DevInfo plays a simmilar role to a POSIX 'struct stat', a device populates
+ * this structure with info about an object in its namespace.
+ */
+struct DevInfo {
+  DevId dev;       /* The device this object belongs to */
+  DevInst inst;    /* The device instance of 'dev' */
+  struct Fid fid;  /* See: Fid */
+  Mode mode;
+  Time accessTime;
+  Time modTime;
+  Offset length;
+  char *name;
+  char *owner;
+  char *group;
+};
+
+typedef int FnIndexDirEnt(struct Portal *portal, char *name, struct DirEnt *dirent, size_t size, struct DevInfo *info);
 
 /*
  * Dev = (DevId, String
@@ -22,11 +98,11 @@ struct Dev {
 
 
   /*
-   * on => Dev d :: d -> ()
+   * init => Dev d :: d -> ()
    *
    * Enable the device to an initial state.
    */
-  void (*on)(void);
+  void (*init)(void);
 
 
   /*
@@ -38,87 +114,83 @@ struct Dev {
 
 
   /*
-   * off => Dev d :: d -> ()
+   * shutdown => Dev d :: d -> ()
    *
    * Perform any needed device operations before turning off.
-   * The device cannot be used again until 'on' is called.
+   * The device cannot be used again until 'init' is called.
    */
-  void (*off)(void);
+  void (*shutdown)(void);
 
 
   /*
-   * attach => Dev d, Vnode v :: d -> DevId -> String -> v
+   * attach => Dev d :: d -> DevId -> String -> Portal
    *
-   * Construct a new Vnode v, associated with 'name' on the Dev identified by 'dev'.
-   * If `ISVALID_CHAN(v)` is true the Vnode can be used in subsequent calls.
-   * Otherwise the pointer is invalid and the error can be obtained by `Err e = GET_ERROR(v);`
+   * Construct a new Portal, associated with 'name' on the Dev identified by 'dev'.
+   * If `IS_ERRPTR(v)` is false the Portal can be used in subsequent calls.
+   * Otherwise the pointer is invalid and the error can be obtained by `Err e = FROM_ERRPTR(v);`
    */
-  struct Vnode* (*attach)(DevId dev, const char* name);
+  struct Portal* (*attach)(DevId dev, const char* name);
 
 
   /*
-   * walk => Dev d, Vnode v1, v2 :: d -> v1 -> [String] -> v2
+   * walk => Dev d :: d -> Portal -> Portal -> [String] -> Trail
    *
-   * Mutate Vnode v1 -> v2. Starting at 'v1' walk the vnode tree by iterating 'nelems' times over 'elems'.
-   * If elems[-1] is found v2 is the new Vnode.
-   * If the walk fails `ISVALID_CHAN(v2)` will be false and the error is found in the usual way.
+   * Starting at 'from' walk the device namespace component by component.
+   * If the walk ends at components[-1] then the walk was successful and 'to' will contain the new Portal
+   * In addition Trail will contain a list of Fids crossed along the way.
+   * If the walk failed `IS_ERRPTR(trail)` will be true.
    */
-  struct Vnode* (*walk)(const struct Vnode* v, const char** elems, int nelems); 
+  struct Trail* (*walk)(struct Portal* from, struct Portal *to, const char** components, size_t count);
 
 
   /*
-   * getStat => Dev d, Vnode v :: d -> v -> Stat
+   * getInfo => Dev d :: d -> Portal -> DevInfo -> Err
    *
-   * Allocate a new Stat structure with the status of the Vnode.
+   * Populate a DevInfo structure for the given Portal.
    */
-  struct Stat* (*getStat)(const struct Vnode* v);
-
+  Err (*getInfo)(struct Portal *p, struct DevInfo *info);
 
   /*
-   * setStat => Dev d, Vnode v :: d -> v -> Stat -> Err
+   * setInfo => Dev d :: d -> Portal -> DevInfo -> Err
    *
-   * Update the Vnode with the status in Stat. The Err value
-   * will either be E_OK or tell a reason why things went wrong.
+   * Update the info of the node at the Portal.
    */
-  Err (*setStat)(const struct Vnode* v, const struct Stat* ent);
+  Err (*setInfo)(struct Portal* p, struct DevInfo *info);
 
 
   /*
-   * create => Dev d, Vnode v1, v2 :: d -> v1 -> String -> Mode -> Perm ->v2 
+   * create => Dev d :: d -> Portal -> String -> Mode -> Perm 
    *
-   * Create a new Vnode at 'name' from the old Vnode. The new entry will be given
-   * the appropriate 'mode' and 'perms'. If `IS_FILE(perms) == true` the new Vnode
-   * will be open for read/write, otherwise the Vnode is the same as before, unless
-   * `mode | VnodeWalk` is true, then this will behave as if a walk was called on 'name'
+   * Create an object associated at the current Portal.
    */
-  struct Vnode* (*create)(struct Vnode* v, const char *name, Mode mode, Perm perm);
+  void (*create)(struct Portal* p, const char *name, Mode mode, Perm perm);
 
 
   /*
-   * open => Dev d, Vnode v1, v2 :: d -> v1 -> Mode -> v2
+   * open => Dev d :: d -> Portal -> Mode -> Portal
    *
    * Open the current Vnode for read/write (based on mode).
    */
-  struct Vnode* (*open)(struct Vnode* v, Mode mode);
+  struct Portal* (*open)(struct Portal* p, Mode mode);
 
   /*
-   * close => Dev d, Vnode v :: d -> v -> ()
+   * close => Dev d :: d -> Portal -> ()
    *
    * Close an open Vnode.
    */
-  void (*close)(struct Vnode* v);
+  void (*close)(struct Portal* v);
 
   /*
-   * remove => Dev d, Vnode v :: d -> v -> ()
+   * remove => Dev d :: d -> Portal -> ()
    *
    * Remove the name currently associated with the node.
    * It is up to the underlying device to define semantics in the case
-   * where multiple Vnode are open on the name when it is removed.
+   * where multiple Portals are open on the name when it is removed.
    */
-  void (*remove)(struct Vnode* v);
+  void (*remove)(struct Portal* p);
 
   /*
-   * read => Dev d, Vnode v :: d -> v -> [Byte] -> Int -> Int -> ErrPtr -> Int
+   * read => Dev d :: d -> Portal -> [Byte] -> Int -> Int -> ErrPtr -> Int
    *
    * Read 'n' bytes into 'buf' starting at 'offset' of the Vnode.
    * 'buf' must be allocated by the caller and sized correctly.
@@ -126,18 +198,18 @@ struct Dev {
    * If the read fails then the call returns -1 and err is set with the reason.
    * Otherwise the number of bytes read is returned.
    */
-  ssize_t (*read)(struct Vnode *v, void *buf, uint32_t n, uint32_t offset, Err *err);
+  int32_t (*read)(struct Portal *v, void *buf, uint32_t n, Offset offset, Err *err);
 
   /*
-   * write => Dev d, Vnode v :: d -> v -> [Byte] -> Int -> Int -> ErrPtr -> Int
+   * write => Dev d :: d -> Portal -> [Byte] -> Int -> Int -> ErrPtr -> Int
    *
-   * Write 'n' bytes from 'buf' into the Vnode starting at 'offset'.
+   * Write 'n' bytes from 'buf' into the Portal starting at 'offset'.
    * 'buf' must be allocated by the caller and sized to allow a read on 'n' on it.
    *
    * If the write fails then the call resturns -1, and err is set with the reason.
    * Otherwise the number of bytes written is returned.
    */
-  ssize_t (*write)(struct Vnode *v, void *buf, uint32_t n, uint32_t offset, Err *err);
+  int32_t (*write)(struct Portal *p, void *buf, uint32_t n, Offset offset, Err *err);
 };
 
 #endif /* ! MANOS_DEV_H */

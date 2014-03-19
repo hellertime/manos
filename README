@@ -7,24 +7,50 @@ nature of Plan9, as manos is written for a system which does not yet have networ
 and may never have it at all (we shall see). 
 
 It does have a simmilar API to the 9p protocol, and so could be extended to a full
-fledged Plan9 clone with some effort.
+fledged Plan9 clone with some (substantial) effort.
 
 The Kernel
 ----------
 
 Kernel devices are represented by a common virtual device API. Each VDev presents itself
-as a tree of VNodes. The kernel accesses these nodes using a VNodeHandle which is a cursor
 on the device tree. The VDev tree can be represented as a filesystem with interior nodes
-representing directories and leaf nodes representing files. VNodes have no physical representation
-and are only relaized as a VNodeHandle.
+representing directories and leaf nodes representing files.
 
 The kernel maintains a table of VDev objects. In addition to the VDev table, the kernel also maintains
 a per-process Mount table. The Mount table maps a VDev path onto another VDev path, this allows for
 certains paths in the global filesystem to be managed by an individual VDev. These Mount objects are 
-realized as pairs of VNodeHandles. In addition a VNode handle can link to sibling VNodeHandles. This
+realized as pairs of VNodes. In addition a VNode handle can link to sibling VNodes. This
 allows a single Mount point to actually be the union of multiple mountpoints.
 
-(When walking a union of VNodeHandles the walk will be done in a depth first manner).
+(When walking a union of VNodes the walk will be done in a depth first manner).
+
+Mounting
+--------
+
+The kernel has three operations to manipulate the namespace:
+
+1. mount
+
+mount is used to map a Vdev into the namespace at a given path. It takes an optional relative path so
+that Vdev[path] is what gets mounted at the destination instead of Vdev[/].
+
+The destination of a mount must be a directory.
+
+2. bind
+
+bind maps two existing namespace paths. Bind(src, dst) will result in a walk to dst in the filesystem
+follwing through to src. For bind the rule is like to like. Ie you can bind a directory to a directory or a
+file to a file, but not to each other.
+
+3. unmount
+
+unmount undoes the work of mount or bind. effectively removing the entry from the mount table. It is possible
+to give umount a extra argument to remove a single part of a unioned mount.
+
+* Unions
+
+Optionally mount and bind can be used to union directories. In this case an operation like Bind(src,dst, AFTER)
+would be the same as Bind(dst,dst); Bind(src, dst, AFTER);
 
 Walking
 -------
@@ -40,3 +66,4 @@ the requested node is missing.
 
 NOTE: This behaviour is just a contract. A Vdev can screw it up and the system will collapse. There is
 no protections in place to ensure contract adherence. Just common sense.
+
