@@ -9,8 +9,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+
+#include <libc.h>
+
 #include <manos/util.h>
-#include <manos/libc.h>
 
 /*
  * Define some constants for padding and aligning data.
@@ -730,11 +733,11 @@ void dumpChunk(FILE *out, struct ChunkHeader* chunk, int doHexdump) {
 }
 
 /*
- * yadump :: FILE* -> ()
+ * pprintMem :: FILE* -> ()
  *
  * Dumps the current state of the allocator and its data structures to 'out'
  */
-void yadump(FILE *out) {
+void pprintMem(FILE *out) {
   initRam(); /* incase we haven't initialized the memory already */
 
   fprintf(out, "**** YAMalloc Memory Dump ****\n\n");

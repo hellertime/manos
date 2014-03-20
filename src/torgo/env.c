@@ -3,9 +3,10 @@
  * Shell environment
  */
 
-#include <shell/env.h>
-#include <shell/mem.h>
-#include <shell/string.h>
+#include <libc.h>
+
+#include <torgo/env.h>
+#include <torgo/string.h>
 
 /*
  * EnvVar = (String, String, EnvVar)

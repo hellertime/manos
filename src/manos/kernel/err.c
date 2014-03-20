@@ -8,7 +8,7 @@
 #define X(c, n, s) { E_##c, s },
 static struct {
   Err code;
-  const char *msg
+  const char *msg;
 } errorMap[] = {
   ERROR_XMACRO
 };

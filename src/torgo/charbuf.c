@@ -5,9 +5,12 @@
  * Supports efficient append and concat.
  */
 
-#include <shell/charbuf.h>
-#include <shell/mem.h>
-#include <shell/string.h>
+#include <string.h>
+
+#include <libc.h>
+
+#include <torgo/charbuf.h>
+#include <torgo/string.h>
 
 /*
  * CharBuf = CStr Int Int

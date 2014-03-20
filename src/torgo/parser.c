@@ -31,9 +31,10 @@
  *
  */
 
-#include <shell/charbuf.h>
-#include <shell/mem.h>
-#include <shell/string.h>
+#include <libc.h>
+
+#include <torgo/charbuf.h>
+#include <torgo/string.h>
 
 /*
  * ParseToken :: (String, ParseToken)

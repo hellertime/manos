@@ -12,10 +12,11 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include <torgo/commands.h>
-#include <torgo/err.h>
-
 #include <libc.h>
+
+#include <manos/err.h>
+
+#include <torgo/commands.h>
 
 int cmdDate(int argc, char *argv[]);
 int cmdDate2(int argc, char *argv[]);
@@ -113,7 +114,8 @@ int cmdDate2(int argc, char **argv) {
   if (argc > 1)
     convertToTimeval(argv[1], &tv);
   else
-    gettimeofday(&tv, NULL);
+    tv.tv_sec = 0;
+    /* gettimeofday(&tv, NULL); */
 
   time_t unixTime = tv.tv_sec;
 
@@ -164,18 +166,18 @@ int cmdDate(int argc, char *argv[]) {
 
   if (argc > 2) {
     fprintf(stderr, "usage: date [TIMESTAMP]\n");
-    return SE_BADARG;
+    return E_BADARG;
   }
 
   errno = 0;
   if (argc > 1) {
     if (convertToTimeval(argv[1], &now) != 0) {
-      fprintf(stderr, "error: %s\n", strerror(errno));
+      fprintf(stderr, "error: %s\n", fromErr(errno));
       return errno;
     }
   } else {
     if (gettimeofday(&now, NULL) != 0) {
-      fprintf(stderr, "error: %s\n", strerror(errno));
+      fprintf(stderr, "error: %s\n", fromErr(errno));
       return errno;
     }
   }
@@ -253,7 +255,7 @@ int cmdDate(int argc, char *argv[]) {
   
   fprintf(stdout, "%s %02d, %04d %02d:%02d:%02d.%06ld\n", month, monthDay, year, hours, min, sec, now.tv_usec);
 
-  return SE_OK;
+  return E_OK;
 }
 
 /*
@@ -268,7 +270,7 @@ int cmdEcho(int argc, char *argv[]) {
   }
   fputc('\n', stdout);
 
-  return SE_OK;
+  return E_OK;
 }
 
 /*
@@ -305,7 +307,7 @@ int cmdHelp(int argc, char *argv[]) {
   fputs("\n", stdout);
   fputs("Report bugs to <christopherheller@fas.harvard.edu>\n", stdout);
   fputs("\n", stdout);
-  return SE_OK;
+  return E_OK;
 }
 
 /*
@@ -317,6 +319,6 @@ int cmdMemmap(int argc, char *argv[]) {
   if (argc > 1)
     fprintf(stderr, "usage: memorymap\n\n");
 
-  /* yadump(stdout); */
-  return SE_OK;
+  pprintMem(stdout);
+  return E_OK;
 }

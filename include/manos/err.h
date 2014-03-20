@@ -9,6 +9,6 @@ typedef enum {
 } Err;
 #undef X
 
-char* fromErr(Err err);
+const char* fromErr(Err err);
 
 #endif /* ! MANOS_ERR_H */

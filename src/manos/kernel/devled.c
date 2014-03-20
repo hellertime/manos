@@ -18,8 +18,33 @@
  *    Writing a byte ('1' or '0') to ./<color>Ctl updates the state of the LED.
  */
 
+#include <stdint.h>
+
 #include <libc.h>
-#include <arch/mk70f12.h>
+
+#include <manos/types.h>
+#include <manos/dev.h>
+
+#ifdef PLATFORM_NICE
+
+/* stub platform macros for nice development */
+
+static uint32_t __FAKE_REG = 0;
+#define PORTA_PCR10 __FAKE_REG
+#define PORTA_PCR11 __FAKE_REG
+#define PORTA_PCR28 __FAKE_REG
+#define PORTA_PCR29 __FAKE_REG
+#define PORT_PCR_MUX(x) 0
+#define GPIO_PDDR_REG(x) __FAKE_REG
+#define GPIO_PSOR_REG(x) __FAKE_REG
+#define GPIO_PCOR_REG(x) __FAKE_REG
+#define SIM_SCGC5 __FAKE_REG
+#define SIM_SCGC5_PORTA_MASK 0
+#define PTA_BASE_PTR 0
+
+#else
+#include <arch/derivative.h>
+#endif
 
 /*
  * Define names for the bits in the PSOR and PCOR which correspond to the LED
@@ -49,8 +74,8 @@ static const uint32_t BLUE_BIT   = BIT_10;
  * addresses. Assign even more convenient names here.
  */
 
-#define ORANGE_LED_PCR PORTA_PCR10
-#define YELLOW_LED_PCR PORTA_PRC28
+#define ORANGE_LED_PCR PORTA_PCR11
+#define YELLOW_LED_PCR PORTA_PCR28
 #define GREEN_LED_PCR  PORTA_PCR29
 #define BLUE_LED_PCR   PORTA_PCR10
 
@@ -67,13 +92,17 @@ typedef enum {
 } LedColor;
 
 /*
+ * Both PSOR and PCOR are 32-bit wide registers with the property that
+ * when written to the word is xor'd on the register so only set bits
+ * are modified. Define four words one for each bit pattern.
+ *
  * Map the LedColor enum to the associated bit pattern
  */
 static uint32_t ledColorBits[4] = {
-  ORANGE_BIT,
-  YELLOW_BIT,
-  GREEN_BIT,
-  BLUE_BIT
+  BIT_11, /* orange */
+  BIT_28, /* yellow */
+  BIT_29, /* green */
+  BIT_10, /* blue */
 };
 
 /*
@@ -82,8 +111,9 @@ static uint32_t ledColorBits[4] = {
  * Setup the appropriate Pin-control register.
  * The LEDs are treated as GPIO output devices.
  */
-static void makeGPIOut(LedColor which) {
-  int gopi = 1;
+static void makeGPIOOut(LedColor which) {
+  int gpio = 1;
+  USED(gpio);
   volatile uint32_t * const ledColorPCR[4] = { &ORANGE_LED_PCR, &YELLOW_LED_PCR, &GREEN_LED_PCR, &BLUE_LED_PCR };
   *(ledColorPCR[which]) = PORT_PCR_MUX(gpio);
   GPIO_PDDR_REG(PTA_BASE_PTR) |= ledColorBits[which];
@@ -108,29 +138,13 @@ static LedState getLed(LedColor which) {
   return LedOff;
 }
 
-DevId LED_DEVID = 'l';
-
 typedef enum {
   FidDot,
   FidOrange,
   FidYellow,
   FidGreen,
   FidBlue,
-  FidOrangeCtl,
-  FidYellowCtl,
-  FidGreenCtl,
-  FidBlueCtl
 } LedFidEnt;
-
-DirEnt ledDirEnt[] = {
-  { ".",         { FidDot,       FIDISDIR }, 0, 0555 }, 
-  { "orange",    { FidOrange,    0        }, 0, 0444 },
-  { "orangeCtl", { FidOrangeCtl, 0        }, 0, 0664 },
-  { "yellow",    { FidYellow,    0        }, 0, 0444 },
-  { "yellowCtl", { FidYellowCtl, 0        }, 0, 0664 },
-  { "green",     { FidGreen,     0        }, 0, 0444 },
-  { "greenCtl",  { FidGreenCtl,  0        }, 0, 0664 }
-};
 
 /*
  * initLed :: ()
@@ -149,57 +163,41 @@ static void initLed(void) {
   }
 }
 
+static struct DirEnt {
+  char *path;
+  struct Fid fid;
+  uint32_t length;
+  Mode mode;
+} ledDirEnt[] = {
+  { "orange",  { FidOrange, 0 }, 0, 0664 }
+, { "yellow",  { FidYellow, 0 }, 0, 0664 }
+, { "green",   { FidGreen,  0 }, 0, 0664 }
+, { "blue",    { FidBlue,   0 }, 0, 0664 }
+};
+
 /*
  * attachLed :: String -> Portal
  *
  * 'attach' message handler. delgates to the generic device handler.
  */
 static struct Portal* attachLed(char *path) {
-  return attachDev(LED_DEVID, path);
+  struct Portal *p = attachDev('l', path);
+
+  for (int i = 0; i < COUNT_OF(ledDirEnt); i++) {
+    if (streq(ledDirEnt[i].path, path)) {
+      p->fid = ledDirEnt[i].fid;
+    }
+  }
+  return p;
 }
 
 /*
- * walkLed :: Portal -> Portal -> [String] -> Trail
- *
- * 'walk' message handler. delegates to the generic device handler, using generic DirEnt iterator
- */
-static struct Trail* walkLed(struct Portal *from, struct Portal *to, char **components, size_t count) {
-  return walkDev(from, to, component, count, ledDirEnt, COUNT_OF(ledDirEnt), indexDirEntDev);
-}
-
-/*
- * getInfoLed :: Portal -> DevInfo -> Err
- *
- * 'getStat' message handler. delegate to the generic device handler.
- */
-static Err getStatLed(struct Portal *p, struct DevInfo *info) {
-  return getInfoDev(p, info, ledDirEnt, COUNT_OF(ledDirEnt), indexDirEntDev);
-}
-
-/*
- * openLed :: Portal -> Mode
+ * openLed :: Portal -> OMode -> Portal
  *
  * 'open' message handler. The opens a Portal to the led device.
- * It the Portal ent is one of ./orange, ./blue, etc... then
- * we check to be sure this is a read only open.
  */
-static struct Portal* openLed(struct Portal *p, Mode mode) {
-  switch ((LedFidEnt)p->fid.ent) {
-  case FidOrange:
-  case FidYellow:
-  case FidGreen:
-  case FidBlue:
-    if (mode & OpenWrite) return NULL;
-  case FidOrangeCtl:
-  case FidYellowCtl:
-  case FidGreenCtl:
-  case FidBlueCtl:
-    if (mode & OpenRead) return NULL;
-  default:
-    break;
-  }
-
-  return openDev(p, mode, ledDirEnt, COUNT_OF(ledDirEnt), indexDirEntDev);
+static struct Portal* openLed(struct Portal *p, OMode mode) {
+  return openDev(p, mode);
 }
 
 /*
@@ -218,21 +216,22 @@ static void closeLed(struct Portal *p) {
  * size of the read (except 0) the result of the read is 
  * one byte. If offset is non-zero the read has no value.
  */
-static int32_t readLed(struct Portal *p, void *buf, uint32_t size, Offset offset) {
+static int32_t readLed(struct Portal *p, void *buf, uint32_t size, Offset offset, Err *err) {
+  *err = E_OK;
   if (size == 0 || offset != 0) {
     return 0;
   }
 
-  if (p->fid.type & FIDISDIR) {
-    return readDirDev(p, (struct DevInfo*)buf, size, ledDirEnt, COUNT_OF(ledDirEnt), indexDirEntDev);
+  if (p->fid.type & FID_ISDIR) {
+    return 0;
   }
 
-  switch ((LedFidEnt)p->fid.ent) {
+  switch ((LedFidEnt)p->fid.tag) {
   case FidOrange:
   case FidYellow:
   case FidGreen:
   case FidBlue:
-    *(char*)buf = '0' + getLed((LedFidEnt)p->fid.ent - FidDot);
+    *(char*)buf = '0' + getLed((LedFidEnt)p->fid.tag - FidDot);
     return 1;
   default:
     return 0; /* TODO: error */
@@ -257,32 +256,29 @@ static int32_t writeLed(struct Portal *p, void *buf, uint32_t size, Offset offse
     return 0;
   }
 
-  switch ((LedFidEnt)p->fid.ent) {
-  case FidOrangeCtl:
-  case FidYellowCtl:
-  case FidGreenCtl:
-  case FidBlueCtl:
-    setLed((LedFidEnt)p->fid.ent - FidBlue, *(char*)buf, (LedState)(c - '0'));
+  switch ((LedFidEnt)p->fid.tag) {
+  case FidOrange:
+  case FidYellow:
+  case FidGreen:
+  case FidBlue:
+    setLed((LedFidEnt)p->fid.tag - FidDot, (LedState)(c - '0'));
     return 1;
   default:
     return 0;
   }
 }
 
-struct Dev* ledDev = {
-  LED_DEVID,
-  "led",
-  initLed,
-  resetDev,
-  shutdownDev,
-  attachLed,
-  walkLed,
-  getInfoLed,
-  setInfoDev,
-  createDev,
-  openLed,
-  closeLed,
-  removeDev,
-  readLed,
-  writeLed
+struct Dev ledDev = {
+  .id = 'l',
+  .name = "led",
+  .init = initLed,
+  .reset = resetDev,
+  .shutdown = shutdownDev,
+  .attach = attachLed,
+  .create = createDev,
+  .open = openLed,
+  .close = closeLed,
+  .remove = removeDev,
+  .read = readLed,
+  .write = writeLed
 };

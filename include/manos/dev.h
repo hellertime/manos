@@ -6,84 +6,12 @@
 
 #include <manos/err.h>
 #include <manos/portal.h>
-
-typedef char DevId;
-typedef unsigned int DevInst;
-typedef uint8_t FidType;
-typedef unsigned int Mode;
-typedef uint32_t Offset;  /* We only need to support filesystems up to 128MB large, so this is a more than fine offset value */
-typedef unsigned long Perm;
-typedef unsigned long Time;
-
-/*
- * FidTypeFlags
- *
- * The flags tell us about the object identified by .tag in a struct Fid.
- */
-typedef enum {
-  FID_ISDIR      = 0x80, /* .tag is a directory */
-  FID_APPENDONLY = 0x40, /* .tag is an append only file */
-  FID_EXCLUSIVE  = 0x20, /* .tag has exclusive access restrictions */
-  FID_ISMOUNT    = 0x10, /* .tag exits in the mount table */
-  FID_ISFILE     = 0x00  /* .tag is a file */
-} FidTypeFlags;
-
-/*
- * Fid = (Int, Int)
- *
- * This structure is used by a device to uniquely identify an object in its
- * local namespace. The first field, 'tag' is an opaque word which uniquely
- * identifies the object with the server. The second field 'type' contains
- * meta information about the object.
- */
-struct Fid {
-  uint32_t tag;
-  FidType type;
-};
-
-/*
- * ModeFlags
- *
- * These flags tell us about the object identified by a DevInfo struct.
- * They mirror those of FidTypeFlags in meaning in the high bits, and
- * in the low they are the rwx bits of the file.
- */
-typedef enum {
-  MODE_ISDIR      = 0x80,
-  MODE_APPENDONLY = 0x40,
-  MODE_EXCLUSIVE  = 0x20,
-  MODE_ISMOUNT    = 0x10,
-  MODE_ISREAD     = 0x4,
-  MODE_ISWRITE    = 0x2,
-  MODE_ISEXEC     = 0x1, /* EXEC, EXPLORE (SEARCH) */
-} ModeFlags;
-
-/*
- * DevInfo = (DevId, DevInst, Fid, Mode, Time, Time, Offset, CStr, CStr, CStr)
- *
- * DevInfo plays a simmilar role to a POSIX 'struct stat', a device populates
- * this structure with info about an object in its namespace.
- */
-struct DevInfo {
-  DevId dev;       /* The device this object belongs to */
-  DevInst inst;    /* The device instance of 'dev' */
-  struct Fid fid;  /* See: Fid */
-  Mode mode;
-  Time accessTime;
-  Time modTime;
-  Offset length;
-  char *name;
-  char *owner;
-  char *group;
-};
-
-typedef int FnIndexDirEnt(struct Portal *portal, char *name, struct DirEnt *dirent, size_t size, struct DevInfo *info);
+#include <manos/types.h>
 
 /*
  * Dev = (DevId, String
- *     , FnOn, FnReset, FnOff
+ *     , FnInit, FnReset, FnShutdown,
  *     , FnAttach, FnWalk
- *     , FnGetStat, FnSetStat
  *     , FnOpen, FnClose, FnRemove
  *     , FnRead, FnWrite)
  *
@@ -123,47 +51,21 @@ struct Dev {
 
 
   /*
-   * attach => Dev d :: d -> DevId -> String -> Portal
+   * attach => Dev d :: d -> String -> Portal
    *
    * Construct a new Portal, associated with 'name' on the Dev identified by 'dev'.
    * If `IS_ERRPTR(v)` is false the Portal can be used in subsequent calls.
    * Otherwise the pointer is invalid and the error can be obtained by `Err e = FROM_ERRPTR(v);`
    */
-  struct Portal* (*attach)(DevId dev, const char* name);
+  struct Portal* (*attach)(char* name);
 
 
   /*
-   * walk => Dev d :: d -> Portal -> Portal -> [String] -> Trail
-   *
-   * Starting at 'from' walk the device namespace component by component.
-   * If the walk ends at components[-1] then the walk was successful and 'to' will contain the new Portal
-   * In addition Trail will contain a list of Fids crossed along the way.
-   * If the walk failed `IS_ERRPTR(trail)` will be true.
-   */
-  struct Trail* (*walk)(struct Portal* from, struct Portal *to, const char** components, size_t count);
-
-
-  /*
-   * getInfo => Dev d :: d -> Portal -> DevInfo -> Err
-   *
-   * Populate a DevInfo structure for the given Portal.
-   */
-  Err (*getInfo)(struct Portal *p, struct DevInfo *info);
-
-  /*
-   * setInfo => Dev d :: d -> Portal -> DevInfo -> Err
-   *
-   * Update the info of the node at the Portal.
-   */
-  Err (*setInfo)(struct Portal* p, struct DevInfo *info);
-
-
-  /*
-   * create => Dev d :: d -> Portal -> String -> Mode -> Perm 
+   * create => Dev d :: d -> Portal -> String -> Mode -> Perm  -> Err
    *
    * Create an object associated at the current Portal.
    */
-  void (*create)(struct Portal* p, const char *name, Mode mode, Perm perm);
+  Err (*create)(struct Portal* p, char *name, OMode mode, Perm perm);
 
 
   /*
@@ -176,18 +78,18 @@ struct Dev {
   /*
    * close => Dev d :: d -> Portal -> ()
    *
-   * Close an open Vnode.
+   * Close an open Portal
    */
   void (*close)(struct Portal* v);
 
   /*
-   * remove => Dev d :: d -> Portal -> ()
+   * remove => Dev d :: d -> Portal -> Err
    *
    * Remove the name currently associated with the node.
    * It is up to the underlying device to define semantics in the case
    * where multiple Portals are open on the name when it is removed.
    */
-  void (*remove)(struct Portal* p);
+  Err (*remove)(struct Portal* p);
 
   /*
    * read => Dev d :: d -> Portal -> [Byte] -> Int -> Int -> ErrPtr -> Int
@@ -211,5 +113,13 @@ struct Dev {
    */
   int32_t (*write)(struct Portal *p, void *buf, uint32_t n, Offset offset, Err *err);
 };
+
+void initDev(void);
+void resetDev(void);
+void shutdownDev(void);
+struct Portal* attachDev(DevId devId, char *path);
+struct Portal* openDev(struct Portal *p, OMode mode); 
+Err createDev(struct Portal *p, char *name, OMode mode, Perm perm);
+Err removeDev(struct Portal *p);
 
 #endif /* ! MANOS_DEV_H */

@@ -5,15 +5,18 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
-#include <shell/charbuf.h>
-#include <shell/commands.h>
-#include <shell/err.h>
-#include <shell/env.h>
-#include <shell/mem.h>
-#include <shell/parser.h>
+#include <libc.h>
 
-#include <yamalloc.h>
+#include <manos/err.h>
+
+#include <torgo/charbuf.h>
+#include <torgo/commands.h>
+#include <torgo/env.h>
+#include <torgo/parser.h>
+
+#include <libc.h>
 
 typedef enum {
   ShellStateRun,
@@ -162,7 +165,7 @@ void populateCmdArgsShell(struct Env *env, struct ParseResult *result, int *argc
  * the environment are defined here.
  */
 int main(int argc, char *argv[]) {
-  const char *ps1 = "e92 > ", *ps2 = "> ";
+  const char *ps1 = "torgo > ", *ps2 = "> ";
   struct Shell *shell = mkShell();
   int shellErrno = 0;
 
@@ -202,7 +205,7 @@ int main(int argc, char *argv[]) {
           assignString(&name, cmdArgv[1]);
           unsetVarEnv(shell->env, &name);
         } else if (cmdArgc == 1 && streq(cmdArgv[0], "perror")) {
-          fprintf(stdout, "Last status (%d): %s\n", shellErrno, strerror(shellErrno));
+          fprintf(stdout, "Last status (%d): %s\n", shellErrno, fromErr(shellErrno));
         } else {
           for (int i = 0; cmdArgc && i < numBuiltinCmds; i++) {
             if (streq(builtinCmds[i].cmdName, cmdArgv[0])) {

@@ -4,48 +4,11 @@
  * Immutable. Concatenation requires a memory copy.
  */
 
-#include <shell/mem.h>
-#include <shell/string.h>
+#include <string.h>
 
-/*
- * shellStrlen :: Cstr -> Int
- *
- * Unoptimized strlen
- */
-size_t shellStrlen(const char *cstr) {
-  const char *c = cstr;
-  while (*c) c++;
-  return c - cstr;
-}
+#include <libc.h>
 
-/*
- * shellStrdup :: Cstr -> Cstr
- *
- * Unoptimized strdup implementation
- */
-char* shellStrdup(const char *s) {
-  size_t size = strlen(s);
-  char *c = malloc(size + 1);
-  memcpy(c, s, size);
-  c[size] = '\0';
-  return c;
-}
-
-/*
- * streq :: Cstr -> Cstr -> Bool
- *
- * Less powerful version of strcmp
- * can only test for equality not 
- * ordering. Does a bytewise comparison.
- */
-int streq(const char *a, const char *b) {
-  while (*a && *a == *b) {
-    a++;
-    b++;
-  }
-
-  return *a == *b;
-}
+#include <torgo/string.h>
 
 /*
  * assignString :: &String -> CStr

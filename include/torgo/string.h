@@ -8,14 +8,6 @@
 
 #include <stddef.h>
 
-#define strlen(x) shellStrlen(x)
-size_t shellStrlen(const char *cstr);
-
-#define strdup(x) shellStrdup(x)
-char* shellStrdup(const char *cstr);
-
-int streq(const char *a, const char *b);
-
 /*
  * String = (CStr, Int)
  *

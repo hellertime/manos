@@ -5,7 +5,7 @@
  * parser.h
  */
 
-#include <shell/string.h>
+#include <torgo/string.h>
 
 struct ParseResult;
 
