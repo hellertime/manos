@@ -13,5 +13,6 @@ struct Portal {
 };
 
 struct Portal* mkPortal(DevId devId);
+void freePortal(struct Portal *p);
 
 #endif /* ! MANOS_PORTAL_H */

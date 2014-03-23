@@ -24,5 +24,6 @@ void pprintMem(FILE *out);
 /* string.c */
 char* strdup(const char *c);
 int streq(const char *a, const char *b);
+int nstreq(const char *a, const char *b, size_t n);
 
 #endif /* ! MANOS_LIBC_H */

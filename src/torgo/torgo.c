@@ -5,18 +5,23 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <libc.h>
 
+#include <manos/dev.h>
 #include <manos/err.h>
+#include <manos/path.h>
+#include <manos/portal.h>
+#include <manos/types.h>
 
 #include <torgo/charbuf.h>
 #include <torgo/commands.h>
 #include <torgo/env.h>
 #include <torgo/parser.h>
 
-#include <libc.h>
+#define MAX_FD 256
 
 typedef enum {
   ShellStateRun,
@@ -160,6 +165,141 @@ void populateCmdArgsShell(struct Env *env, struct ParseResult *result, int *argc
 }
 
 /*
+ * Setup IO subsystem. Real hackish. A vector maps 'file descriptors' to Portals.
+ * We don't have processes, so there is little thought on how procs will interact
+ * yet. We'll get there. Hopefully this semester.
+ */
+
+/*
+ * Each device gets an entry in this device table.
+ * When you open a file in the namespace, the Portals
+ * in this table are cloned into the descriptorTable.
+ */
+
+struct MountTable {
+  char *path;
+  DevId id;
+} mountTable[] = {
+  { "/dev/led", DEV_DEVLED },
+};
+
+struct Dev* deviceTable[] = {
+  &ledDev
+};
+
+struct Portal* descriptorTable[MAX_FD] = {0};
+
+static int fromDevId(DevId id) {
+  for (unsigned i = 0; i < COUNT_OF(deviceTable); i++) {
+    if (deviceTable[i]->id == id)
+      return (int)i;
+  }
+  return -1;
+}
+
+static int shellOpen(char *path) {
+  /* OK. Magic IO commands for now. Boy would I love a completed IO layer and a real shell to connect with it */
+  if (*path != '/') {
+	printf("usage: open ABS_PATH");
+    return E_BADARG;
+  }
+	
+  struct Portal *p = NULL;
+	          
+  /* select a dev throught the mount table */
+  for (unsigned i = 0; i < COUNT_OF(mountTable); i++) {
+    char * mountPoint = mountTable[i].path;
+    if (nstreq(mountPoint, path, strlen(mountPoint))) {
+      DevId id = mountTable[i].id;
+      int idx = fromDevId(id);
+      if (idx >= 0) {
+        char *devPath = path + strlen(mountPoint);
+        if (*devPath == '/') devPath++;
+        if (!devPath) devPath = "";
+        p = deviceTable[idx]->attach(devPath);
+      }
+	}
+  }
+	          
+  if (!p) {
+    return E_NOMOUNT;
+  }
+  
+  unsigned i; /* i will be our file descriptor */
+  for (i = 0; i < MAX_FD; i++) {
+    if (descriptorTable[i] == NULL) {
+      descriptorTable[i] = p;
+	  break;
+	}
+  }
+	            
+  if (i == MAX_FD) {
+	freePortal(p);
+	return E_NOFD;
+  }
+    
+  return i;
+}
+
+/*
+ * Demo of a device read. We don't have files or pipelines so output
+ * just goes to stdout. So no need to pass a buffer or anything
+ * more exotic.
+ */
+int shellRead(int fd, uint32_t size, uint32_t offset) {
+  if (fd < 0 || fd >= MAX_FD) {
+    return E_BADARG;
+  }
+  struct Portal *p = descriptorTable[fd];
+  
+  struct Dev *dev = deviceTable[fromDevId(p->devId)];
+  p = dev->open(p, OMODE_READ);
+  
+  if (!p) {
+    return E_PERM;
+  }
+  
+  char *buf = malloc(size + 1);
+  
+  Err err;
+  int32_t bytes = dev->read(p, buf, size, offset, &err);
+  dev->close(p);
+  if (bytes == -1) {
+    free(buf);
+    return err;
+  }
+  
+  buf[bytes] = 0;
+  printf("%s", buf);
+  free(buf);
+  return E_OK;
+}
+
+int shellWrite(int fd, char *buf, uint32_t size, uint32_t offset) {
+  if (fd < 0 || fd > MAX_FD) {
+    return E_BADARG;
+  }
+  
+  struct Portal *p = descriptorTable[fd];
+  struct Dev *dev = deviceTable[fromDevId(p->devId)];
+  p = dev->open(p, OMODE_WRITE);
+  
+  if (!p) {
+    return E_PERM;
+  }
+  
+  Err err;
+  int32_t bytes = dev->write(p, buf, size, offset, &err);
+  dev->close(p);
+  
+  if (bytes == -1) {
+    return err;
+  }
+  
+  return E_OK;
+}
+
+/*
  * main
  *
  * Main driver loop. Loads input from the prompt, and
@@ -172,6 +312,8 @@ int main(int argc, char *argv[]) {
   int shellErrno = 0;
   
   setvbuf(stdin, NULL, _IONBF, 0);
+  
+  deviceTable[0]->init();
 
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {
@@ -196,6 +338,9 @@ int main(int argc, char *argv[]) {
         char **cmdArgv;
         populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
 
+        /*
+         * Some commands need shell environment access and so cannot be passed of to 'exec' at the moment
+         */
         if (cmdArgc == 4 && streq(cmdArgv[0], "set") && streq(cmdArgv[2], "=")) {
           struct String name;
           struct String value;
@@ -210,6 +355,31 @@ int main(int argc, char *argv[]) {
           unsetVarEnv(shell->env, &name);
         } else if (cmdArgc == 1 && streq(cmdArgv[0], "perror")) {
           printf("Last status (%d): %s\n", shellErrno, fromErr(shellErrno));
+        } else if (cmdArgc == 2 && streq(cmdArgv[0], "open")) {
+          int fd = shellOpen(cmdArgv[1]);
+          if (fd >= 0) {
+            printf("%d\n", fd);
+            shellErrno = E_OK;
+          } else {
+            shellErrno = fd;
+          }
+        } else if (cmdArgc >= 3 && streq(cmdArgv[0], "read")) {
+          int fd = atoi(cmdArgv[1]);
+          uint32_t size = atol(cmdArgv[2]);
+          uint32_t offset = 0;
+          
+          if (cmdArgc == 4) {
+            offset = atol(cmdArgv[3]);
+          }
+          
+          shellErrno = shellRead(fd, size, offset);
+        } else if (cmdArgc == 3 && streq(cmdArgv[0], "write")) {
+          int fd = atoi(cmdArgv[1]);
+          shellErrno = shellWrite(fd, cmdArgv[2], strlen(cmdArgv[2]), 0);
+        } else if (cmdArgc == 4 && streq(cmdArgv[0], "write2")) {
+          int fd = atoi(cmdArgv[1]);
+          uint32_t offset = atol(cmdArgv[2]);
+          shellErrno = shellWrite(fd, cmdArgv[3], strlen(cmdArgv[3]), offset);
         } else {
           for (int i = 0; cmdArgc && i < numBuiltinCmds; i++) {
             if (streq(builtinCmds[i].cmdName, cmdArgv[0])) {

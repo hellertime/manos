@@ -181,7 +181,7 @@ static struct DirEnt {
  * 'attach' message handler. delgates to the generic device handler.
  */
 static struct Portal* attachLed(char *path) {
-  struct Portal *p = attachDev('l', path);
+  struct Portal *p = attachDev(DEV_DEVLED, path);
 
   for (int i = 0; i < COUNT_OF(ledDirEnt); i++) {
     if (streq(ledDirEnt[i].path, path)) {
@@ -269,7 +269,7 @@ static int32_t writeLed(struct Portal *p, void *buf, uint32_t size, Offset offse
 }
 
 struct Dev ledDev = {
-  .id = 'l',
+  .id = DEV_DEVLED,
   .name = "led",
   .init = initLed,
   .reset = resetDev,

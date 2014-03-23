@@ -12,3 +12,7 @@ struct Portal* mkPortal(DevId devId) {
   p->devId = devId;
   return p;
 }
+
+void freePortal(struct Portal *p) {
+  free(p);
+}

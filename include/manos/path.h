@@ -2,7 +2,7 @@
 #define MANOS_PATH_H
 
 /*
- * Path = (String, [Vnode])
+ * Path = (String, [Portal])
  *
  * Path is a structure which identifies a path in the namespace.
  * A path may cross over Vnodes to form its absolute self. 
@@ -12,8 +12,11 @@
 
 struct Path {
   char *p;    /* canonicalized path */
-  struct Vnode **history;
+  struct Portal **history;
   size_t nhistory;
 };
+
+struct Path* mkPath(char *path);
+void freePath(struct Path* path);
 
 #endif /* ! MANOS_PATH_H */

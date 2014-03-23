@@ -21,9 +21,13 @@ char* strdup(const char *c) {
 }
 
 int streq(const char *a, const char *b) {
+  return nstreq(a, b, strlen(a));
+}
+
+int nstreq(const char *a, const char *b, size_t n) {
   if (!a || !b) return 0; /* NULL != NULL */
 
-  while (*a && *b && *a == *b) {
+  while (--n && *a && *b && *a == *b) {
     a++;
     b++;
   }

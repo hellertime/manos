@@ -8,6 +8,9 @@
 #include <manos/portal.h>
 #include <manos/types.h>
 
+#define DEV_DEVLED 'l'
+#define MAX_DEV 1
+
 /*
  * Dev = (DevId, String
  *     , FnInit, FnReset, FnShutdown,
@@ -121,5 +124,7 @@ struct Portal* attachDev(DevId devId, char *path);
 struct Portal* openDev(struct Portal *p, OMode mode); 
 Err createDev(struct Portal *p, char *name, OMode mode, Perm perm);
 Err removeDev(struct Portal *p);
+
+extern struct Dev ledDev;
 
 #endif /* ! MANOS_DEV_H */
