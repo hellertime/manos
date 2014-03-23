@@ -1,6 +1,14 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include <libc.h>
+
+void assert(int pred) {
+	if (!pred) {
+		__asm("bkpt");
+		abort();
+	}
+}
 
 char* strdup(const char *c) {
   int n = strlen(c);

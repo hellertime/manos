@@ -89,7 +89,7 @@ int isEmptyCharBuf(const struct CharBuf *buf) {
 const char* concatCharBuf(struct CharBuf *buf, const char *str) {
   size_t strSize = strlen(str);
   if (buf->size - buf->used < strSize + 1) {
-    size_t size = buf->size * 2;
+    size_t size = strSize + (buf->size * 2);
     char *data = malloc(size);
     if (!data) return NULL;
 

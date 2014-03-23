@@ -48,7 +48,7 @@ struct Shell* mkShell(void) {
   shell->parser = mkParser();
   if (! shell->parser) goto fail;
 
-  shell->readBuf = mkCharBuf(256);
+  shell->readBuf = mkCharBuf(32);
   if (! shell->readBuf) goto fail;
 
 exit:
@@ -82,6 +82,8 @@ const struct CharBuf* readPromptShell(struct Shell *shell, const char *promptStr
 
   if (promptStr[strlen(promptStr) - 1] != ' ')
     fputc(' ', stdout);
+  
+  fflush(stdout);
 
   while (keepReading && (readMax == -1 || readMax > 0)) {
     int c = fgetc(stdin);
@@ -113,8 +115,8 @@ void populateCmdArgsShell(struct Env *env, struct ParseResult *result, int *argc
   char **argv_ = malloc(argc_ * sizeof *argv_);
 
   struct ParseTokenIterator *tokens = getParseTokenIteratorParseResult(result);
-  struct CharBuf *tokenBuilder = mkCharBuf(256);
-  struct CharBuf *varBuilder = mkCharBuf(256);
+  struct CharBuf *tokenBuilder = mkCharBuf(32);
+  struct CharBuf *varBuilder = mkCharBuf(32);
 
   for (int i = 0; i < argc_; i++) {
     const struct String *token = getNextParseTokenIterator(tokens);
@@ -168,15 +170,17 @@ int main(int argc, char *argv[]) {
   const char *ps1 = "torgo > ", *ps2 = "> ";
   struct Shell *shell = mkShell();
   int shellErrno = 0;
+  
+  setvbuf(stdin, NULL, _IONBF, 0);
 
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {
-    const struct CharBuf *input = readPromptShell(shell, ps, 256);
+    const struct CharBuf *input = readPromptShell(shell, ps, 32);
 
     if (isEmptyCharBuf(input)) {
       shell->state = ShellStateEOF;
       if (hasUnparsedInputParser(shell->parser)) {
-        fputs("error: unexpected end-of-file\n", stderr);
+        fputs("error: unexpected end-of-file\n", stdout);
       }
       fputs("\n", stdout);
       break;
@@ -205,7 +209,7 @@ int main(int argc, char *argv[]) {
           assignString(&name, cmdArgv[1]);
           unsetVarEnv(shell->env, &name);
         } else if (cmdArgc == 1 && streq(cmdArgv[0], "perror")) {
-          fprintf(stdout, "Last status (%d): %s\n", shellErrno, fromErr(shellErrno));
+          printf("Last status (%d): %s\n", shellErrno, fromErr(shellErrno));
         } else {
           for (int i = 0; cmdArgc && i < numBuiltinCmds; i++) {
             if (streq(builtinCmds[i].cmdName, cmdArgv[0])) {
@@ -219,6 +223,7 @@ int main(int argc, char *argv[]) {
       } else {
         ps = ps2;
       }
+      fflush(stdout);
 
       freeParseResult(result);
     }

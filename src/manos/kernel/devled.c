@@ -43,7 +43,7 @@ static uint32_t __FAKE_REG = 0;
 #define PTA_BASE_PTR 0
 
 #else
-#include <arch/derivative.h>
+#include <derivative.h>
 #endif
 
 /*

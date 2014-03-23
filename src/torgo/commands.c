@@ -9,9 +9,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+/*
 #include <sys/time.h>
 #include <time.h>
-
+*/
 #include <libc.h>
 
 #include <manos/err.h>
@@ -48,6 +49,7 @@ int numBuiltinCmds = sizeof builtinCmds / sizeof builtinCmds[0];
  * Construct a timeval from a string in the form
  * <unix timestamp>[.<microseconds>]
  */
+#if 0 /* DISASBLE */
 int convertToTimeval(const char *str, struct timeval *tv) {
   const char *start = str;
   const char *c;
@@ -105,10 +107,11 @@ int convertToTimeval(const char *str, struct timeval *tv) {
 fail:
   return -1;
 }
-
+#endif /* DISABLE */
 #define GREG_AVG_DAYS_PER_YEAR 365.2425
 
 int cmdDate2(int argc, char **argv) {
+#if 0 /* DISABLE */
   struct timeval tv;
 
   if (argc > 1)
@@ -135,6 +138,7 @@ int cmdDate2(int argc, char **argv) {
 
   fprintf(stdout, "%s %02d, %d %02d:%02d:%02d.%ld\n", "MONTH", -1, year, hours, minutes, seconds, tv.tv_usec);
 
+#endif /* DISSBLE */
   return 0;
 }
 
@@ -162,22 +166,23 @@ int cmdDate2(int argc, char **argv) {
  */
 
 int cmdDate(int argc, char *argv[]) {
+#if 0 /* DISABLE */
   struct timeval now;
 
   if (argc > 2) {
-    fprintf(stderr, "usage: date [TIMESTAMP]\n");
+    fprintf(stdout, "usage: date [TIMESTAMP]\n");
     return E_BADARG;
   }
 
   errno = 0;
   if (argc > 1) {
     if (convertToTimeval(argv[1], &now) != 0) {
-      fprintf(stderr, "error: %s\n", fromErr(errno));
+      fprintf(stdout, "error: %s\n", fromErr(errno));
       return errno;
     }
   } else {
     if (gettimeofday(&now, NULL) != 0) {
-      fprintf(stderr, "error: %s\n", fromErr(errno));
+      fprintf(stdout, "error: %s\n", fromErr(errno));
       return errno;
     }
   }
@@ -254,7 +259,7 @@ int cmdDate(int argc, char *argv[]) {
   }
   
   fprintf(stdout, "%s %02d, %04d %02d:%02d:%02d.%06ld\n", month, monthDay, year, hours, min, sec, now.tv_usec);
-
+#endif /* DISABLE */
   return E_OK;
 }
 
@@ -289,8 +294,8 @@ int cmdExit(int argc, char *argv[]) {
  */
 int cmdHelp(int argc, char *argv[]) {
   if (argc > 1)
-    fprintf(stderr, "usage: help\n\n");
-
+	fputs("usage: help\n\n", stdout);
+  
   fputs("\n", stdout);
   fputs("Shell Help:\n", stdout);
   fputs("\n", stdout);
@@ -317,8 +322,8 @@ int cmdHelp(int argc, char *argv[]) {
  */
 int cmdMemmap(int argc, char *argv[]) {
   if (argc > 1)
-    fprintf(stderr, "usage: memorymap\n\n");
-
+	fputs("usage: memorymap\n\n", stdout);
+  
   pprintMem(stdout);
   return E_OK;
 }

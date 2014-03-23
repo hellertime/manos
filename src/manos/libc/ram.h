@@ -2,6 +2,8 @@
 #define ONE_MEBIBYTE_WITH_DWORD_PADDING 1048583 /* ONE_MEBIBYTE + 7 bytes */
 static char _DRAM[ONE_MEBIBYTE_WITH_DWORD_PADDING];
 
+#define HEAP_SIZE ONE_MEBIBYTE
+
 /**
  * This can be computed at runtime using the following method
  *

@@ -278,7 +278,7 @@ struct Parser* mkParser(void) {
   struct Parser *p = malloc(sizeof *p);
   if (! p) goto exit;
 
-  p->token = mkCharBuf(256);
+  p->token = mkCharBuf(32);
   if (! p->token) goto fail;
 
   p->inputChain = NULL;
@@ -429,6 +429,7 @@ const struct ParseResult* parseInputParser(struct Parser *parser) {
           case '\t':
             advanceInputParser(parser);
             break;
+          case '\r':
           case '\n':
           case ';':
             parser->state = ParserStateOperator;
@@ -450,6 +451,7 @@ const struct ParseResult* parseInputParser(struct Parser *parser) {
           case ' ':
           case '\t':
           case ';':
+          case '\r':
           case '\n':
             parser->state = ParserStateReady;
             break;
