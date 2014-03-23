@@ -9,7 +9,8 @@
 #include <manos/types.h>
 
 #define DEV_DEVLED 'l'
-#define MAX_DEV 1
+#define DEV_DEVSWPB 'B'
+#define MAX_DEV 2
 
 /*
  * Dev = (DevId, String
@@ -126,5 +127,6 @@ Err createDev(struct Portal *p, char *name, OMode mode, Perm perm);
 Err removeDev(struct Portal *p);
 
 extern struct Dev ledDev;
+extern struct Dev swpbDev;
 
 #endif /* ! MANOS_DEV_H */

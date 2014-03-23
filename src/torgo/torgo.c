@@ -180,11 +180,13 @@ struct MountTable {
   char *path;
   DevId id;
 } mountTable[] = {
-  { "/dev/led", DEV_DEVLED },
+  { "/dev/led",  DEV_DEVLED  },
+  { "/dev/swpb", DEV_DEVSWPB },
 };
 
 struct Dev* deviceTable[] = {
-  &ledDev
+  &ledDev,
+  &swpbDev
 };
 
 struct Portal* descriptorTable[MAX_FD] = {0};
@@ -313,8 +315,10 @@ int main(int argc, char *argv[]) {
   
   setvbuf(stdin, NULL, _IONBF, 0);
   
-  deviceTable[0]->init();
-
+  for (unsigned int i = 0; i < COUNT_OF(deviceTable); i++) {
+    deviceTable[i]->init();
+  }
+  
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {
     const struct CharBuf *input = readPromptShell(shell, ps, 32);

@@ -6,16 +6,12 @@
  * Represents a single level file system:
  *
  *    ./orange
- *    ./orangeCtl
  *    ./yellow
- *    ./yellowCtl
  *    ./green
- *    ./greenCtl
  *    ./blue
- *    ./blueCtl
  *
  *    Reading a byte from ./<color> returns in a '1' or a '0' indicating the current state of the LED
- *    Writing a byte ('1' or '0') to ./<color>Ctl updates the state of the LED.
+ *    Writing a byte ('1' or '0') to ./<color> updates the state of the LED.
  */
 
 #include <stdint.h>
@@ -186,6 +182,7 @@ static struct Portal* attachLed(char *path) {
   for (int i = 0; i < COUNT_OF(ledDirEnt); i++) {
     if (streq(ledDirEnt[i].path, path)) {
       p->fid = ledDirEnt[i].fid;
+      break;
     }
   }
   return p;
@@ -231,7 +228,7 @@ static int32_t readLed(struct Portal *p, void *buf, uint32_t size, Offset offset
   case FidYellow:
   case FidGreen:
   case FidBlue:
-    *(char*)buf = '0' + getLed((LedFidEnt)p->fid.tag - FidDot);
+    *(char*)buf = '0' + getLed((LedFidEnt)p->fid.tag - FidOrange);
     return 1;
   default:
     return 0; /* TODO: error */

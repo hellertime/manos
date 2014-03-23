@@ -35,3 +35,11 @@ int nstreq(const char *a, const char *b, size_t n) {
   return *a == *b;
 }
 
+void nanosleep(unsigned long int nanos);
+__asm(
+		"    .global nanosleep\n"
+		"nanosleep:\n"
+		"    adds r0,r0,#-1\n"
+		"    bne  nanosleep\n"
+		"    bx   lr\n"
+	);
