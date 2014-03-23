@@ -24,14 +24,14 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>include</name>
+			<type>2</type>
+			<location>C:/Users/Chris/CodeWarrior/manos/include</location>
+		</link>
+		<link>
 			<name>src</name>
 			<type>2</type>
 			<location>C:/Users/Chris/CodeWarrior/manos/src</location>
-		</link>
-		<link>
-			<name>Project_Headers/libc.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/include/libc.h</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
