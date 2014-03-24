@@ -94,7 +94,7 @@ typedef enum {
  *
  * Map the LedColor enum to the associated bit pattern
  */
-static uint32_t ledColorBits[4] = {
+static uint32_t ledColorBits[] = {
   BIT_11, /* orange */
   BIT_28, /* yellow */
   BIT_29, /* green */
@@ -110,7 +110,7 @@ static uint32_t ledColorBits[4] = {
 static void makeGPIOOut(LedColor which) {
   int gpio = 1;
   USED(gpio);
-  volatile uint32_t * const ledColorPCR[4] = { &ORANGE_LED_PCR, &YELLOW_LED_PCR, &GREEN_LED_PCR, &BLUE_LED_PCR };
+  volatile uint32_t * const ledColorPCR[] = { &ORANGE_LED_PCR, &YELLOW_LED_PCR, &GREEN_LED_PCR, &BLUE_LED_PCR };
   *(ledColorPCR[which]) = PORT_PCR_MUX(gpio);
   GPIO_PDDR_REG(PTA_BASE_PTR) |= ledColorBits[which];
 }
@@ -121,7 +121,7 @@ static void makeGPIOOut(LedColor which) {
  * Set the repective LED device to the given state
  */
 static void setLed(LedColor which, LedState state) {
-  volatile uint32_t * const regPxOR[2] = { &GPIO_PSOR_REG(PTA_BASE_PTR), &GPIO_PCOR_REG(PTA_BASE_PTR) };
+  volatile uint32_t * const regPxOR[] = { &GPIO_PSOR_REG(PTA_BASE_PTR), &GPIO_PCOR_REG(PTA_BASE_PTR) };
   *(regPxOR[state]) = ledColorBits[which];
 }
 
@@ -131,7 +131,10 @@ static void setLed(LedColor which, LedState state) {
  * Get the state of the respecive LED device
  */
 static LedState getLed(LedColor which) {
-  return LedOff;
+  /* TODO: seems to always be 0, is this not wired up ? */
+  int rawState = (GPIO_PDOR_REG(PTA_BASE_PTR) & ledColorBits[which]);
+  LedState state = (LedState)rawState;
+  return state;
 }
 
 typedef enum {
@@ -159,12 +162,7 @@ static void initLed(void) {
   }
 }
 
-static struct DirEnt {
-  char *path;
-  struct Fid fid;
-  uint32_t length;
-  Mode mode;
-} ledDirEnt[] = {
+static struct DirEnt ledDirEnt[] = {
   { "orange",  { FidOrange, 0 }, 0, 0664 }
 , { "yellow",  { FidYellow, 0 }, 0, 0664 }
 , { "green",   { FidGreen,  0 }, 0, 0664 }
@@ -177,15 +175,14 @@ static struct DirEnt {
  * 'attach' message handler. delgates to the generic device handler.
  */
 static struct Portal* attachLed(char *path) {
-  struct Portal *p = attachDev(DEV_DEVLED, path);
-
   for (int i = 0; i < COUNT_OF(ledDirEnt); i++) {
     if (streq(ledDirEnt[i].path, path)) {
+      struct Portal *p = attachDev(DEV_DEVLED, path);
       p->fid = ledDirEnt[i].fid;
-      break;
+      return p;
     }
   }
-  return p;
+  return NULL;
 }
 
 /*
@@ -204,6 +201,15 @@ static struct Portal* openLed(struct Portal *p, OMode mode) {
  */
 static void closeLed(struct Portal *p) {
   UNUSED(p);
+}
+
+/*
+ * getInfoLed :: Portal -> DevInfo -> Err
+ * 
+ * Fill out a DevInfo struct generically.
+ */
+static Err getInfoLed(struct Portal *p, struct DevInfo *info) {
+  return getInfoDev(p, ledDirEnt, COUNT_OF(ledDirEnt), info);
 }
 
 /*
@@ -227,11 +233,14 @@ static int32_t readLed(struct Portal *p, void *buf, uint32_t size, Offset offset
   case FidOrange:
   case FidYellow:
   case FidGreen:
-  case FidBlue:
-    *(char*)buf = '0' + getLed((LedFidEnt)p->fid.tag - FidOrange);
+  case FidBlue: {
+	LedColor which = (LedColor)(p->fid.tag - FidOrange);
+    *(char*)buf = '0' + getLed(which);
     return 1;
+  }
   default:
-    return 0; /* TODO: error */
+	*err = E_NODEV;
+	return -1;
   }
 }
 
@@ -257,9 +266,12 @@ static int32_t writeLed(struct Portal *p, void *buf, uint32_t size, Offset offse
   case FidOrange:
   case FidYellow:
   case FidGreen:
-  case FidBlue:
-    setLed((LedFidEnt)p->fid.tag - FidDot, (LedState)(c - '0'));
+  case FidBlue: {
+	LedColor which = (LedColor)(p->fid.tag - FidOrange);
+	LedState state = (LedState)(c - '0');
+    setLed(which, state);
     return 1;
+  }
   default:
     return 0;
   }
@@ -276,6 +288,8 @@ struct Dev ledDev = {
   .open = openLed,
   .close = closeLed,
   .remove = removeDev,
+  .getInfo = getInfoLed,
+  .setInfo = setInfoDev,
   .read = readLed,
   .write = writeLed
 };

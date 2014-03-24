@@ -52,7 +52,8 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.std.735302807" name="Language Standard" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.std" value="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.std.gnu99" valueType="enumerated"/>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def.562559539" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="PLATFORM_K70CW"/>
-									<listOptionValue builtIn="false" value="EWL_ASSERT_DISPLAYS_FUNC"/>
+									<listOptionValue builtIn="false" value="CONSOLE_IO_SUPPORT=1"/>
+									<listOptionValue builtIn="false" value="EWL_ASSERT_DISPLAYS_FUNC=1"/>
 								</option>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.unsignedbitfields.1620407392" name="Bitfields are unsigned (-funsigned-bitfields)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.unsignedbitfields" value="true" valueType="boolean"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.input.1395887997" name="ARM Ltd Windows GCC C Compiler" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.input"/>
@@ -71,7 +72,7 @@
 									<listOptionValue builtIn="false" value="&quot;${MCUToolsBaseDir}/ARM_GCC_Support/ewl/lib/armv7e-m&quot;"/>
 								</option>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.link.option.scriptfile.107516636" name="Script file (-T)" superClass="org.eclipse.cdt.cross.arm.gnu.c.link.option.scriptfile" value="${ProjDirPath}/Project_Settings/Linker_Files/MK70FN1M0_ram.ld" valueType="string"/>
-								<option id="org.eclipse.cdt.cross.arm.gnu.c.link.option.linkorder.878309462" superClass="org.eclipse.cdt.cross.arm.gnu.c.link.option.linkorder" valueType="stringList">
+								<option id="org.eclipse.cdt.cross.arm.gnu.c.link.option.linkorder.878309462" name="Link Order" superClass="org.eclipse.cdt.cross.arm.gnu.c.link.option.linkorder" valueType="stringList">
 									<listOptionValue builtIn="false" value="Project_Settings/Startup_Code/__arm_end.c"/>
 									<listOptionValue builtIn="false" value="Project_Settings/Startup_Code/__arm_start.c"/>
 									<listOptionValue builtIn="false" value="Project_Settings/Startup_Code/kinetis_sysinit.c"/>
@@ -88,6 +89,8 @@
 									<listOptionValue builtIn="false" value="src/torgo/parser.c"/>
 									<listOptionValue builtIn="false" value="src/torgo/string.c"/>
 									<listOptionValue builtIn="false" value="src/torgo/torgo.c"/>
+									<listOptionValue builtIn="false" value="src/manos/kernel/devswpb.c"/>
+									<listOptionValue builtIn="false" value="src/manos/kernel/path.c"/>
 								</option>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.c.linker.input.2085464133" superClass="org.eclipse.cdt.cross.arm.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

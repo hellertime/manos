@@ -172,6 +172,14 @@ struct AllocHeader {
 static char *heap;
 static size_t numChunkOffsets;
 
+static uint32_t totalRAM = 0; /* ramHighAddress - heap */
+static uint32_t allocHWM = 0; /* high water mark */
+static uint32_t allocCount = 0; /* # allocations */
+static uint32_t freeCount = 0; /* # frees */
+static uint32_t allocInUse = 0; /* bytes allocated */
+static uint32_t allocFree = 0; /* bytes released */
+static int32_t allocPM = 0; /* +/- count */
+
 /*
  * Macros to address into the bitmap.
  * Basically an address gets scaled onto the (0,numChunkOffsets) range
@@ -370,6 +378,8 @@ static void initRam(void) {
     heap = ram0 + WORD_PAD(sizeof(struct AllocHeader));
 #endif
     
+    totalRAM = (uint32_t)(ramHighAddress - heap);
+    
     /* invalidate the heap */
     for (char *x = heap; x < ramHighAddress; x++) {
       *x = (char)0xfa;
@@ -379,6 +389,8 @@ static void initRam(void) {
     struct ChunkHeader *firstChunk = initChunk(heap, ramHighAddress - heap);
     getBinByIndex(MAX_BINS - 1).clean = firstChunk;
     firstChunk->prev = &getBinByIndex(MAX_BINS - 1).clean;
+    
+    allocFree = getSize(firstChunk);
   }
   return;
 }
@@ -610,6 +622,7 @@ split:
   /* Step 9: carve off a chunk of memory */
   chunk = splitChunk(chunk, size, &rest);
 
+
   size_t sizeRest = getSize(rest);
   if (header->lastAllocSize == size) {
     for (int i = 0; i < MAX_PRE_ALLOCATIONS && sizeRest > size && (sizeRest - size) >= MIN_ALLOC_BYTES; i++) {
@@ -619,7 +632,7 @@ split:
     }
   }
 
- binChunk(rest, BinLastSplitRem);
+  binChunk(rest, BinLastSplitRem);
 
 exit:
 
@@ -658,6 +671,14 @@ void* malloc(size_t size) {
     /* tag this address as allocated in the bitmap */
     assert(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
     setBitmap(mem);
+    
+    allocInUse += getSize(chunk);
+    allocFree -= getSize(chunk);
+    allocPM++;
+    allocCount++;
+    if (allocInUse > allocHWM)
+      allocHWM = allocInUse;
+    
     return (void*)mem;
   } else {
     return NULL;
@@ -673,8 +694,9 @@ void* mallocz(size_t size) {
   char *mem = malloc(size);
 
   if (mem) {
+	char *z = mem;
     for (size_t i = 0; i < size; i++) {
-      *mem++ = (char)0;
+      *z++ = (char)0;
     }
   }
 
@@ -709,6 +731,10 @@ void free(void *ptr) {
     assert(((char*)ptr >= heap) && ((char*)ptr <= ramHighAddress) && "Memory error. Address out of allocator zone");
     if (checkBitmap(ptr)) {
       struct ChunkHeader *chunk = (struct ChunkHeader*)((uintptr_t)ptr - sizeof(struct ChunkTag));
+      allocInUse -= getSize(chunk);
+      allocFree += getSize(chunk);
+      freeCount++;
+      allocPM--;
       getTag(chunk).free = 1;
       getFooter(chunk)->free = 1;
       chunk->next = NULL;

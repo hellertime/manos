@@ -10,6 +10,7 @@
 
 #define DEV_DEVLED 'l'
 #define DEV_DEVSWPB 'B'
+#define DEV_DEVRAMFS 'R'
 #define MAX_DEV 2
 
 /*
@@ -94,6 +95,20 @@ struct Dev {
    * where multiple Portals are open on the name when it is removed.
    */
   Err (*remove)(struct Portal* p);
+  
+  /*
+   * getInfo => Dev d :: d -> Portal -> DevInfo -> Err
+   * 
+   * Populate a DevInfo structure for a given Portal.
+   */
+  Err (*getInfo)(struct Portal *p, struct DevInfo *info);
+  
+  /*
+   * setInfo => Dev d :: d -> Portal -> DevInfo -> Err
+   * 
+   * Pass a DevInfo to a Portal for it to do with as it please.
+   */
+  Err (*setInfo)(struct Portal *p, struct DevInfo *info);
 
   /*
    * read => Dev d :: d -> Portal -> [Byte] -> Int -> Int -> ErrPtr -> Int
@@ -125,8 +140,11 @@ struct Portal* attachDev(DevId devId, char *path);
 struct Portal* openDev(struct Portal *p, OMode mode); 
 Err createDev(struct Portal *p, char *name, OMode mode, Perm perm);
 Err removeDev(struct Portal *p);
+Err getInfoDev(struct Portal *p, struct DirEnt *dent, int count, struct DevInfo *info);
+Err setInfoDev(struct Portal *p, struct DevInfo *info);
 
 extern struct Dev ledDev;
+extern struct Dev ramfsDev;
 extern struct Dev swpbDev;
 
 #endif /* ! MANOS_DEV_H */

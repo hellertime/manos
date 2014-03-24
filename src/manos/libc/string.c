@@ -1,5 +1,5 @@
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <libc.h>
 
@@ -21,6 +21,7 @@ char* strdup(const char *c) {
 }
 
 int streq(const char *a, const char *b) {
+  if (strlen(a) != strlen(b)) return 0;
   return nstreq(a, b, strlen(a));
 }
 
@@ -35,6 +36,7 @@ int nstreq(const char *a, const char *b, size_t n) {
   return *a == *b;
 }
 
+#if defined PLATFORM_K70CW
 void nanosleep(unsigned long int nanos);
 __asm(
 		"    .global nanosleep\n"
@@ -43,3 +45,6 @@ __asm(
 		"    bne  nanosleep\n"
 		"    bx   lr\n"
 	);
+#else
+#error "nanosleep() undefined"
+#endif

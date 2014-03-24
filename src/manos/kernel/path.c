@@ -15,8 +15,6 @@
  * For now path must always be absolute and canonical.
  */
 struct Path* mkPath(char *path) {
-  assert(*path == '/' && "Absolute paths only please");
-  
   char *c, *c0;
   struct Path *p = malloc(sizeof *p);
   
@@ -25,12 +23,13 @@ struct Path* mkPath(char *path) {
   /*
    * Count the '/' in the path to allocate the Portal array
    */
-  c = path;
-  unsigned components = 0;
-  while (c && *c == '/') {
-    components++;
+  c = p->p;
+  unsigned components = (*c == '/') ? 0 : 1;
+  while (*c) {
+    if(*c == '/')
+	  components++;
     c++;
-    while (c && *c != '/') {
+    while (*c && *c != '/') {
       c++;
     }
   }
@@ -38,17 +37,20 @@ struct Path* mkPath(char *path) {
   p->history = malloc(sizeof *p->history);
   p->nhistory = components;
   
-  c0 = c = path + 1; /* skip '/' */
+  c0 = c = path + (*path == '/'); /* skip '/' */
   components = 0;
-  while (c0) {
-    while (c && *c != '/')
+  while (*c0) {
+    while (*c && *c != '/')
       c++;
     
     *c = 0;
     p->history[components] = mkPortal(0); /* skip devId for now */
     p->history[components]->name = strdup(c0);
-    *c = '/';
-    c++;
+    
+    if (components == p->nhistory)
+      break;
+    
+    *c++ = '/';
     c0 = c;
     components++;
   }

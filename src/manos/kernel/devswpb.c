@@ -46,8 +46,8 @@ static uint32_t __FAKE_REG = 0;
 #define BIT_0  0
 #define BIT_26 (1 << 26)
 
-static const uint32_t BUTTON_ONE_BIT = BIT_0;
-static const uint32_t BUTTON_TWO_BIT = BIT_26;
+#define BUTTON_ONE_BIT BIT_0
+#define BUTTON_TWO_BIT BIT_26
 
 #define BUTTON_ONE_PCR PORTD_PCR0
 #define BUTTON_TWO_PCR PORTE_PCR26
@@ -100,7 +100,7 @@ static ButtonState getState(Button which) {
 }
 
 typedef enum {
-  FidDot,
+  FidDot = 0,
   FidOne,
   FidTwo,
   FidOneRaw,
@@ -111,12 +111,7 @@ static void initSwpb(void) {
   initButtons();
 }
 
-static struct DirEnt {
-  char *path;
-  struct Fid fid;
-  uint32_t length;
-  Mode mode;
-} swpbDirEnt[] = {
+static struct DirEnt swpbDirEnt[] = {
   { "1",    { FidOne,    0 }, 0, 0444 },
   { "1raw", { FidOneRaw, 0 }, 0, 0444 },
   { "2",    { FidTwo,    0 }, 0, 0444 },
@@ -124,16 +119,15 @@ static struct DirEnt {
 };
 
 static struct Portal* attachSwpb(char *path) {
-  struct Portal *p = attachDev(DEV_DEVSWPB, path);
-  
   for (unsigned i = 0; i < COUNT_OF(swpbDirEnt); i++) {
     if (streq(swpbDirEnt[i].path, path)) {
+      struct Portal *p = attachDev(DEV_DEVSWPB, path);
       p->fid = swpbDirEnt[i].fid;
-      break;
+      return p;
     }
   }
   
-  return p;
+  return NULL;
 }
 
 static struct Portal* openSwpb(struct Portal *p, OMode mode) {
@@ -142,6 +136,10 @@ static struct Portal* openSwpb(struct Portal *p, OMode mode) {
 
 static void closeSwpb(struct Portal *p) {
   UNUSED(p);
+}
+
+static Err getInfoSwpb(struct Portal *p, struct DevInfo *info) {
+  return getInfoDev(p, swpbDirEnt, COUNT_OF(swpbDirEnt), info);
 }
 
 static int32_t readSwpb(struct Portal *p, void *buf, uint32_t size, Offset offset, Err *err) {
@@ -162,11 +160,14 @@ static int32_t readSwpb(struct Portal *p, void *buf, uint32_t size, Offset offse
     /* Non-raw read. Delay read slightly to let buttons settle. */
 	nanosleep(151); /* ~ 5us */
 	/* adjust fid to proceed to raw processing code path */
-	fid += FidOneRaw;
+	fid += FidTwo;
   case FidOneRaw:
-  case FidTwoRaw:
-    *(char*)buf = '0' + getState((Button)fid - FidOneRaw);
+  case FidTwoRaw: {
+	/* get state returns a '1' when the button is up */
+	ButtonState state = getState((Button)fid - FidOneRaw);
+    *(char*)buf = '0' + state;
     return 1;
+  }
   default:
     return 0;
   }
@@ -192,6 +193,8 @@ struct Dev swpbDev = {
   .open = openSwpb,
   .close = closeSwpb,
   .remove = removeDev,
+  .getInfo = getInfoSwpb,
+  .setInfo = setInfoDev,
   .read = readSwpb,
   .write = writeSwpb
 };

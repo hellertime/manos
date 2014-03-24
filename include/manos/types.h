@@ -84,4 +84,44 @@ typedef enum {
   PORTAL_ISOPEN = 0x1
 } PortalFlags;
 
+/*
+ * A portal is like a Vnode in Unix.
+ */
+struct Portal {
+  DevId devId;
+  char *name;
+  struct Fid fid;
+  Offset offset;
+  OMode mode;
+  int flags;
+};
+
+/*
+ * DirEnt is a static 'directory' entry.
+ */
+struct DirEnt {
+  char *path;
+  struct Fid fid;
+  uint32_t length;
+  Mode mode;
+};
+
+/*
+ * DevInfo = (DevId, DevInst inst, Fid, Mode, Time, Time, Offset, String, String, String)
+ * 
+ * DevInfo plays a simmilar role to a POSIX 'struct stat', a device populates this structure
+ * with info about an object in its namespace.
+ */
+struct DevInfo {
+  DevId devId;    /* the device this object belongs to */
+  struct Fid fid; /* the Fid of this object */
+  Mode mode;
+  Time accessTime;
+  Time modTime;
+  Offset length;
+  char *name;
+  char *owner;
+  char *group;
+};
+
 #endif /* ! MANOS_TYPES_H */

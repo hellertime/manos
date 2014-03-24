@@ -180,13 +180,15 @@ struct MountTable {
   char *path;
   DevId id;
 } mountTable[] = {
-  { "/dev/led",  DEV_DEVLED  },
-  { "/dev/swpb", DEV_DEVSWPB },
+  { "/dev/led",  DEV_DEVLED   },
+  { "/dev/swpb", DEV_DEVSWPB  },
+  { "/dev/ramfs",DEV_DEVRAMFS }
 };
 
 struct Dev* deviceTable[] = {
   &ledDev,
-  &swpbDev
+  &swpbDev,
+  &ramfsDev,
 };
 
 struct Portal* descriptorTable[MAX_FD] = {0};
@@ -199,18 +201,11 @@ static int fromDevId(DevId id) {
   return -1;
 }
 
-static int shellOpen(char *path) {
-  /* OK. Magic IO commands for now. Boy would I love a completed IO layer and a real shell to connect with it */
-  if (*path != '/') {
-	printf("usage: open ABS_PATH");
-    return E_BADARG;
-  }
-	
+static struct Portal* fromPath(char *path) {
   struct Portal *p = NULL;
-	          
-  /* select a dev throught the mount table */
+  
   for (unsigned i = 0; i < COUNT_OF(mountTable); i++) {
-    char * mountPoint = mountTable[i].path;
+    char *mountPoint = mountTable[i].path;
     if (nstreq(mountPoint, path, strlen(mountPoint))) {
       DevId id = mountTable[i].id;
       int idx = fromDevId(id);
@@ -220,9 +215,21 @@ static int shellOpen(char *path) {
         if (!devPath) devPath = "";
         p = deviceTable[idx]->attach(devPath);
       }
-	}
+    }
   }
-	          
+  
+  return p;
+}
+
+static int shellOpen(char *path) {
+  /* OK. Magic IO commands for now. Boy would I love a completed IO layer and a real shell to connect with it */
+  if (*path != '/') {
+	printf("usage: open ABS_PATH");
+    return E_BADARG;
+  }
+	
+  struct Portal *p = fromPath(path);
+
   if (!p) {
     return E_NOMOUNT;
   }
@@ -241,6 +248,96 @@ static int shellOpen(char *path) {
   }
     
   return i;
+}
+
+int shellMkdir(char *path) {
+	if (*path != '/') {
+      printf("usage: mkdir ABS_PATH");
+      return E_BADARG;
+	}
+	
+	struct Portal *p = fromPath(path);
+	
+	if (!p)
+	  return E_NOMOUNT;
+	
+	path = p->name;
+	
+	char *dirPath = malloc(strlen(path) + 2);
+	memcpy(dirPath, path, strlen(path));
+	char *c = dirPath + strlen(path);
+	
+	if (*c != '/') {
+	  *c++ = '/';
+	}
+	
+	*c++ = '.';
+	*c = 0;
+	
+	struct Dev *dev = deviceTable[fromDevId(p->devId)];
+	int res = dev->create(p, dirPath, 0, 0);
+	freePortal(p);
+	return res;
+}
+
+int shellTouch(char *path) {
+  if (*path != '/') {
+    printf("usage: touch ABS_PATH");
+    return E_BADARG;
+  }
+  
+  struct Portal *p = fromPath(path);
+  
+  if (!p)
+    return E_NOMOUNT;
+  
+  path = p->name;
+  
+  struct Dev *dev = deviceTable[fromDevId(p->devId)];
+  int res = dev->create(p, path, 0, 0);
+  freePortal(p);
+  return res;
+}
+
+int shellStat(int fd) {
+  if (fd < 0 || fd >= MAX_FD) {
+    return E_BADARG;
+  }
+  
+  struct Portal *p = descriptorTable[fd];
+  
+  if (!p) {
+    return E_PERM;
+  }
+  
+  struct Dev *dev = deviceTable[fromDevId(p->devId)];
+  p = dev->open(p, OMODE_READ);
+  
+  struct DevInfo info;
+  Err err = dev->getInfo(p, &info);
+  
+  /* remember info->name is currently alaised to p->name
+   * so we don't need to release the RAM, but we also cannot
+   * discard p at this point.
+   */
+  
+  if (err == E_OK) {
+	printf("Name: %s\n", info.name);
+    printf("DevId: %c\n", info.devId);
+    printf("Fid: (type: %d, tag: %ld)\n", info.fid.type, info.fid.tag);
+    if (info.fid.type & FID_ISDIR)
+      printf("  Flag: FID_ISDIR\n");
+    if (info.fid.type & FID_ISFILE)
+      printf("  Flag: FID_ISFILE\n");
+    printf("Length: %ld\n",info.length);
+    printf("Mode: %o\n", info.mode);
+    printf("ATime: %ld\n", info.accessTime);
+    printf("Mtime: %ld\n", info.modTime);
+    printf("Owner: %s\n", info.owner);
+    printf("Group: %s\n", info.group);
+  }
+  
+  return err;
 }
 
 /*
@@ -359,6 +456,10 @@ int main(int argc, char *argv[]) {
           unsetVarEnv(shell->env, &name);
         } else if (cmdArgc == 1 && streq(cmdArgv[0], "perror")) {
           printf("Last status (%d): %s\n", shellErrno, fromErr(shellErrno));
+        } else if (cmdArgc == 2 && streq(cmdArgv[0], "mkdir")) {
+          shellErrno = shellMkdir(cmdArgv[1]);
+        } else if (cmdArgc == 2 && streq(cmdArgv[0], "touch")) {
+          shellErrno = shellTouch(cmdArgv[1]);
         } else if (cmdArgc == 2 && streq(cmdArgv[0], "open")) {
           int fd = shellOpen(cmdArgv[1]);
           if (fd >= 0) {
@@ -367,6 +468,9 @@ int main(int argc, char *argv[]) {
           } else {
             shellErrno = fd;
           }
+        } else if (cmdArgc == 2 && streq(cmdArgv[0], "stat")) {
+          int fd = atoi(cmdArgv[1]);
+          shellErrno = shellStat(fd);
         } else if (cmdArgc >= 3 && streq(cmdArgv[0], "read")) {
           int fd = atoi(cmdArgv[1]);
           uint32_t size = atol(cmdArgv[2]);
