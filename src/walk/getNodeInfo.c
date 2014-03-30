@@ -10,7 +10,7 @@
  * values must be assigned in breadth first order on a tree where
  * node siblings are the left branches and children are the right
  */
-NodeInfo* getNodeInfo(Portal* p, StaticNS* ns, Walk w, NodeInfo *ni) {
+NodeInfo* getNodeInfo(Portal* p, StaticNS* ns, Track t, NodeInfo *ni) {
     ASSERT_NOT_BADPTR(ni);
     ASSERT_STATICNS(p);
 
@@ -24,21 +24,21 @@ NodeInfo* getNodeInfo(Portal* p, StaticNS* ns, Walk w, NodeInfo *ni) {
     uint16_t parentIdx = GET_PARENT_IDX(p->crumb);
     uint16_t selfIdx   = GET_SELF_IDX(p->crumb);
 
-    switch (w) {
-    case WalkUp:
+    switch (t) {
+    case TrackUp:
         sns = ns[parentIdx];
         break;
-    case WalkPrev:
+    case TrackPrev:
         sns = ns[selfIdx - 1];
         if (parentIdx != GET_PARENT_IDX(sns->crumb))
             goto notfound;
         break;
-    case WalkNext:
+    case TrackNext:
         sns = ns[selfIdx + 1];
         if (parentIdx != GET_PARENT_IDX(sns->crumb))
             goto notfound;
         break;
-    case WalkSelf:
+    case TrackSelf:
         sns = ns[selfIdx];
         break;
     }
