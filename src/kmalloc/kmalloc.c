@@ -6,15 +6,11 @@
  * Coalesces only when needed for performance.
  */
 #include <assert.h>
+#include <errno.h>
+#include <manos.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
-
 #include <stdio.h>
-
-#include <libc.h>
-
-#include <manos/util.h>
 
 /*
  * Define some constants for padding and aligning data.
@@ -36,11 +32,11 @@
  * Double word alignment sets the three low order bits to be 0 always, so
  * size can live in 24 bits (just so long as you shift left 3 to use the value)
  */
-struct ChunkTag {
+typedef struct ChunkTag {
   uint32_t size:24;
   uint32_t pid:7;
   uint32_t free:1;
-};
+} ChunkTag;
 
 /*
  * ChunkBin = (ChunkHeader, ChunkHeader)
@@ -52,10 +48,10 @@ struct ChunkTag {
  * Dirty chunks have no requirements other than they meet
  * the bin size restriction
  */
-struct ChunkBin {
-  struct ChunkHeader *clean;
-  struct ChunkHeader *dirty;
-};
+typedef struct ChunkBin {
+  ChunkHeader* clean;
+  ChunkHeader* dirty;
+} ChunkBin;
 
 /*
  * ChunkHeader = ChunkTag (ChunkHeader, ChunkHeader)
@@ -64,11 +60,11 @@ struct ChunkBin {
  * The ChunkTag is always a part of a chunk and takes up 4 bytes.
  * When free a chunk will hold two pointers defined by the header.
  */
-struct ChunkHeader {
-  struct ChunkTag tag;
-  struct ChunkHeader **prev; /* implement an asymettric list, prev point to a pointer not a node */
-  struct ChunkHeader *next;
-};
+typedef struct ChunkHeader {
+  ChunkTag      tag;
+  ChunkHeader** prev; /* implement an asymettric list, prev point to a pointer not a node */
+  ChunkHeader*  next;
+} ChunkHeader;
 
 /*
  * This is the minimal chunk the allocator will give you.
@@ -79,7 +75,7 @@ struct ChunkHeader {
  * allocating a large chunk from this allocator then managing the memory 
  * inside of that chunk themselves.
  */
-#define MIN_ALLOC_BYTES (sizeof(struct ChunkHeader) + sizeof(struct ChunkTag))
+#define MIN_ALLOC_BYTES (sizeof(ChunkHeader) + sizeof(ChunkTag))
 
 /*
  * Macros to access parts of the chunks.
@@ -100,16 +96,16 @@ struct ChunkHeader {
 #define writeSize(tag,sz) ((tag).size = (((uint32_t)(sz)) >> 3))
 #define writeSizePtr(tag,sz) (writeSize(*(tag), (sz)))
 #define getSize(chk) (readSize(getTag((chk))))
-#define getPayload(chk) ((void*)((char*)(chk) + sizeof(struct ChunkTag)))
-#define getFooter(chk) ((struct ChunkTag*)((char*)(chk) + getSize((chk)) - sizeof(struct ChunkTag)))
+#define getPayload(chk) ((void*)((char*)(chk) + sizeof(ChunkTag)))
+#define getFooter(chk) ((ChunkTag*)((char*)(chk) + getSize((chk)) - sizeof(ChunkTag)))
 #define zeroFooter(chk) do{\
 	getFooter(chk)->size=0; \
 	getFooter(chk)->free=0;\
 	}while(0)
-#define getSucc(chk) ((struct ChunkHeader*)((char*)(chk) + getSize((chk))))
-#define getPred(chk) ((struct ChunkHeader*)((char*)(chk) - readSizePtr(getTagPred((chk)))))
-#define getTagSucc(chk) ((struct ChunkTag*)((char*)(chk) + getSize((chk))))
-#define getTagPred(chk) ((struct ChunkTag*)((char*)(chk) - sizeof(struct ChunkTag)))
+#define getSucc(chk) ((ChunkHeader*)((char*)(chk) + getSize((chk))))
+#define getPred(chk) ((ChunkHeader*)((char*)(chk) - readSizePtr(getTagPred((chk)))))
+#define getTagSucc(chk) ((ChunkTag*)((char*)(chk) + getSize((chk))))
+#define getTagPred(chk) ((ChunkTag*)((char*)(chk) - sizeof(ChunkTag)))
 #define isUnlinked(chk) (!((chk)->prev || (chk)->next))
 #define hasCleanChunks(bin) ((bin).clean != NULL)
 #define hasDirtyChunks(bin) ((bin).dirty != NULL)
@@ -157,11 +153,11 @@ static char *ramHighAddress = NULL;
  * and so chunks are normalized onto bins 1:127
  * Splits only happen on clean bin chunks. No two clean chunks are adjacent in physical mem.
  */
-struct AllocHeader {
+typedef struct AllocHeader {
   uint32_t lastAllocSize; /* track previous allocation to determine if we should preallocate */
-  struct ChunkBin bins[MAX_BINS];
+  ChunkBin bins[MAX_BINS];
   char bitmap[ALLOCATION_BITMAP_SIZE];
-};
+} AllocHeader;
 
 /*
  * Two values which are needed at runtime, and must be computed then.
@@ -197,7 +193,7 @@ static int32_t allocPM = 0; /* +/- count */
 /*
  * the header is a global value in the allocator
  */
-static struct AllocHeader *header = NULL;
+static AllocHeader* header = NULL;
 
 /*
  * Macros for addressing into the bins.
@@ -221,12 +217,12 @@ static struct AllocHeader *header = NULL;
  *
  * Initializes a pointer of size into a ChunkHeader
  */
-struct ChunkHeader* initChunk(void *mem, size_t size) {
+ChunkHeader* initChunk(void* mem, size_t size) {
   assert(IS_WORD_ALIGNED(mem) && "Attempt to initialize chunk which does not align to WORD bound");
   assert(IS_WORD_ALIGNED(size) && "Attempt to initialize chunk whose size will misalign successive chunks");
   assert((size >= MIN_ALLOC_BYTES) && "Attempt to initialize chunk of diminutive size");
   assert(!((char*)mem + size > ramHighAddress) && "Attempt to initialize chunk larger than RAM");
-  struct ChunkHeader *chunk = (struct ChunkHeader*)mem;
+  ChunkHeader *chunk = (ChunkHeader*)mem;
   writeSize(getTag(chunk), size);
   writeSizePtr(getFooter(chunk), size);
   getTag(chunk).free = 1;
@@ -241,7 +237,7 @@ struct ChunkHeader* initChunk(void *mem, size_t size) {
  *
  * Inserts 'this' before 'that'
  */
-void insertChunkBefore(struct ChunkHeader *that, struct ChunkHeader *this) {
+void insertChunkBefore(ChunkHeader* that, ChunkHeader* this) {
   assert(that->prev && "Cannot insert when 'that' node isn't in a list");
   this->prev = that->prev;
   *(this->prev) = this;
@@ -254,7 +250,7 @@ void insertChunkBefore(struct ChunkHeader *that, struct ChunkHeader *this) {
  *
  * Inserts 'this' after 'that'
  */
-static void insertChunkAfter(struct ChunkHeader *that, struct ChunkHeader *this) {
+static void insertChunkAfter(ChunkHeader* that, ChunkHeader* this) {
   this->next = that->next;
   if (this->next)
     this->next->prev = &this->next;
@@ -267,7 +263,7 @@ static void insertChunkAfter(struct ChunkHeader *that, struct ChunkHeader *this)
  *
  * Removes 'this' from its list and returns it.
  */
-struct ChunkHeader* removeChunk(struct ChunkHeader *this) {
+ChunkHeader* removeChunk(ChunkHeader* this) {
   *(this->prev) = this->next;
   if (this->next)
     this->next->prev = this->prev;
@@ -291,9 +287,9 @@ typedef enum {
  * Except the recent bin which is a stack and the lastSplitRem
  * which is a unit.
  */
-static void binChunk(struct ChunkHeader *chunk, BinChunkMode mode) {
-  struct ChunkBin *bin;
-  struct ChunkHeader *chunks = NULL;
+static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
+  ChunkBin* bin;
+  ChunkHeader* chunks = NULL;
 
   assert(isUnlinked(chunk) && "Chunk has not been unlinked prior to bining");
 
@@ -359,7 +355,7 @@ static void initRam(void) {
     ramHighAddress = ram0 + HEAP_SIZE;
 
     /* Zero out the header RAM */
-    char *z = ram0;
+    char* z = ram0;
     for (size_t i = 0; i < sizeof *header; i++) {
       *z++ = 0;
     }
@@ -381,12 +377,12 @@ static void initRam(void) {
     totalRAM = (uint32_t)(ramHighAddress - heap);
     
     /* invalidate the heap */
-    for (char *x = heap; x < ramHighAddress; x++) {
+    for (char* x = heap; x < ramHighAddress; x++) {
       *x = (char)0xfa;
     }
     numChunkOffsets = (ramHighAddress - heap) / MIN_ALLOC_BYTES;
 
-    struct ChunkHeader *firstChunk = initChunk(heap, ramHighAddress - heap);
+    ChunkHeader* firstChunk = initChunk(heap, ramHighAddress - heap);
     getBinByIndex(MAX_BINS - 1).clean = firstChunk;
     firstChunk->prev = &getBinByIndex(MAX_BINS - 1).clean;
     
@@ -401,7 +397,7 @@ static void initRam(void) {
  * Removes the chunk from its linked list.
  * Patches up the prev and next chunks.
  */
-static struct ChunkHeader* unlinkChunk(struct ChunkHeader *chunk) {
+static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
   if (chunk->prev || chunk->next) {
     chunk = removeChunk(chunk);
     chunk->prev = NULL;
@@ -417,16 +413,16 @@ static struct ChunkHeader* unlinkChunk(struct ChunkHeader *chunk) {
  * Chunks are scanned for free pred and succ chunks, and merged
  * appropriately. The new larger chunk is placed in a new bin
  */
-static void coalesce(struct ChunkHeader *chunks) {
-  struct ChunkHeader *chunk = chunks;
+static void coalesce(ChunkHeader* chunks) {
+  ChunkHeader* chunk = chunks;
 
   while (chunk) {
-    struct ChunkHeader *next = chunk->next;
+    ChunkHeader* next = chunk->next;
 
     /* Case 1: both pred and succ are free */
     if (getTagPred(chunk)->free && getTagSucc(chunk)->free) {
-      struct ChunkHeader *pred = getPred(chunk);
-      struct ChunkHeader *succ = getSucc(chunk);
+      ChunkHeader* pred = getPred(chunk);
+      ChunkHeader* succ = getSucc(chunk);
       assert(getTag(pred).free && "Tag ismatch in pred coalesce(1)");
       assert(getTag(succ).free && "Tag mismatch in succ coalesce(1)");
       writeSize(getTag(pred), getSize(pred) + getSize(chunk) + getSize(succ));
@@ -439,7 +435,7 @@ static void coalesce(struct ChunkHeader *chunks) {
       zeroTag(succ);
       binChunk(unlinkChunk(pred), BinClean);
     } else if (getTagPred(chunk)->free) { /* Case 2: only pred is free */
-      struct ChunkHeader *pred = getPred(chunk);
+      ChunkHeader* pred = getPred(chunk);
       assert(getTag(pred).free && "Tag mismatch in pred coalesce(2)");
       writeSize(getTag(pred), getSize(pred) + getSize(chunk));
       writeSizePtr(getFooter(chunk), getSize(pred));
@@ -448,7 +444,7 @@ static void coalesce(struct ChunkHeader *chunks) {
       zeroTag(chunk);
       binChunk(unlinkChunk(pred), BinClean);
     } else if (getTagSucc(chunk)->free) { /* Case 3: only succ is feee */
-      struct ChunkHeader *succ = getSucc(chunk);
+      ChunkHeader* succ = getSucc(chunk);
       assert(getTag(succ).free && "Tag mismatch in succ coalesce(3)");
       writeSize(getTag(chunk), getSize(chunk) + getSize(succ));
       writeSizePtr(getFooter(succ), getSize(chunk));
@@ -474,15 +470,15 @@ typedef enum {
  * Does an 'exact' fit search through the chunk list and returns
  * a match, or NULL when search fails.
  */
-static struct ChunkHeader* exactFitSearch(struct ChunkHeader *chunks, size_t size, ExactFitRebinFlag rebinMismatch) {
-  struct ChunkHeader *chunk = chunks;
+static ChunkHeader* exactFitSearch(ChunkHeader* chunks, size_t size, ExactFitRebinFlag rebinMismatch) {
+  ChunkHeader* chunk = chunks;
 
   while (chunk) {
     if (isExactMatch(chunk, size)) {
       return chunk;
     }
     if (rebinMismatch) {
-      struct ChunkHeader *next = chunk->next;
+      ChunkHeader* next = chunk->next;
       binChunk(unlinkChunk(chunk), BinDirty);
       chunk = next;
     } else {
@@ -498,8 +494,8 @@ static struct ChunkHeader* exactFitSearch(struct ChunkHeader *chunks, size_t siz
  * Does a first fit search though the chunk list and returns
  * a match, or NULL when search fails.
  */
-static struct ChunkHeader* firstFitSearch(struct ChunkHeader *chunks, size_t size) {
-  struct ChunkHeader *chunk = chunks;
+static ChunkHeader* firstFitSearch(ChunkHeader* chunks, size_t size) {
+  ChunkHeader* chunk = chunks;
 
   while (chunk) {
     if (getSize(chunk) >= size) {
@@ -517,14 +513,14 @@ static struct ChunkHeader* firstFitSearch(struct ChunkHeader *chunks, size_t siz
  * which is the remainder. 'rest' is returned via an out pointer.
  * the new chunk is returned.
  */
-struct ChunkHeader* splitChunk(struct ChunkHeader* chunk, size_t size, struct ChunkHeader **rest) {
+ChunkHeader* splitChunk(ChunkHeader* chunk, size_t size, ChunkHeader** rest) {
   assert((getSize(chunk) > size) && "Something is wrong. Splitting from too small a chunk");
   assert(IS_WORD_ALIGNED(size) && "Something is wrong. Size is not WORD aligned");
   assert(IS_WORD_ALIGNED(getSize(chunk)) && "Something is wrong. Chunk is not WORD aligned");
 
   size_t oldSize = getSize(chunk);
-  struct ChunkHeader *chunkA = initChunk(chunk, size);
-  struct ChunkHeader *chunkB = initChunk((char*)chunk + size, oldSize - size);
+  ChunkHeader* chunkA = initChunk(chunk, size);
+  ChunkHeader* chunkB = initChunk((char*)chunk + size, oldSize - size);
 
   assert(IS_WORD_ALIGNED(chunkA) && "Split chunk A is not on a WORD boundary");
   assert(IS_WORD_ALIGNED(chunkB) && "Split chunk B is not on a WORD boundary");
@@ -543,9 +539,9 @@ struct ChunkHeader* splitChunk(struct ChunkHeader* chunk, size_t size, struct Ch
  * allow this chunk to hold a ChunkHeader and ChunkTag footer
  * once it has been free'd
  */
-static struct ChunkHeader* allocateChunk(size_t size) {
-  struct ChunkHeader *chunk = NULL;
-  struct ChunkHeader *rest = NULL;
+static ChunkHeader* allocateChunk(size_t size) {
+  ChunkHeader* chunk = NULL;
+  ChunkHeader* rest = NULL;
 
   /* Step 1: First check if the last free'd block is suitable
    *         does not exceed the requested size by no more than
@@ -626,7 +622,7 @@ split:
   size_t sizeRest = getSize(rest);
   if (header->lastAllocSize == size) {
     for (int i = 0; i < MAX_PRE_ALLOCATIONS && sizeRest > size && (sizeRest - size) >= MIN_ALLOC_BYTES; i++) {
-      struct ChunkHeader *pre = splitChunk(rest, size, &rest);
+      ChunkHeader* pre = splitChunk(rest, size, &rest);
       binChunk(pre, BinRecent);
       sizeRest = getSize(rest);
     }
@@ -640,14 +636,14 @@ exit:
 }
 
 /*
- * malloc :: Integer -> Ptr
+ * kmalloc :: Integer -> Ptr
  *
  * allocate chunk of at least 'size' size.
  * Returned pointer will be double word aligned.
  * If size is 0, a chunk of MIN_ALLOC_BYTES is returned.
  */
-void* malloc(size_t size) {
-  size_t newSize = size + (2 * sizeof(struct ChunkTag));
+void* kmalloc(size_t size) {
+  size_t newSize = size + (2 * sizeof(ChunkTag));
 
   initRam();
   
@@ -655,7 +651,7 @@ void* malloc(size_t size) {
     newSize += (MIN_ALLOC_BYTES - newSize);
   }
 
-  struct ChunkHeader *chunk = allocateChunk(DWORD_PAD(newSize));
+  ChunkHeader* chunk = allocateChunk(DWORD_PAD(newSize));
 
   if (chunk) {
     void *mem = getPayload(chunk);
@@ -681,20 +677,21 @@ void* malloc(size_t size) {
     
     return (void*)mem;
   } else {
+    errno = ENOMEM;
     return NULL;
   }
 }
 
 /*
- * mallocz :: Integer -> Ptr
+ * kmallocz :: Integer -> Ptr
  *
  * allocate chunk via malloc and zero the memory
  */
-void* mallocz(size_t size) {
-  char *mem = malloc(size);
+void* kmallocz(size_t size) {
+  char* mem = malloc(size);
 
   if (mem) {
-	char *z = mem;
+	char* z = mem;
     for (size_t i = 0; i < size; i++) {
       *z++ = (char)0;
     }
@@ -708,7 +705,7 @@ void* mallocz(size_t size) {
  *
  * free allocated chunk. If ptr is NULL or not from malloc, this is a noop.
  */
-void free(void *ptr) {
+void free(void* ptr) {
   /*
    * Safety check #0: NULL has no effect.
    */
@@ -730,7 +727,7 @@ void free(void *ptr) {
      */
     assert(((char*)ptr >= heap) && ((char*)ptr <= ramHighAddress) && "Memory error. Address out of allocator zone");
     if (checkBitmap(ptr)) {
-      struct ChunkHeader *chunk = (struct ChunkHeader*)((uintptr_t)ptr - sizeof(struct ChunkTag));
+      ChunkHeader* chunk = (ChunkHeader*)((uintptr_t)ptr - sizeof(ChunkTag));
       allocInUse -= getSize(chunk);
       allocFree += getSize(chunk);
       freeCount++;
@@ -750,7 +747,7 @@ void free(void *ptr) {
  *
  * Hexdump a buffer to 'out'
  */
-void hexdump(FILE* out, void *buf, size_t length) {
+static void hexdump(FILE* out, void* buf, size_t length) {
   char ascii[33] = {0};
   char *p = (char*)buf;
   int i;
@@ -758,13 +755,13 @@ void hexdump(FILE* out, void *buf, size_t length) {
   for (i = 0; i < length; i++) {
     if (!(i % 32)) {
       if (i != 0) {
-        printf("  %s\n", ascii);
+        fprintf(out, "  %s\n", ascii);
       }
 
-      printf(" %.8lx ", (uintptr_t)heap + i);
+      fprintf(out, " %.8lx ", (uintptr_t)heap + i);
     }
 
-    printf(" %.2x", (uint8_t)p[i]);
+    fprintf(out, " %.2x", (uint8_t)p[i]);
 
     if ((p[i] >= 0x20) && (p[i] <= 0x7e)) {
       ascii[i % 32] = p[i];
@@ -775,12 +772,11 @@ void hexdump(FILE* out, void *buf, size_t length) {
   }
 
   while ((i++ % 32) != 0) {
-    printf("  ");
+    fprintf(out, "  ");
   }
 
-  printf(" %s\n", ascii);
-  fflush(stdout);
-  UNUSED(out);
+  fprintf(out, " %s\n", ascii);
+  fflush(out);
 }
 
 /*
@@ -788,90 +784,90 @@ void hexdump(FILE* out, void *buf, size_t length) {
  *
  * Dumps a chunk to out
  */
-void dumpChunk(FILE *out, struct ChunkHeader* chunk, int doHexdump) {
-  printf("**** YAMalloc Chunk Dump ****\n\n");
-  printf("General Info:\n\n");
-  printf("    Chunk addr: 0x%08lx\n", (uintptr_t)chunk);
+void dumpChunk(FILE *out, ChunkHeader* chunk, int doHexdump) {
+  fprintf(out, "**** YAMalloc Chunk Dump ****\n\n");
+  fprintf(out, "General Info:\n\n");
+  fprintf(out, "    Chunk addr: 0x%08lx\n", (uintptr_t)chunk);
   
   uintptr_t mem = (uintptr_t)getPayload(chunk);
-  printf("    Chunk user addr: 0x%08lx\n", mem);
-  printf("    Chunk bitmap addreds (off: %d,byte: %d,bit: %d)\n", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
-  printf("    Chunk user addr DWORD aligned?: %s\n", IS_DWORD_ALIGNED(getPayload(chunk)) ? "yes" : "no");
+  fprintf(out, "    Chunk user addr: 0x%08lx\n", mem);
+  fprintf(out, "    Chunk bitmap addreds (off: %d,byte: %d,bit: %d)\n", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
+  fprintf(out, "    Chunk user addr DWORD aligned?: %s\n", IS_DWORD_ALIGNED(getPayload(chunk)) ? "yes" : "no");
   
   uint32_t st = readSize(getTag(chunk)), sf = readSizePtr(getFooter(chunk));
-  printf("    Chunk size: %ld (%ld)%s\n", st, sf, st == sf ? "" : " MISMATCH!");
+  fprintf(out, "    Chunk size: %ld (%ld)%s\n", st, sf, st == sf ? "" : " MISMATCH!");
   
   int ft = getTag(chunk).free, ff = getFooter(chunk)->free;
-  printf("    Chunk isFree: %d (%d)%s\n", ft, ff, ft == ff ? "" : " MISMATCH!");
+  fprintf(out, "    Chunk isFree: %d (%d)%s\n", ft, ff, ft == ff ? "" : " MISMATCH!");
   
-  printf("    Sanity Checks. Pred Size: %ld, Free: %d\n", readSizePtr(getTagPred(chunk)), getTagPred(chunk)->free);
-  printf("                   Succ Size: %ld, Free: %d\n", readSizePtr(getTagSucc(chunk)), getTagSucc(chunk)->free);
+  fprintf(out, "    Sanity Checks. Pred Size: %ld, Free: %d\n", readSizePtr(getTagPred(chunk)), getTagPred(chunk)->free);
+  fprintf(out, "                   Succ Size: %ld, Free: %d\n", readSizePtr(getTagSucc(chunk)), getTagSucc(chunk)->free);
 
   int isFree = getTag(chunk).free;
 
   if (!isFree) {
 	if (!checkBitmap(mem)) {
-	  printf("    WARNING: Allocated chunk NOT recorded in BITMAP!\n");
+	  fprintf(out, "    WARNING: Allocated chunk NOT recorded in BITMAP!\n");
 	}
-    printf("    Chunk PID: %d (%d)\n", getTag(chunk).pid, getFooter(chunk)->pid);
+    fprintf(out, "    Chunk PID: %d (%d)\n", getTag(chunk).pid, getFooter(chunk)->pid);
   } else {
 	if (checkBitmap(mem)){
-	  printf("    WARNING: Free chunk HAS record in BITMAP!\n");
+	  fprintf(out, "    WARNING: Free chunk HAS record in BITMAP!\n");
 	}
-    printf("    Chunk Prev Ptr: 0x%08lx\n", (uintptr_t)chunk->prev);
-    printf("    Chunk Next Ptr: 0x%08lx\n", (uintptr_t)chunk->next);
+    fprintf(out, "    Chunk Prev Ptr: 0x%08lx\n", (uintptr_t)chunk->prev);
+    fprintf(out, "    Chunk Next Ptr: 0x%08lx\n", (uintptr_t)chunk->next);
   }
   
-  fflush(stdout);
+  fflush(out);
 
   if (doHexdump) {
-    printf("Memory Dump:\n\n");
+    fprintf(out, "Memory Dump:\n\n");
     hexdump(out, (void*)chunk, getSize(chunk));
   }
 }
 
 /*
- * pprintMem :: FILE* -> ()
+ * kmallocDump :: FILE* -> ()
  *
  * Dumps the current state of the allocator and its data structures to 'out'
  */
-void pprintMem(FILE *out) {
+void kmallocDump(FILE *out) {
   initRam(); /* incase we haven't initialized the memory already */
 
-  printf("**** YAMalloc Memory Dump ****\n\n");
-  printf("General Info:\n\n");
-  printf("    Addr ram0:    0x%08lx\n", (uintptr_t)ram0);
-  printf("    Addr ramHigh: 0x%08lx\n", (uintptr_t)ramHighAddress);
-  printf("    Min. Allocation size (B): %d\n", MIN_ALLOC_BYTES);
-  printf("\n");
-  fflush(stdout);
-  printf("Allocator Header Info:\n\n");
-  printf("    # Chunk Offsets In Bitmap: %d\n", numChunkOffsets);
-  printf("    Size of bin area (B) : %d\n", sizeof(header->bins[0]) * MAX_BINS);
-  printf("    Size of Bitmap (B)   : %d\n", ALLOCATION_BITMAP_SIZE);
-  printf("    Size of Header (B)   : %d\n", sizeof(struct AllocHeader));
-  printf("    Addr of header (should be ram0): 0x%08lx\n", (uintptr_t)header);
-  printf("    Addr of bin 0                  : 0x%08lx\n", (uintptr_t)header->bins);
-  printf("    Addr of bin 127                : 0x%08lx\n", (uintptr_t)header->bins + MAX_BINS);
-  printf("    Addr of bitmap start           : 0x%08lx\n", (uintptr_t)header->bitmap);
-  printf("    Addr of bitmap end             : 0x%08lx\n", (uintptr_t)header->bitmap + ALLOCATION_BITMAP_SIZE);
-  printf("    Addr of header end             : 0x%08lx\n", (uintptr_t)((char*)header + sizeof(struct AllocHeader)));
-  printf("    Addr of heap start : 0x%08lx\n", (uintptr_t)heap);
-  printf("    Size of heap (B)   : %ld\n", (uintptr_t)(ramHighAddress - heap));
-  printf("    Last address is DWORD aligned : %s\n", (IS_DWORD_ALIGNED(ramHighAddress) ? "yes" : "no"));
-  printf("\n");
-  fflush(stdout);
-  printf("Bitmap Info:\n\n");
+  fprintf(out, "**** YAMalloc Memory Dump ****\n\n");
+  fprintf(out, "General Info:\n\n");
+  fprintf(out, "    Addr ram0:    0x%08lx\n", (uintptr_t)ram0);
+  fprintf(out, "    Addr ramHigh: 0x%08lx\n", (uintptr_t)ramHighAddress);
+  fprintf(out, "    Min. Allocation size (B): %d\n", MIN_ALLOC_BYTES);
+  fprintf(out, "\n");
+  fflush(out);
+  fprintf(out, "Allocator Header Info:\n\n");
+  fprintf(out, "    # Chunk Offsets In Bitmap: %d\n", numChunkOffsets);
+  fprintf(out, "    Size of bin area (B) : %d\n", sizeof(header->bins[0]) * MAX_BINS);
+  fprintf(out, "    Size of Bitmap (B)   : %d\n", ALLOCATION_BITMAP_SIZE);
+  fprintf(out, "    Size of Header (B)   : %d\n", sizeof(struct AllocHeader));
+  fprintf(out, "    Addr of header (should be ram0): 0x%08lx\n", (uintptr_t)header);
+  fprintf(out, "    Addr of bin 0                  : 0x%08lx\n", (uintptr_t)header->bins);
+  fprintf(out, "    Addr of bin 127                : 0x%08lx\n", (uintptr_t)header->bins + MAX_BINS);
+  fprintf(out, "    Addr of bitmap start           : 0x%08lx\n", (uintptr_t)header->bitmap);
+  fprintf(out, "    Addr of bitmap end             : 0x%08lx\n", (uintptr_t)header->bitmap + ALLOCATION_BITMAP_SIZE);
+  fprintf(out, "    Addr of header end             : 0x%08lx\n", (uintptr_t)((char*)header + sizeof(struct AllocHeader)));
+  fprintf(out, "    Addr of heap start : 0x%08lx\n", (uintptr_t)heap);
+  fprintf(out, "    Size of heap (B)   : %ld\n", (uintptr_t)(ramHighAddress - heap));
+  fprintf(out, "    Last address is DWORD aligned : %s\n", (IS_DWORD_ALIGNED(ramHighAddress) ? "yes" : "no"));
+  fprintf(out, "\n");
+  fflush(out);
+  fprintf(out, "Bitmap Info:\n\n");
 
   for (int i = 0; i < ALLOCATION_BITMAP_SIZE; i++) {
     if (!(i % 10)) {
       if (i != 0) {
-        printf("\n");
+        fprintf(out, "\n");
       }
 
-      printf(" %.8lx ", (uintptr_t)header->bitmap + i);
+      fprintf(out, " %.8lx ", (uintptr_t)header->bitmap + i);
     } else if (i != 0) {
-      printf(" ");
+      fprintf(out, " ");
     }
 
     char c = header->bitmap[i];
@@ -879,19 +875,19 @@ void pprintMem(FILE *out) {
       fputc('.' + (3 * ((c >> (j - 1)) & 1)), out); /* unset print '.', set print '1' (hence the multiple of 3) */
     }
   }
-  printf("\n");
+  fprintf(out, "\n");
 
-  printf("Heap Info:\n\n");
+  fprintf(out, "Heap Info:\n\n");
 
   for (uintptr_t i = (uintptr_t)heap; i < (uintptr_t)ramHighAddress; ) {
-    printf("** Chunk Offset 0x%08lx\n", i);
+    fprintf(out, "** Chunk Offset 0x%08lx\n", i);
     struct ChunkHeader *chunk = (struct ChunkHeader*)i;
 
     if (getSize(chunk) == 0)
       break;
 
     if ((i + getSize(chunk)) > (uintptr_t)ramHighAddress) {
-      printf("** Chunk has potentially corrupt size of %ld\n", getSize(chunk));
+      fprintf(out, "** Chunk has potentially corrupt size of %ld\n", getSize(chunk));
       break;
     }
 
@@ -899,17 +895,17 @@ void pprintMem(FILE *out) {
     i += getSize(chunk);
   }
 
-  printf("\n");
-  printf("Bin Info:\n\n");
+  fprintf(out, "\n");
+  fprintf(out, "Bin Info:\n\n");
 
   for (int i = 0; i < MAX_BINS; i++) {
     if (i == 0) {
       struct ChunkHeader *chunks = getRecentBin();
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          printf("** SPECIAL BIN: Recent Chunks\n\n");
+          fprintf(out, "** SPECIAL BIN: Recent Chunks\n\n");
         }
-        printf("**** Recent Chunks [%d] ****\n\n", j);
+        fprintf(out, "**** Recent Chunks [%d] ****\n\n", j);
         dumpChunk(out, chunks, 0);
         chunks = chunks->next;
       }
@@ -917,9 +913,9 @@ void pprintMem(FILE *out) {
       chunks = getLastSplitRem();
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          printf("** SPECIAL BIN: Last Split Remainders\n\n");
+          fprintf(out, "** SPECIAL BIN: Last Split Remainders\n\n");
         }
-        printf("**** Last Split Remainder Chunk [%d] ****\n\n", j);
+        fprintf(out, "**** Last Split Remainder Chunk [%d] ****\n\n", j);
         dumpChunk(out, chunks, 0);
         chunks = chunks->next; 
       }
@@ -927,9 +923,9 @@ void pprintMem(FILE *out) {
       struct ChunkHeader *chunks = getBinByIndex(i).dirty;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          printf("** DIRTY BIN %d\n\n", i);
+          fprintf(out, "** DIRTY BIN %d\n\n", i);
         }
-        printf("**** Bin %d Chunk [%d] ****\n\n", i, j);
+        fprintf(out, "**** Bin %d Chunk [%d] ****\n\n", i, j);
         dumpChunk(out, chunks, 0);
         chunks = chunks->next;
       }
@@ -937,9 +933,9 @@ void pprintMem(FILE *out) {
       chunks = getBinByIndex(i).clean;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          printf("** CLEAN BIN %d\n\n", i);
+          fprintf(out, "** CLEAN BIN %d\n\n", i);
         }
-        printf("**** Bin %d Chunk [%d] ****\n\n", i, j);
+        fprintf(out, "**** Bin %d Chunk [%d] ****\n\n", i, j);
         dumpChunk(out, chunks, 0);
         chunks = chunks->next;
       }
