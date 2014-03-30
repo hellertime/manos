@@ -1,63 +1,46 @@
-CPPFLAGS = -Iinclude -DPLATFORM_NICE
-CFLAGS = -Wall -pedantic -std=c99 -Werror -g -ggdb -gdwarf-2 -g3 -DPLATFORM_NICE
+SRCS = $(sort $(wildcard src/*/*.c))
+OBJS = $(SRCS:.c=.o)
 
-all: torgo
+LDFLAGS =
+CPPFLAGS =
+CFLAGS = -pipe
+CFLAGS_C99 = -std=c99
+CFLAGS_ERR = -Wall -pedantic -Werror -Wextra
+CFLAGS_DBG = -g -ggdb -gdwarf-2 -g3
 
-MANOS_LIBC_SOURCES = \
-  src/manos/libc/malloc.c \
-  src/manos/libc/string.c \
-  src/manos/libc/util.c
+CFLAGS_ALL = $(CFLAGS_C99)
+CFLAGS_ALL += $(CFLAGS_ERR)
+CFLAGS_ALL += $(CFLAGS_DBG)
+CFLAGS_ALL += -I./include
+CFLAGS_ALL += $(CPP_FLAGS) $(CFLAGS)
 
-MANOS_LIBC_OBJECTS = $(MANOS_LIBC_SOURCES:.c=.o)
+AR = ar
+RANLIB = ranlib
 
-$(MANOS_LIBC_OBJECTS): %.o : %.c
-	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+STATIC_LIBS = lib/libmanos.a
+ALL_LIBS = $(STATIC_LIBS)
+TESTS = t/sns-walk
+ALL_PROGS = $(TESTS)
+
+all: $(ALL_LIBS) $(ALL_PROGS)
+
+%.o: %.c
+	@$(CC) $(CFLAGS_ALL) -c -o $@ $<
 	@echo "CC $(@F)"
 
-libc2.a: $(MANOS_LIBC_OBJECTS)
-	@$(AR) -rs $@ $^ 2>/dev/null
-	@echo "LINK $@"
+lib/libmanos.a: $(OBJS)
+	rm -f $@
+	@$(AR) rc $@ $(OBJS) 2>/dev/null
+	@$(RANLIB) $@
+	@echo "LINK $(@F)"
 
-MANOS_KERNEL_SOURCES = \
-  src/manos/kernel/dev.c \
-  src/manos/kernel/devled.c \
-  src/manos/kernel/err.c \
-  src/manos/kernel/portal.c
-
-MANOS_KERNEL_OBJECTS = $(MANOS_KERNEL_SOURCES:.c=.o)
-
-$(MANOS_KERNEL_OBJECTS): %.o : %.c
-	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
-	@echo "CC $(@F)"
-
-libkernel.a: $(MANOS_KERNEL_OBJECTS)
-	@$(AR) -rs $@ $^ 2>/dev/null
-	@echo "LINK $@"
-
-TORGO_SOURCES = \
-  src/torgo/commands.c \
-  src/torgo/charbuf.c \
-  src/torgo/env.c \
-  src/torgo/parser.c \
-  src/torgo/string.c
-
-TORGO_OBJECTS = $(TORGO_SOURCES:.c=.o)
-
-$(TORGO_OBJECTS): %.o : %.c
-	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
-	@echo "CC $(@F)"
-
-libtorgo.a: $(TORGO_OBJECTS)
-	@$(AR) -rs $@ $^ 2>/dev/null
-	@echo "LINK $@"
-
-torgo: libtorgo.a libkernel.a libc2.a
-torgo: % : src/torgo/%.c
-	@$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $< -ltorgo -lkernel -lc2 -L.
-	@echo "CC $(@F)"
+t/sns-walk: t/sns-walk.c $(ALL_LIBS)
+	@$(CC) $(CFLAGS_ALL) -o $@ $< -L./lib -lmanos
+	@echo "CC $@"
 
 clean:
-	rm -vf *.a
-	rm -f $(TORGO_OBJECTS)
-	rm -f $(MANOS_LIBC_OBJECTS)
-	rm -f $(MANOS_KERNEL_OBJECTS)
+	rm -f $(OBJS)
+	rm -f $(ALL_LIBS)
+	rm -f $(ALL_PROGS)
+
+.PHONY: all clean
