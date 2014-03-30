@@ -1,6 +1,9 @@
-#define HEAP_SIZE 8192
 #define XHEAP_SIZE 8199
 static char _DRAM[XHEAP_SIZE];
+
+#define SDRAM_SIZE 8192
+#define SDRAM_START (char*)&_DRAM
+#define SDRAM_END (SDRAM_START + SDRAM_SIZE)
 
 /**
  * This can be computed at runtime using the following method
