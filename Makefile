@@ -2,7 +2,7 @@ SRCS = $(sort $(wildcard src/*/*.c))
 OBJS = $(SRCS:.c=.o)
 
 LDFLAGS =
-CPPFLAGS =
+CPPFLAGS = -DPLATFORM_NICE
 CFLAGS = -pipe
 CFLAGS_C99 = -std=c99
 CFLAGS_ERR = -Wall -pedantic -Werror -Wextra
@@ -12,7 +12,7 @@ CFLAGS_ALL = $(CFLAGS_C99)
 CFLAGS_ALL += $(CFLAGS_ERR)
 CFLAGS_ALL += $(CFLAGS_DBG)
 CFLAGS_ALL += -I./include
-CFLAGS_ALL += $(CPP_FLAGS) $(CFLAGS)
+CFLAGS_ALL += $(CPPFLAGS) $(CFLAGS)
 
 AR = ar
 RANLIB = ranlib
