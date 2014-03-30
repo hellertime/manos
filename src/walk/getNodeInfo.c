@@ -1,3 +1,7 @@
+#include <assert.h>
+#include <errno.h>
+#include <manos.h>
+
 /* 
  * Note that a StaticNS node entry will have a Crumb
  * with an fid that is a compound value containing
@@ -15,52 +19,53 @@
  * and parent index values be 2^16, this acts as a sentinel value
  */
 NodeInfo* getNodeInfo(const Portal* p, const StaticNS* ns, WalkDirection d, NodeInfo *ni) {
-    ASSERT_STATICNS(p);
+    assert(PORTAL_ISSTATICNS(p) && "Portal is not focuse on a StaticNS path");
 
-    StaticNS* sns = NULL;
+    const StaticNS* sns = NULL;
 
     if (!ns) {
         errno = EINVAL;
         return NULL;
     }
 
-    uint16_t parentIdx = CRUMB_PARENT_IDX(p->crumb);
-    uint16_t selfIdx   = CRUMB_SELF_IDX(p->crumb);
+    StaticIndex parentIdx = STATICNS_CRUMB_PARENT_IDX(p->crumb);
+    StaticIndex selfIdx   = STATICNS_CRUMB_SELF_IDX(p->crumb);
 
     switch (d) {
     case WalkUp:
         if (selfIdx != 0) { 
-            sns = ns[parentIdx];
+            sns = &ns[parentIdx];
         } else {
-            sns = ns[selfIdx];  /* moving up from /.. always yields / */
+            sns = &ns[selfIdx];  /* moving up from /.. always yields / */
         }
         break;
     case WalkDown:
-       if(PORTAL_ISDIR(p)) {
+       if(!PORTAL_ISDIR(p)) {
            errno = ENOTDIR;
            return NULL;
        }
        for (unsigned i = selfIdx; ; i++) {
-           if (CRUMB_PARENT_IDX(ns[i]->crumb) == selfIdx) {
-               sns = ns[i];
+           if (STATICNS_CRUMB_PARENT_IDX(ns[i].crumb) == selfIdx) {
+               sns = &ns[i];
                break;
            }
 
-           if (STATIC_NAMESPACE_SENTINEL(sns->crumb))
+           if (STATICNS_CRUMB_ISSENTINEL(ns[i].crumb))
                goto notfound;
        }
+       break;
     case WalkPrev:
-        sns = ns[selfIdx - 1];
-        if (parentIdx != CRUMB_PARENT_IDX(sns->crumb))
+        sns = &ns[selfIdx - 1];
+        if (parentIdx != STATICNS_CRUMB_PARENT_IDX(sns->crumb))
             goto notfound;
         break;
     case WalkNext:
-        sns = ns[selfIdx + 1];
-        if (parentIdx != CRUMB_PARENT_IDX(sns->crumb))
+        sns = &ns[selfIdx + 1];
+        if (parentIdx != STATICNS_CRUMB_PARENT_IDX(sns->crumb))
             goto notfound;
         break;
     case WalkSelf:
-        sns = ns[selfIdx];
+        sns = &ns[selfIdx];
         break;
     }
 

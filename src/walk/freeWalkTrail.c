@@ -1,3 +1,5 @@
+#include <manos.h>
+
 void freeWalkTrail(WalkTrail* t) {
-    free(t);
+    kfree(t);
 }

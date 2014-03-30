@@ -1,5 +1,7 @@
-Crumb* mkCrumb(Crumb* c, Fid f, Ftype t) {
-  c->fid  = f;
-  c->type = t;
+#include <manos.h>
+
+Crumb* mkCrumb(Crumb* c, Fid f, CrumbFlags flags) {
+  c->fid   = f;
+  c->flags = flags;
   return c;
 }

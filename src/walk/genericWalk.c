@@ -1,6 +1,11 @@
-WalkTrail* genericWalk(const Portal* p, const char** path, unsigned n, GetNodeInfoFn *fn) {
-    NodeInfo ni = {0};
-    Portal   px = {0};
+#include <errno.h>
+#include <manos.h>
+#include <stddef.h>
+#include <string.h>
+
+WalkTrail* genericWalk(const Portal* p, const char** path, unsigned n, GetNodeInfoFn fn) {
+    NodeInfo ni;
+    Portal   px;
 
     if (!n) {
         errno = EINVAL;
@@ -13,7 +18,7 @@ WalkTrail* genericWalk(const Portal* p, const char** path, unsigned n, GetNodeIn
     }
 
     errno = 0;
-    if((px = clonePortal(p, &px)) == NULL) {
+    if(clonePortal(p, &px) == NULL) {
         errno = errno ? errno : ENOTRECOVERABLE;
         return NULL;
     }
@@ -24,30 +29,33 @@ WalkTrail* genericWalk(const Portal* p, const char** path, unsigned n, GetNodeIn
         return NULL;
     }
 
-    for (int i = 0; i < n; i++) {
-        if (!PORTAL_ISDIR(&px))
+    for (unsigned i = 0; i < n; i++) {
+        if (!PORTAL_ISDIR(&px)) {
+            errno = ENOTDIR;
             break;
+        }
 
         const char *name = path[i];
 
-        if (streq(name, ".")) {
+        if (strcmp(name, ".") == 0) {
             fn(&px, WalkSelf, &ni);
             px.crumb = ni.crumb;
-            pushCrumb(t, &px->crumb);
+            pushCrumb(t, px.crumb);
             continue;
-        } else if (streq(name, "..")) {
+        } else if (strcmp(name, "..") == 0) {
            fn(&px, WalkUp, &ni);
            px.crumb = ni.crumb;
-           pushCrumb(t, &px->crumb);
+           pushCrumb(t, px.crumb);
            continue;
         }
 
         NodeInfo* nix = fn(&px, WalkDown, &ni);
 
         while (nix) {
-            if (streq(name, ni.name)) {
-                px.crumb = ni.crumb;
-                pushCrumb(t, &px->crumb);
+            px.crumb = ni.crumb;
+
+            if (strcmp(name, ni.name) == 0) {
+                pushCrumb(t, px.crumb);
                 break;
             }
 
