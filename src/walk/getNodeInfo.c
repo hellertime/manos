@@ -64,7 +64,7 @@ NodeInfo* getNodeInfo(const Portal* p, const StaticNS* ns, WalkDirection d, Node
         break;
     }
 
-    return mkNodeInfo(p, sns->crumb, sns->name, sns->length, sns->perm, ni);
+    return mkNodeInfo(p, sns->crumb, sns->name, sns->length, sns->mode, ni);
 
 notfound:
     errno = ENOENT;
