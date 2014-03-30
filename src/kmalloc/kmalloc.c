@@ -202,8 +202,8 @@ static AllocHeader* header = NULL;
  * Range bins can actually address fast bins, and subdivide then
  * entire chunk space.
  */
-#define getRecentBin() (header->bins[0].dirty)
-#define getLastSplitRem() (header->bins[0].clean)
+#define RECENT_CHUNK_BIN (header->bins[0].dirty)
+#define REMAINDER_CHUNK_BIN (header->bins[0].clean)
 #define isFastBinSize(sz) (((sz) < MAX_FAST_BIN) && !((sz) & (DWORD_BYTES -1)))
 #define isRangeBinSize(sz) ((sz) >= MAX_FAST_BIN && (sz) < MAX_RANGE_BIN)
 #define isTopBinSize(sz) ((sz) >= MAX_RANGE_BIN)
@@ -311,20 +311,20 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
     }
     break;
   case BinRecent:
-    if (!(chunks = getRecentBin())) {
-      getRecentBin() = chunk;
-      chunk->prev = &getRecentBin();
+    if (!(chunks = RECENT_CHUNK_BIN)) {
+      RECENT_CHUNK_BIN = chunk;
+      chunk->prev = &RECENT_CHUNK_BIN;
     } else {
       insertChunkBefore(chunks, chunk);
     }
     return;
   case BinLastSplitRem:
-	if (!(chunks = getLastSplitRem())) {
-      getLastSplitRem() = chunk;
-      chunk->prev = &getLastSplitRem();
-	} else {
-	  insertChunkBefore(chunks, chunk);
-	}
+    if (!(chunks = REMAINDER_CHUNK_BIN)) {
+      REMAINDER_CHUNK_BIN = chunk;
+      chunk->prev = &REMAINDER_CHUNK_BIN;
+    } else {
+      insertChunkBefore(chunks, chunk);
+    }
     return;
   }
 
@@ -548,8 +548,8 @@ static ChunkHeader* allocateChunk(size_t size) {
    *         does not exceed the requested size by no more than
    *         MIN_ALLOC_BYTES
    */
-  if (isExactMatch(getRecentBin(), size)) {
-    chunk = unlinkChunk(getRecentBin());
+  if (isExactMatch(RECENT_CHUNK_BIN, size)) {
+    chunk = unlinkChunk(RECENT_CHUNK_BIN);
     goto exit;
   }
 
@@ -565,14 +565,14 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Only coalesce if there are dirty chunks, but no match */
   if (getBin(size).dirty) {
     coalesce(getBin(size).dirty);
-    struct ChunkHeader *rb = getRecentBin();
+    struct ChunkHeader *rb = RECENT_CHUNK_BIN;
     coalesce(rb);
   }
 
   /* Step 3: See if there is an exact chunk anywhere in the recent bin.
    *         Failed matches get pushed onto a dirty bin list of the correct size
    */
-  if ((chunk = exactFitSearch(getRecentBin(), size, ExactFitDoRebin))) {
+  if ((chunk = exactFitSearch(RECENT_CHUNK_BIN, size, ExactFitDoRebin))) {
     chunk = unlinkChunk(chunk);
     goto exit;
   }
@@ -580,7 +580,7 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Step 4: Check if the last split produced a remainder which can be used
    *         to satisfy this allocation
    */
-  if ((chunk = firstFitSearch(getLastSplitRem(), size))) {
+  if ((chunk = firstFitSearch(REMAINDER_CHUNK_BIN, size))) {
     chunk = unlinkChunk(chunk);
     goto split;
   }
@@ -901,7 +901,7 @@ void kmallocDump(FILE *out) {
 
   for (int i = 0; i < MAX_BINS; i++) {
     if (i == 0) {
-      struct ChunkHeader *chunks = getRecentBin();
+      struct ChunkHeader *chunks = RECENT_CHUNK_BIN;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
           fprintf(out, "** SPECIAL BIN: Recent Chunks\n\n");
@@ -911,7 +911,7 @@ void kmallocDump(FILE *out) {
         chunks = chunks->next;
       }
 
-      chunks = getLastSplitRem();
+      chunks = REMAINDER_CHUNK_BIN;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
           fprintf(out, "** SPECIAL BIN: Last Split Remainders\n\n");
