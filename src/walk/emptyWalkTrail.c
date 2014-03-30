@@ -9,7 +9,7 @@ WalkTrail* emptyWalkTrail(unsigned n) {
     WalkTrail* t = mallocz(sizeof *t + (sizeof Crumb * n));
     if (!t) {
       errno = ENOMEM;
-      return &BADPTR;
+      return NULL;
     }
 
     return t;

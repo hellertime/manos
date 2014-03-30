@@ -1,9 +1,9 @@
-Trail* popCrumb(Trail* t, Crumb *c) {
-    if (t->count == 0) {
+WalkTrail* popCrumb(WalkTrail* t, Crumb *c) {
+    if (t->top == 0) {
         errno = ENODATA;
-        return &BADPTR;
+        return NULL;
     }
 
-    *c = t->crumbs[t->count--];
+    *c = t->crumbs[t->top--];
     return t;
 }

@@ -1,9 +1,9 @@
-Trail* pushCrumb(Trail* t, Crumb* c) {
-    if (t->count >= t->size) {
+WalkTrail* pushCrumb(WalkTrail* t, Crumb* c) {
+    if (t->top >= t->max) {
         errno = ENOBUFS;
-        return &BADPTR;
+        return NULL;
     }
 
-    t->crumbs[t->count++] = *c;
+    t->crumbs[t->top++] = *c;
     return t;
 }

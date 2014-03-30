@@ -9,36 +9,57 @@
  * are usually constructed by hand -- note that the index
  * values must be assigned in breadth first order on a tree where
  * node siblings are the left branches and children are the right
+ * The root should always be '0'
+ *
+ * The last entry in the static namespace should have both its self
+ * and parent index values be 2^16, this acts as a sentinel value
  */
-NodeInfo* getNodeInfo(Portal* p, StaticNS* ns, WalkDirection d, NodeInfo *ni) {
-    ASSERT_NOT_BADPTR(ni);
+NodeInfo* getNodeInfo(const Portal* p, const StaticNS* ns, WalkDirection d, NodeInfo *ni) {
     ASSERT_STATICNS(p);
 
     StaticNS* sns = NULL;
 
     if (!ns) {
         errno = EINVAL;
-        return &BADPTR;
+        return NULL;
     }
 
-    uint16_t parentIdx = GET_PARENT_IDX(p->crumb);
-    uint16_t selfIdx   = GET_SELF_IDX(p->crumb);
+    uint16_t parentIdx = CRUMB_PARENT_IDX(p->crumb);
+    uint16_t selfIdx   = CRUMB_SELF_IDX(p->crumb);
 
     switch (d) {
-    case TrackUp:
-        sns = ns[parentIdx];
+    case WalkUp:
+        if (selfIdx != 0) { 
+            sns = ns[parentIdx];
+        } else {
+            sns = ns[selfIdx];  /* moving up from /.. always yields / */
+        }
         break;
-    case TrackPrev:
+    case WalkDown:
+       if(PORTAL_ISDIR(p)) {
+           errno = ENOTDIR;
+           return NULL;
+       }
+       for (unsigned i = selfIdx; ; i++) {
+           if (CRUMB_PARENT_IDX(ns[i]->crumb) == selfIdx) {
+               sns = ns[i];
+               break;
+           }
+
+           if (STATIC_NAMESPACE_SENTINEL(sns->crumb))
+               goto notfound;
+       }
+    case WalkPrev:
         sns = ns[selfIdx - 1];
-        if (parentIdx != GET_PARENT_IDX(sns->crumb))
+        if (parentIdx != CRUMB_PARENT_IDX(sns->crumb))
             goto notfound;
         break;
-    case TrackNext:
+    case WalkNext:
         sns = ns[selfIdx + 1];
-        if (parentIdx != GET_PARENT_IDX(sns->crumb))
+        if (parentIdx != CRUMB_PARENT_IDX(sns->crumb))
             goto notfound;
         break;
-    case TrackSelf:
+    case WalkSelf:
         sns = ns[selfIdx];
         break;
     }
@@ -47,5 +68,5 @@ NodeInfo* getNodeInfo(Portal* p, StaticNS* ns, WalkDirection d, NodeInfo *ni) {
 
 notfound:
     errno = ENOENT;
-    return &BADPTR;
+    return NULL;
 }
