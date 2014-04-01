@@ -1,5 +1,10 @@
 #include <manos.h>
 
-void close(Portal* p) {
-    deviceTable[p->device]->close(p);
+void sysclose(int fd) {
+    Portal* p = descriptorTable[fd];
+    if (p) {
+        deviceTable[p->device]->close(p);
+        kfree(p);
+        descriptorTable[fd] = 0;
+    }
 }

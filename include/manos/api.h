@@ -53,13 +53,13 @@ int setInfoDev(Portal*, NodeInfo*);
 DeviceIndex fromDeviceId(DeviceId);
 DeviceId toDeviceId(DeviceIndex);
 
-char* getCwd(char*, size_t);
-Portal* walk(Portal*, char**, unsigned);
-Portal* open(Portal*, Caps);
-void close(Portal*);
-int getInfo(const Portal*, NodeInfo*);
-int setInfo(Portal*, NodeInfo*);
-ptrdiff_t read(Portal*, void*, size_t);
+int sysexecv(const char*, char * const []);
+int sysopen(const char*, Caps);
+void sysclose(int fd);
+Portal* syswalk(Portal*, char**, unsigned);
+
+int dirread(int fd, NodeInfo**);
+char* getcwd(char*, size_t);
 
 Path* mkPath(const char*);
 

@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <manos.h>
 
-Portal* walk(Portal* p, char **path, unsigned n) {
+Portal* syswalk(Portal* p, char **path, unsigned n) {
     if (n > 0 && !PORTAL_ISDIR(p)) {
         errno = ENOTDIR;
         return NULL;

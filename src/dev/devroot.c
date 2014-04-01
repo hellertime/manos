@@ -3,6 +3,15 @@
 #include <manos.h>
 #include <string.h>
 
+static struct Contents {
+    char *name;
+    size_t size;
+    char *cnt;
+} contents[] = {
+    { "pwd", 5, "#!pwd" }
+,   { "ls", 4, "#!ls" }
+};
+
 static StaticNS rootSNS[] = {
     /* root */
     { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555 }
@@ -12,7 +21,8 @@ static StaticNS rootSNS[] = {
 ,   { "dev", MKSTATICNS_CRUMB(0, 2, CRUMB_ISDIR), 0, 0555 }
 
     /* children of bin */
-,   { "pwd", MKSTATICNS_CRUMB(1, 3, CRUMB_ISFILE), 3, 0555 }
+,   { "pwd", MKSTATICNS_CRUMB(1, 3, CRUMB_ISFILE), 5, 0555 }
+,   { "ls", MKSTATICNS_CRUMB(1, 4, CRUMB_ISFILE), 4, 0555 }
 
     /* sentinel */
 ,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0 }
@@ -42,20 +52,77 @@ static void closeRoot(Portal* p) {
 }
 
 static int getInfoRoot(const Portal *p, NodeInfo* ni) {
-    return getNodeInfoStaticNS(p, rootSNS, WalkSelf, ni) == NULL ? -1 : 0;
+    if (getNodeInfoStaticNS(p, rootSNS, WalkSelf, ni) == NULL)
+        return -1;
+
+    if (ni->crumb.flags & CRUMB_ISDIR) {
+        Portal   px;
+        NodeInfo nip;
+
+        clonePortal(p,&px);
+        NodeInfo* nix = getNodeInfoStaticNS(&px, rootSNS, WalkDown, &nip);
+
+        size_t length = 0;
+        while (nix) {
+            px.crumb = nip.crumb;
+            length += strlen(nip.name) + 1; /* name + '\n' */
+            nix = getNodeInfoStaticNS(&px, rootSNS, WalkNext, &nip);
+        }
+
+        if (length) length++; /* +1 for \0 */
+        ni->length = length;
+    }
+
+    return 0;
 }
 
 static ptrdiff_t readRoot(Portal* p, void* buf, size_t size, Offset offset) {
-    UNUSED(offset);
     if (size == 0) return 0;
 
     unsigned i = STATICNS_CRUMB_SELF_IDX(p->crumb);
     assert(i < COUNT_OF(rootSNS) - 1);
     StaticNS* sns = &rootSNS[i];
-    if (sns->length == 0) return 0;
-    size_t bytes = size > sns->length ? sns->length : size;
-    memcpy(buf, sns->name, bytes);
-    return bytes;
+    if (sns->crumb.flags & CRUMB_ISDIR) {
+        Portal px;
+        NodeInfo ni;
+
+        clonePortal(p, &px);
+        NodeInfo* nix = getNodeInfoStaticNS(&px, rootSNS, WalkDown, &ni);
+
+        size_t bytes = size;
+        char* c = buf;
+
+        Offset skip = offset;
+        Offset entries = 0;
+
+        while (nix && bytes && (strlen(ni.name)+1) <= bytes) {
+            /* for directories offset is treated as an integral dir index */
+            if (skip) {
+                skip--;
+            } else {
+                px.crumb = ni.crumb;
+                memcpy(c, ni.name, strlen(ni.name));
+                c   += strlen(ni.name);
+                *c++ = 0;
+                bytes -= strlen(ni.name) + 1;
+                entries++;
+            }
+            nix = getNodeInfoStaticNS(&px, rootSNS, WalkNext, &ni);
+        }
+
+        return entries;
+    } else {
+        if (sns->length == 0) return 0;
+
+        for (unsigned i = 0; i < COUNT_OF(contents); i++) {
+            if (strcmp(contents[i].name, sns->name) == 0) {
+                size_t bytes = size > sns->length ? sns->length : size;
+                memcpy(buf, contents[i].cnt, sns->length);
+                return bytes;
+            }
+        }
+        return 0;
+    }
 }
 
 static ptrdiff_t writeRoot(Portal* p, void* buf, size_t size, Offset offset) {
