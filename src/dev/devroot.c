@@ -97,10 +97,10 @@ static ptrdiff_t readRoot(Portal* p, void* buf, size_t size, Offset offset) {
 
         while (nix && bytes && (strlen(ni.name)+1) <= bytes) {
             /* for directories offset is treated as an integral dir index */
+            px.crumb = ni.crumb;
             if (skip) {
                 skip--;
             } else {
-                px.crumb = ni.crumb;
                 memcpy(c, ni.name, strlen(ni.name));
                 c   += strlen(ni.name);
                 *c++ = 0;
