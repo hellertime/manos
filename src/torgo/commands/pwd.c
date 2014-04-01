@@ -1,11 +1,11 @@
 #include <manos.h>
 #include <stdio.h>
 
-int cmdPwd__Main(int argc, char **argv) {
+int cmdPwd__Main(int argc, char * const argv[]) {
     UNUSED(argc);
     UNUSED(argv);
     char buf[4096];
-    getCwd(buf, sizeof buf);
+    getcwd(buf, sizeof buf);
     puts(buf);
     putchar('\n');
     return 0;
