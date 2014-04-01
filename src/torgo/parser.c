@@ -31,41 +31,41 @@
  *
  */
 
-#include <libc.h>
+#include <manos.h>
 
 #include <torgo/charbuf.h>
-#include <torgo/string.h>
+#include <torgo/dstring.h>
 
 /*
  * ParseToken :: (String, ParseToken)
  */
-struct ParseToken {
-  struct String *token;
-  struct ParseToken *next;
-};
+typedef struct ParseToken {
+  String*            token;
+  struct ParseToken* next;
+} ParseToken;
 
-void freeParseToken(struct ParseToken *tok) {
+void freeParseToken(ParseToken *tok) {
   freeString(tok->token);
-  free(tok);
+  kfree(tok);
 }
 
 /*
  * ParseTokenIterator :: ...
  */
-struct ParseTokenIterator {
-  struct ParseToken *token;
-};
+typedef struct ParseTokenIterator {
+  ParseToken *token;
+} ParseTokenIterator;
 
-struct ParseTokenIterator* mkParseTokenIterator(struct ParseToken * const token) {
-  struct ParseTokenIterator *it = malloc(sizeof *it);
+ParseTokenIterator* mkParseTokenIterator(ParseToken * const token) {
+  ParseTokenIterator *it = kmalloc(sizeof *it);
   if (! it) return NULL;
 
   it->token = token;
   return it;
 }
 
-void freeParseTokenIterator(struct ParseTokenIterator *it) {
-  free(it);
+void freeParseTokenIterator(ParseTokenIterator *it) {
+  kfree(it);
 }
 
 /*
@@ -73,10 +73,10 @@ void freeParseTokenIterator(struct ParseTokenIterator *it) {
  *
  * Pull token Strings out of the iterator. Returl NULL when exhausted.
  */
-const struct String* getNextParseTokenIterator(struct ParseTokenIterator *it) {
+const String* getNextParseTokenIterator(ParseTokenIterator *it) {
   if (!it || !it->token) return NULL;
 
-  const struct String *token = it->token->token;
+  const String *token = it->token->token;
   it->token = it->token->next;
 
   return token;
@@ -91,24 +91,24 @@ typedef enum {
 /*
  * ParseResult :: ParsedCommand [ParseToken] | ParseError String | ParseIncomplete
  */
-struct ParseResult {
+typedef struct ParseResult {
   ParseResultType isA;
   union {
-    const struct String *error;
+    const String *error;
     struct {
       int length;
-      struct ParseToken *tokens;
+      ParseToken *tokens;
     } complete;
   } data;
-};
+} ParseResult;
 
 /*
  * mkParseIncomplete :: ParseResult(ParseIncomplete)
  *
  * Smart constructor for a ParseIncomplete.
  */
-const struct ParseResult* mkParseIncomplete(void) {
-  struct ParseResult *pi = malloc(sizeof *pi);
+const ParseResult* mkParseIncomplete(void) {
+  ParseResult *pi = kmalloc(sizeof *pi);
   pi->isA = ParseIncomplete;
   pi->data.complete.length = 0;
   pi->data.complete.tokens = NULL;
@@ -120,8 +120,8 @@ const struct ParseResult* mkParseIncomplete(void) {
  *
  * Smart constructor for a ParseError
  */
-const struct ParseResult* mkParseError(const struct String *err) {
-  struct ParseResult *pe = malloc(sizeof *pe);
+const ParseResult* mkParseError(const String *err) {
+  ParseResult *pe = kmalloc(sizeof *pe);
   pe->isA = ParseError;
   pe->data.error = copyString(err);
   return pe;
@@ -135,15 +135,15 @@ const struct ParseResult* mkParseError(const struct String *err) {
  * so that when traversed the ParsedCommand stores the tokens in the
  * correct order.
  */
-const struct ParseResult* mkParsedCommand(const struct ParseToken *tokens) {
-  struct ParseResult *pc = malloc(sizeof *pc);
+const ParseResult* mkParsedCommand(const ParseToken *tokens) {
+  ParseResult *pc = kmalloc(sizeof *pc);
   pc->isA = ParsedCommand;
   pc->data.complete.length = 0;
   pc->data.complete.tokens = NULL;
 
-  const struct ParseToken *tok0 = tokens;
+  const ParseToken *tok0 = tokens;
   while (tok0) {
-    struct ParseToken *tok = malloc(sizeof *tok);
+    ParseToken *tok = kmalloc(sizeof *tok);
     tok->token = copyString(tok0->token);
     tok->next = pc->data.complete.tokens;
     pc->data.complete.tokens = tok;
@@ -159,8 +159,8 @@ const struct ParseResult* mkParsedCommand(const struct ParseToken *tokens) {
  *
  * Release internal memeory of a ParseError
  */
-void freeParseError(struct ParseResult *pe) {
-  freeString((struct String*)pe->data.error);
+void freeParseError(ParseResult *pe) {
+  freeString((String*)pe->data.error);
 }
 
 /*
@@ -168,9 +168,9 @@ void freeParseError(struct ParseResult *pe) {
  *
  * Release internal memory of a ParsesCommand
  */
-void freeParsedCommand(struct ParseResult *pc) {
+void freeParsedCommand(ParseResult *pc) {
   while (pc->data.complete.tokens) {
-    struct ParseToken *tok = pc->data.complete.tokens->next;
+    ParseToken *tok = pc->data.complete.tokens->next;
     freeParseToken(pc->data.complete.tokens);
     pc->data.complete.tokens = tok;
   }
@@ -182,7 +182,7 @@ void freeParsedCommand(struct ParseResult *pc) {
  *
  * Release memory associated with any ParseResult
  */
-void freeParseResult(struct ParseResult *pr) {
+void freeParseResult(ParseResult *pr) {
   switch (pr->isA) {
     case ParseError:
       freeParseError(pr);
@@ -194,7 +194,7 @@ void freeParseResult(struct ParseResult *pr) {
       break;
   }
 
-  free(pr);
+  kfree(pr);
 }
 
 /*
@@ -203,41 +203,41 @@ void freeParseResult(struct ParseResult *pr) {
  * Return the length of a ParseResult, or 0
  * if not applicable.
  */
-int getLengthParseResult(const struct ParseResult *pr) {
+int getLengthParseResult(const ParseResult *pr) {
   if (pr->isA != ParsedCommand) return 0;
   return pr->data.complete.length;
 }
 
-struct InputChain {
-  struct String *input;
-  struct InputChain *next;
-};
+typedef struct InputChain {
+  String*            input;
+  struct InputChain* next;
+} InputChain;
 
-void freeInputChain(struct InputChain *c) {
+void freeInputChain(InputChain *c) {
   freeString(c->input);
-  free(c);
+  kfree(c);
 }
 
-struct InputChainIterator {
-  const struct InputChain *chain;
-};
+typedef struct InputChainIterator {
+  const InputChain *chain;
+} InputChainIterator;
 
-struct InputChainIterator* mkInputChainIterator(const struct InputChain *chain) {
-  struct InputChainIterator *it = malloc(sizeof *it);
+InputChainIterator* mkInputChainIterator(const InputChain *chain) {
+  InputChainIterator *it = kmalloc(sizeof *it);
   if (!it) return NULL;
 
   it->chain = chain;
   return it;
 }
 
-void freeInputChainIterator(struct InputChainIterator *it) {
-  free(it);
+void freeInputChainIterator(InputChainIterator *it) {
+  kfree(it);
 }
 
-const struct String* getNextInputChainIterator(struct InputChainIterator *it) {
+const String* getNextInputChainIterator(InputChainIterator *it) {
   if (!it || !it->chain) return NULL;
 
-  const struct String *input = it->chain->input;
+  const String *input = it->chain->input;
   it->chain = it->chain->next;
 
   return input;
@@ -260,22 +260,22 @@ typedef enum {
 /*
  * Parser :: ...
  */
-struct Parser {
-  struct ParseToken *tokens;
-  struct CharBuf *token;
-  struct InputChain *inputChain;
-  struct InputChain *last;
-  const char *input;
+typedef struct Parser {
+  ParseToken* tokens;
+  CharBuf*    token;
+  InputChain* inputChain;
+  InputChain* last;
+  const char* input;
   ParserState state;
-};
+} Parser;
 
 /*
  * mkParser :: Parser
  *
  * Allocate a parser.
  */
-struct Parser* mkParser(void) {
-  struct Parser *p = malloc(sizeof *p);
+Parser* mkParser(void) {
+  struct Parser *p = kmalloc(sizeof *p);
   if (! p) goto exit;
 
   p->token = mkCharBuf(32);
@@ -291,7 +291,7 @@ exit:
   return p;
 
 fail:
-  free(p);
+  kfree(p);
   goto exit;
 }
 
@@ -300,9 +300,9 @@ fail:
  *
  * Release all parsed tokens in the parser
  */
-void flushTokensParser(struct Parser *p) {
+void flushTokensParser(Parser *p) {
   while (p->tokens) {
-    struct ParseToken *tok = p->tokens->next;
+    ParseToken *tok = p->tokens->next;
     freeParseToken(p->tokens);
     p->tokens = tok;
   }
@@ -315,9 +315,9 @@ void flushTokensParser(struct Parser *p) {
  *
  * Release the input chain buffers
  */
-void flushInputChainParser(struct Parser *p) {
+void flushInputChainParser(Parser *p) {
   while (p->inputChain) {
-    struct InputChain *c = p->inputChain->next;
+    InputChain *c = p->inputChain->next;
     freeInputChain(p->inputChain);
     p->inputChain = c;
   }
@@ -326,11 +326,11 @@ void flushInputChainParser(struct Parser *p) {
   p->input = NULL;
 }
 
-void freeParser(struct Parser *p) {
+void freeParser(Parser *p) {
   flushTokensParser(p);
   flushInputChainParser(p);
   freeCharBuf(p->token);
-  free(p);
+  kfree(p);
 }
 
 /*
@@ -338,11 +338,11 @@ void freeParser(struct Parser *p) {
  *
  * Add additional input to the parser input chain.
  */
-const char* addInputParser(struct Parser *p, const char *input) {
-  struct String *inputStr = mkString(input);
+const char* addInputParser(Parser *p, const char *input) {
+  String *inputStr = mkString(input);
   if (! inputStr) return NULL;
 
-  struct InputChain *link = malloc(sizeof *link);
+  InputChain *link = kmalloc(sizeof *link);
   if (! link) goto fail;
 
   link->input = inputStr;
@@ -365,16 +365,16 @@ fail:
   goto exit;
 }
 
-struct ParseTokenIterator* getParseTokenIteratorParser(struct Parser *p) {
+ParseTokenIterator* getParseTokenIteratorParser(Parser *p) {
   return mkParseTokenIterator(p->tokens);
 }
 
-struct ParseTokenIterator* getParseTokenIteratorParseResult(struct ParseResult *r) {
+ParseTokenIterator* getParseTokenIteratorParseResult(ParseResult *r) {
   if (r->isA != ParsedCommand) return NULL;
   return mkParseTokenIterator(r->data.complete.tokens);
 }
 
-struct InputChainIterator* getInputChainIteratorParser(struct Parser *p) {
+InputChainIterator* getInputChainIteratorParser(Parser *p) {
   return mkInputChainIterator(p->inputChain);
 }
 
@@ -385,12 +385,12 @@ struct InputChainIterator* getInputChainIteratorParser(struct Parser *p) {
  * Loads input from chain buffers when the present
  * buffer is exhausted.
  */
-static void advanceInputParser(struct Parser *parser) {
+static void advanceInputParser(Parser *parser) {
   if (*parser->input) {
     parser->input++;
     if (! *parser->input) advanceInputParser(parser);
   } else if (parser->inputChain->next) {
-    struct InputChain *c = parser->inputChain;
+    InputChain *c = parser->inputChain;
     parser->inputChain = parser->inputChain->next;
     parser->input = fromString(parser->inputChain->input);
     freeInputChain(c);
@@ -411,13 +411,13 @@ static void advanceInputParser(struct Parser *parser) {
  * the parser returns and the caller must load more input
  * to proceed.
  */
-const struct ParseResult* parseInputParser(struct Parser *parser) {
+const ParseResult* parseInputParser(Parser *parser) {
   while (*parser->input && parser->state != ParserStateComplete) {
     switch (parser->state) {
       case ParserStateComplete: break;
       case ParserStateReady:
         if (! isEmptyCharBuf(parser->token)) {
-          struct ParseToken *tok = malloc(sizeof *tok);
+          ParseToken *tok = kmalloc(sizeof *tok);
           tok->token = mkString(fromCharBuf(parser->token));
           tok->next = parser->tokens;
           parser->tokens = tok;
@@ -519,7 +519,7 @@ const struct ParseResult* parseInputParser(struct Parser *parser) {
   if (parser->state != ParserStateComplete) {
     return mkParseIncomplete();
   } else {
-    const struct ParseResult* result = mkParsedCommand(parser->tokens);
+    const ParseResult* result = mkParsedCommand(parser->tokens);
     flushTokensParser(parser);
     clearCharBuf(parser->token);
     parser->state = ParserStateReady;
@@ -532,7 +532,7 @@ const struct ParseResult* parseInputParser(struct Parser *parser) {
  *
  * Return True if there is still input in the chain
  */
-int hasUnparsedInputParser(struct Parser *parser) {
+int hasUnparsedInputParser(Parser *parser) {
   return ((parser->input && *parser->input != '\0') || parser->last != NULL);
 }
 
@@ -541,6 +541,6 @@ int hasUnparsedInputParser(struct Parser *parser) {
  *
  * Return True if the given ParseResult state is competed.
  */
-int isCompleteParseResult(const struct ParseResult *r) {
+int isCompleteParseResult(const ParseResult *r) {
   return r->isA == ParsedCommand;
 }

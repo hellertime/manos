@@ -45,6 +45,7 @@ WalkTrail* genericWalk(const Portal* p, const char** path, unsigned n, GetNodeIn
         } else if (strcmp(name, "..") == 0) {
            fn(&px, WalkUp, &ni);
            px.crumb = ni.crumb;
+           /* TODO: Document why we don't pop the last crumb ... or is this a bug? */
            pushCrumb(t, px.crumb);
            continue;
         }

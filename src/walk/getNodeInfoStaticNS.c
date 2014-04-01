@@ -18,7 +18,7 @@
  * The last entry in the static namespace should have both its self
  * and parent index values be 2^16, this acts as a sentinel value
  */
-NodeInfo* getNodeInfo(const Portal* p, const StaticNS* ns, WalkDirection d, NodeInfo *ni) {
+NodeInfo* getNodeInfoStaticNS(const Portal* p, const StaticNS* ns, WalkDirection d, NodeInfo *ni) {
     assert(PORTAL_ISSTATICNS(p) && "Portal is not focuse on a StaticNS path");
 
     const StaticNS* sns = NULL;

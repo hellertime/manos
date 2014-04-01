@@ -3,10 +3,10 @@
  * Shell environment
  */
 
-#include <libc.h>
+#include <manos.h>
 
 #include <torgo/env.h>
-#include <torgo/string.h>
+#include <torgo/dstring.h>
 
 /*
  * EnvVar = (String, String, EnvVar)
@@ -14,19 +14,19 @@
  * Stores the name and value of a shell environment variable.
  * Set with the shell command "set 'name' = 'value';"
  */
-struct EnvVar {
-  struct String *name;
-  struct String *value;
-  struct EnvVar *next;
-};
+typedef struct EnvVar {
+  String*        name;
+  String*        value;
+  struct EnvVar* next;
+} EnvVar;
 
 /*
  * mkEnvVar :: String -> String -> EnvVar
  *
  * Allocate a new EnvVar, and copy the 'name' and 'value' passed into it.
  */
-struct EnvVar* mkEnvVar(const struct String *name, const struct String *value) {
-  struct EnvVar *var = malloc(sizeof *var);
+EnvVar* mkEnvVar(const String *name, const String *value) {
+  EnvVar *var = kmalloc(sizeof *var);
   if (! var) return NULL;
 
   var->name = copyString(name);
@@ -40,10 +40,10 @@ struct EnvVar* mkEnvVar(const struct String *name, const struct String *value) {
  *
  * Release memory associated with the EnvVar
  */
-void freeEnvVar(struct EnvVar *var) {
+void freeEnvVar(EnvVar *var) {
   freeString(var->name);
   freeString(var->value);
-  free(var);
+  kfree(var);
 }
 
 /*
@@ -63,8 +63,8 @@ struct Env {
  *
  * Allocate a new Env.
  */
-struct Env* mkEnv(void) {
-  struct Env *env = malloc(sizeof *env);
+Env* mkEnv(void) {
+  Env *env = kmalloc(sizeof *env);
   env->vars = NULL;
   return env;
 }
@@ -74,7 +74,7 @@ struct Env* mkEnv(void) {
  *
  * Clear the internal memory of the Env
  */
-void clearEnv(struct Env *env) {
+void clearEnv(Env *env) {
   while (env->vars) {
     struct EnvVar *v = env->vars->next;
     freeEnvVar(env->vars);
@@ -87,9 +87,9 @@ void clearEnv(struct Env *env) {
  *
  * Release the memory allocated to the Env
  */
-void freeEnv(struct Env *env) {
+void freeEnv(Env *env) {
   clearEnv(env);
-  free(env);
+  kfree(env);
 }
 
 /*
@@ -98,8 +98,8 @@ void freeEnv(struct Env *env) {
  * Adds the 'name', 'value' pair to the environment. 
  * Returns the 'name' (new address) on success. NULL on failure.
  */
-const struct String* addVarEnv(struct Env *env, const struct String *name, const struct String *value) {
-  struct EnvVar *var = mkEnvVar(name, value);
+const String* addVarEnv(Env *env, const String *name, const String *value) {
+  EnvVar *var = mkEnvVar(name, value);
   if (! var) return NULL;
 
   var->next = env->vars;
@@ -113,8 +113,8 @@ const struct String* addVarEnv(struct Env *env, const struct String *name, const
  * Lookup 'name' in 'env' by searching down the list of vars.
  * If 'name' is found, the value is returned. Otherwise NULL.
  */
-const struct String* lookupVarEnv(struct Env *env, const struct String *name) {
-  struct EnvVar *vars = env->vars;
+const String* lookupVarEnv(Env *env, const String *name) {
+  EnvVar *vars = env->vars;
   while (vars) {
     if (matchString(vars->name, name))
       return vars->value;
@@ -130,14 +130,14 @@ const struct String* lookupVarEnv(struct Env *env, const struct String *name) {
  *
  * Lookup 'name' in 'env' and replace it with the new value.
  */
-const struct String* updateVarEnv(struct Env *env, const struct String *name, const struct String *value) {
-  struct EnvVar *stub = mkEnvVar(name, value);
+const String* updateVarEnv(Env *env, const String *name, const String *value) {
+  EnvVar *stub = mkEnvVar(name, value);
   if (! stub) return NULL;
 
-  struct EnvVar *vars = env->vars;
+  EnvVar *vars = env->vars;
   while (vars) {
     if (matchString(vars->name, name)) {
-      struct String *old = vars->value;
+      String *old = vars->value;
       vars->value = stub->value;
       stub->value = old;
       freeEnvVar(stub);
@@ -155,13 +155,13 @@ const struct String* updateVarEnv(struct Env *env, const struct String *name, co
  *
  * Remove 'name' from vars. This removes all instances in the list.
  */
-void unsetVarEnv(struct Env *env, const struct String *name) {
-  struct EnvVar *dummy = env->vars;
+void unsetVarEnv(Env *env, const String *name) {
+  EnvVar *dummy = env->vars;
   env->vars = dummy;
 
   while (dummy->next) {
     if (matchString(dummy->next->name, name)) {
-      struct EnvVar *delete = dummy->next;
+      EnvVar *delete = dummy->next;
       dummy->next = dummy->next->next;
       freeEnvVar(delete);
     } else {

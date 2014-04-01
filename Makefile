@@ -1,4 +1,4 @@
-SRCS = $(sort $(wildcard src/*/*.c))
+SRCS = $(sort $(wildcard src/*/*.c)) $(sort $(wildcard src/*/*/*.c))
 OBJS = $(SRCS:.c=.o)
 
 LDFLAGS =
@@ -7,10 +7,12 @@ CFLAGS = -pipe
 CFLAGS_C99 = -std=c99
 CFLAGS_ERR = -Wall -pedantic -Werror -Wextra
 CFLAGS_DBG = -g -ggdb -gdwarf-2 -g3
+CFLAGS_TORGO = -I./include/torgo
 
 CFLAGS_ALL = $(CFLAGS_C99)
 CFLAGS_ALL += $(CFLAGS_ERR)
 CFLAGS_ALL += $(CFLAGS_DBG)
+CFLAGS_ALL += $(CFLAGS_TORGO)
 CFLAGS_ALL += -I./include
 CFLAGS_ALL += $(CPPFLAGS) $(CFLAGS)
 
@@ -20,7 +22,7 @@ RANLIB = ranlib
 STATIC_LIBS = lib/libmanos.a
 ALL_LIBS = $(STATIC_LIBS)
 TESTS = t/sns-walk
-ALL_PROGS = $(TESTS)
+ALL_PROGS = $(TESTS) manos-boot
 
 all: $(ALL_LIBS) $(ALL_PROGS)
 
@@ -37,6 +39,11 @@ lib/libmanos.a: $(OBJS)
 t/sns-walk: t/sns-walk.c $(ALL_LIBS)
 	@$(CC) $(CFLAGS_ALL) -o $@ $< -L./lib -lmanos
 	@echo "CC $@"
+
+manos-boot: lib/libmanos.a
+	rm -f $@
+	@$(CC) $(CFLAGS_ALL) -o $@ -L./lib -lmanos
+	@echo "BUILD $@"
 
 clean:
 	rm -f $(OBJS)

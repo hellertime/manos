@@ -13,9 +13,8 @@
 #include <sys/time.h>
 #include <time.h>
 */
-#include <libc.h>
 
-#include <manos/err.h>
+#include <manos.h>
 
 #include <torgo/commands.h>
 
@@ -111,6 +110,8 @@ fail:
 #define GREG_AVG_DAYS_PER_YEAR 365.2425
 
 int cmdDate2(int argc, char **argv) {
+    UNUSED(argc);
+    UNUSED(argv);
 #if 0 /* DISABLE */
   struct timeval tv;
 
@@ -166,6 +167,8 @@ int cmdDate2(int argc, char **argv) {
  */
 
 int cmdDate(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
 #if 0 /* DISABLE */
   struct timeval now;
 
@@ -260,7 +263,7 @@ int cmdDate(int argc, char *argv[]) {
   
   fprintf(stdout, "%s %02d, %04d %02d:%02d:%02d.%06ld\n", month, monthDay, year, hours, min, sec, now.tv_usec);
 #endif /* DISABLE */
-  return E_OK;
+  return 0;
 }
 
 /*
@@ -275,7 +278,7 @@ int cmdEcho(int argc, char *argv[]) {
   }
   fputc('\n', stdout);
 
-  return E_OK;
+  return 0;
 }
 
 /*
@@ -284,6 +287,8 @@ int cmdEcho(int argc, char *argv[]) {
  * Exit the shell immediately
  */
 int cmdExit(int argc, char *argv[]) {
+  UNUSED(argc);
+  UNUSED(argv);
   exit(0);
 }
 
@@ -293,6 +298,7 @@ int cmdExit(int argc, char *argv[]) {
  * Displays a help message.
  */
 int cmdHelp(int argc, char *argv[]) {
+  UNUSED(argv);
   if (argc > 1)
 	fputs("usage: help\n\n", stdout);
   
@@ -312,7 +318,7 @@ int cmdHelp(int argc, char *argv[]) {
   fputs("\n", stdout);
   fputs("Report bugs to <christopherheller@fas.harvard.edu>\n", stdout);
   fputs("\n", stdout);
-  return E_OK;
+  return 0;
 }
 
 /*
@@ -320,10 +326,12 @@ int cmdHelp(int argc, char *argv[]) {
  *
  * Dumps the current memory map
  */
+void kmallocDump(FILE *out);
 int cmdMemmap(int argc, char *argv[]) {
+  UNUSED(argv);
   if (argc > 1)
 	fputs("usage: memorymap\n\n", stdout);
   
-  pprintMem(stdout);
-  return E_OK;
+  kmallocDump(stdout);
+  return 0;
 }

@@ -4,7 +4,7 @@ NodeInfo* mkNodeInfo(const Portal* p, Crumb c, const char *name, Offset length, 
     ni->name   = (char*)name;
     ni->crumb  = c;
     ni->device = p->device;
-    ni->mode   = mode | (c.flags << 24);
+    ni->mode   = mode;
     ni->atime  = 0;
     ni->mtime  = 0;
     ni->length = length;

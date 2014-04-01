@@ -35,7 +35,7 @@ StaticNS twoLevel[] = {
 };
 
 static NodeInfo* twoLevelNodeInfo(const Portal* p, WalkDirection d, NodeInfo* ni) {
-    return getNodeInfo(p, twoLevel, d, ni);
+    return getNodeInfoStaticNS(p, twoLevel, d, ni);
 }
 
 static StaticNS* toSNS(WalkTrail* t) {
@@ -51,11 +51,18 @@ static StaticNS* toSNS(WalkTrail* t) {
 }
 
 int main(int argc, char **argv) {
-    Portal root = { 0, 0, twoLevel[0].crumb };
-    Portal foo  = { 0, 0, twoLevel[1].crumb };
-    Portal bar  = { 0, 0, twoLevel[2].crumb };
-    Portal baz  = { 0, 0, twoLevel[3].crumb };
+    Portal root, foo, bar, baz;
     WalkTrail *t;
+
+    mkPortal(&root, 0);
+    mkPortal(&foo, 0);
+    mkPortal(&bar, 0);
+    mkPortal(&baz, 0);
+
+    root.crumb = twoLevel[0].crumb;
+    foo.crumb  = twoLevel[1].crumb;
+    bar.crumb  = twoLevel[2].crumb;
+    baz.crumb  = twoLevel[3].crumb;
 
     struct T {
         Portal*     portal;

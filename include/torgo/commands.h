@@ -3,12 +3,15 @@
 
 typedef int (*Cmd)(int, char *[]);
 
-struct CmdTable {
+typedef struct CmdTable {
   char *cmdName;
   Cmd cmd;
-};
+} CmdTable;
 
-extern struct CmdTable builtinCmds[];
-extern int numBuiltinCmds;
+int cmdPwd__Main(int, char *[]);
+
+CmdTable builtinCmds[] = {
+    { "pwd", cmdPwd__Main }
+};
 
 #endif /* ! SHELL_COMMANDS_H */

@@ -6,9 +6,9 @@
 
 #include <string.h>
 
-#include <libc.h>
+#include <manos.h>
 
-#include <torgo/string.h>
+#include <torgo/dstring.h>
 
 /*
  * assignString :: &String -> CStr
@@ -17,7 +17,7 @@
  * Can be used to pass raw C strings into 
  * String routies.
  */
-void assignString(struct String *str, const char *cstr) {
+void assignString(String *str, const char *cstr) {
   str->size = strlen(cstr);
   str->str = cstr;
 }
@@ -27,7 +27,7 @@ void assignString(struct String *str, const char *cstr) {
  *
  * Grab the underlying pointer for passing to stdio
  */
-const char * fromString(const struct String *str) {
+const char * fromString(const String *str) {
   return str->str;
 }
 
@@ -36,12 +36,12 @@ const char * fromString(const struct String *str) {
  *
  * Copy C string into a String
  */
-struct String* mkString(const char *cstr) {
-  struct String* str = malloc(sizeof *str);
+String* mkString(const char *cstr) {
+  String* str = kmalloc(sizeof *str);
   if (! str) goto exit;
 
   str->size = strlen(cstr);
-  char *cstr0 = malloc(str->size + 1);
+  char *cstr0 = kmalloc(str->size + 1);
   if (! cstr0) goto fail;
 
   memcpy(cstr0, cstr, str->size);
@@ -52,7 +52,7 @@ exit:
   return str;
 
 fail:
-  free(cstr0);
+  kfree(cstr0);
   goto exit;
 }
 
@@ -61,10 +61,10 @@ fail:
  *
  * Release the memory allocated for String.
  */
-void freeString(struct String *str) {
+void freeString(String *str) {
   str->size = 0;
-  free((void*)str->str);
-  free(str);
+  kfree((void*)str->str);
+  kfree(str);
 }
 
 /*
@@ -72,7 +72,7 @@ void freeString(struct String *str) {
  *
  * Like strdup.
  */
-struct String* copyString(const struct String *str) {
+String* copyString(const String *str) {
   return mkString(str->str);
 }
 
@@ -81,11 +81,11 @@ struct String* copyString(const struct String *str) {
  *
  * Concatenates 'a' and 'b' by copying.
  */
-struct String* concatString(const struct String *a, const struct String *b) {
-  struct String *str = malloc(sizeof *str);
+String* concatString(const String *a, const String *b) {
+  String *str = kmalloc(sizeof *str);
   if (! str) goto exit;
 
-  char *cstr = malloc(a->size + b->size + 1);
+  char *cstr = kmalloc(a->size + b->size + 1);
   if (! cstr) goto fail;
 
   memcpy(cstr, a->str, a->size);
@@ -98,7 +98,7 @@ exit:
   return str;
 
 fail:
-  free(str);
+  kfree(str);
   goto exit;
 }
 
@@ -107,7 +107,7 @@ fail:
  *
  * Compare the strings for equality
  */
-int matchString(const struct String *a, const struct String *b) {
+int matchString(const String *a, const String *b) {
   if (a->size != b->size) return 0;
 
   const char *aptr = a->str;
@@ -116,5 +116,5 @@ int matchString(const struct String *a, const struct String *b) {
   while (*aptr && (*aptr++ == *bptr++))
     ;
 
-  return (aptr - a->str == a->size);
+  return ((size_t)(aptr - a->str) == a->size);
 }

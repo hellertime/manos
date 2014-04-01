@@ -4,13 +4,10 @@
  *
  * Supports efficient append and concat.
  */
-
 #include <string.h>
-
-#include <libc.h>
-
+#include <manos.h>
 #include <torgo/charbuf.h>
-#include <torgo/string.h>
+#include <torgo/dstring.h>
 
 /*
  * CharBuf = CStr Int Int
@@ -31,11 +28,11 @@ struct CharBuf {
  * Allocate memory for a new CharBuf.
  * Initial size of the buffer is 'size'
  */
-struct CharBuf* mkCharBuf(size_t size) {
-  struct CharBuf *buf = malloc(sizeof *buf);
+CharBuf* mkCharBuf(size_t size) {
+  struct CharBuf *buf = kmalloc(sizeof *buf);
   if (! buf) goto exit;
 
-  buf->data = malloc(size);
+  buf->data = kmalloc(size);
   if (!buf->data) goto fail;
 
   buf->used = 0;
@@ -45,7 +42,7 @@ exit:
   return buf;
 
 fail:
-  free(buf);
+  kfree(buf);
   goto exit;
 }
 
@@ -54,9 +51,9 @@ fail:
  *
  * Release memory associated with the CharBuf
  */
-void freeCharBuf(struct CharBuf *buf) {
-  free(buf->data);
-  free(buf);
+void freeCharBuf(CharBuf *buf) {
+  kfree(buf->data);
+  kfree(buf);
 }
 
 /*
@@ -65,7 +62,7 @@ void freeCharBuf(struct CharBuf *buf) {
  * Clears the CharBuf buffer, but does no
  * release the memory.
  */
-void clearCharBuf(struct CharBuf *buf) {
+void clearCharBuf(CharBuf *buf) {
   buf->data[0] = '\0';
   buf->used = 0;
 }
@@ -75,7 +72,7 @@ void clearCharBuf(struct CharBuf *buf) {
  *
  * Check if CharBuf is empty.
  */
-int isEmptyCharBuf(const struct CharBuf *buf) {
+int isEmptyCharBuf(const CharBuf *buf) {
   return buf->used == 0;
 }
 
@@ -86,15 +83,15 @@ int isEmptyCharBuf(const struct CharBuf *buf) {
  * the String into a new buffer.
  * Releases the old buffer.
  */
-const char* concatCharBuf(struct CharBuf *buf, const char *str) {
+const char* concatCharBuf(CharBuf *buf, const char *str) {
   size_t strSize = strlen(str);
   if (buf->size - buf->used < strSize + 1) {
     size_t size = strSize + (buf->size * 2);
-    char *data = malloc(size);
+    char *data = kmalloc(size);
     if (!data) return NULL;
 
     memcpy(data, buf->data, buf->used);
-    free(buf->data);
+    kfree(buf->data);
     buf->data = data;
     buf->size = size;
   }
@@ -111,7 +108,7 @@ const char* concatCharBuf(struct CharBuf *buf, const char *str) {
  * Places 'c' at the end of the buffer.
  * Maintains the '\0' terminator
  */
-char appendCharBuf(struct CharBuf *buf, char c) {
+char appendCharBuf(CharBuf *buf, char c) {
   char cstr[2] = { c, '\0' };
   concatCharBuf(buf, cstr);
   return c;
@@ -123,6 +120,6 @@ char appendCharBuf(struct CharBuf *buf, char c) {
  * Returns pointer to the buffer for use in stdlib
  * functions.
  */
-const char* fromCharBuf(const struct CharBuf *buf) {
+const char* fromCharBuf(const CharBuf *buf) {
   return buf->data;
 }
