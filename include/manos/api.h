@@ -53,7 +53,7 @@ int setInfoDev(Portal*, NodeInfo*);
 DeviceIndex fromDeviceId(DeviceId);
 DeviceId toDeviceId(DeviceIndex);
 
-int sysexecv(const char*, char * const []);
+int sysexecv(const char*, int, char * const []);
 int sysopen(const char*, Caps);
 void sysclose(int fd);
 Portal* syswalk(Portal*, char**, unsigned);

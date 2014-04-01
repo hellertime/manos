@@ -16,8 +16,6 @@
 #include <torgo/env.h>
 #include <torgo/parser.h>
 
-#define MAX_FD 256
-
 typedef enum {
   ShellStateRun,
   ShellStateEOF,
@@ -209,7 +207,7 @@ int torgo_main(int argc, char *argv[]) {
         populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
 
         shellErrno = 0;
-        shellErrno = fakeExecv(cmdArgv[0], cmdArgc, cmdArgv);
+        shellErrno = sysexecv(cmdArgv[0], cmdArgc, cmdArgv);
 
         /*
          * Some commands need shell environment access and so cannot be passed of to 'exec' at the moment

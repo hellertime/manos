@@ -10,7 +10,7 @@
  *
  * TOTAL HACK!
  */
-int sysexecv(const char *path, char * const argv[]) {
+int sysexecv(const char *path, int argc, char * const argv[]) {
     int isRel = *path != '/';
     int ret = -1;
     char *buf = NULL;
@@ -50,7 +50,7 @@ int sysexecv(const char *path, char * const argv[]) {
         c += 2;
         for (unsigned i = 0; i < COUNT_OF(builtinCmds); i++) {
             if (strcmp(builtinCmds[i].cmdName, c) == 0) {
-                ret = builtinCmds[i].cmd(COUNT_OF(argv), argv);
+                ret = builtinCmds[i].cmd(argc, argv);
                 break;
             }
         }
