@@ -69,6 +69,7 @@ NodeInfo* getNodeInfoStaticNS(const Portal* p, const StaticNS* ns, WalkDirection
         break;
     }
 
+    ni->contents = sns->contents;
     return mkNodeInfo(p, sns->crumb, sns->name, sns->length, sns->mode, ni);
 
 notfound:

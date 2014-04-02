@@ -16,6 +16,7 @@ WalkTrail* popCrumb(WalkTrail*, Crumb*);
 WalkTrail* pushCrumb(WalkTrail*, Crumb);
 WalkTrail* genericWalk(const Portal*, const char**, unsigned, GetNodeInfoFn);
 NodeInfo* getNodeInfoStaticNS(const Portal*, const StaticNS*, WalkDirection, NodeInfo*);
+ptrdiff_t readStaticNS(Portal*, const StaticNS*, void*, size_t, Offset);
 
 NodeInfo* mkNodeInfo(const Portal*, Crumb, const char*, Offset, Mode, NodeInfo*);
 

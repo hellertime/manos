@@ -8,30 +8,30 @@
 /* Rule: siblings to the left, children to the right */
 StaticNS twoLevel[] = {
     /* root */
-    { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0 }
+    { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0, 0 }
 
     /* children of root. ParentIdx 0 */
-,   { "foo", MKSTATICNS_CRUMB(0, 1, CRUMB_ISDIR), 0, 0}
-,   { "bar", MKSTATICNS_CRUMB(0, 2, CRUMB_ISDIR), 0, 0}
-,   { "baz", MKSTATICNS_CRUMB(0, 3, CRUMB_ISDIR), 0, 0}
+,   { "foo", MKSTATICNS_CRUMB(0, 1, CRUMB_ISDIR), 0, 0, 0}
+,   { "bar", MKSTATICNS_CRUMB(0, 2, CRUMB_ISDIR), 0, 0, 0}
+,   { "baz", MKSTATICNS_CRUMB(0, 3, CRUMB_ISDIR), 0, 0, 0}
 
     /* children of foo */
-,   { "i",   MKSTATICNS_CRUMB(1, 4, 0), 0, 0}
-,   { "ii",  MKSTATICNS_CRUMB(1, 5, 0), 0, 0}
-,   { "iii", MKSTATICNS_CRUMB(1, 6, 0), 0, 0}
+,   { "i",   MKSTATICNS_CRUMB(1, 4, 0), 0, 0, 0}
+,   { "ii",  MKSTATICNS_CRUMB(1, 5, 0), 0, 0, 0}
+,   { "iii", MKSTATICNS_CRUMB(1, 6, 0), 0, 0, 0}
 
     /* children of bar */
-,   { "a", MKSTATICNS_CRUMB(2, 7, 0), 0, 0}
-,   { "b", MKSTATICNS_CRUMB(2, 8, 0), 0, 0}
-,   { "c", MKSTATICNS_CRUMB(2, 9, 0), 0, 0}
+,   { "a", MKSTATICNS_CRUMB(2, 7, 0), 0, 0, 0}
+,   { "b", MKSTATICNS_CRUMB(2, 8, 0), 0, 0, 0}
+,   { "c", MKSTATICNS_CRUMB(2, 9, 0), 0, 0, 0}
 
     /* children of baz */
-,   { "qux",   MKSTATICNS_CRUMB(3, 10, 0), 0, 0}
-,   { "quux",  MKSTATICNS_CRUMB(3, 11, 0), 0, 0}
-,   { "quuux", MKSTATICNS_CRUMB(3, 12, 0), 0, 0}
+,   { "qux",   MKSTATICNS_CRUMB(3, 10, 0), 0, 0, 0}
+,   { "quux",  MKSTATICNS_CRUMB(3, 11, 0), 0, 0, 0}
+,   { "quuux", MKSTATICNS_CRUMB(3, 12, 0), 0, 0, 0}
 
     /* sentinel */
-,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0 }
+,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0, 0 }
 };
 
 static NodeInfo* twoLevelNodeInfo(const Portal* p, WalkDirection d, NodeInfo* ni) {

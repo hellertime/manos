@@ -70,6 +70,7 @@ typedef struct NodeInfo {
     Time        atime;
     Time        mtime;
     Offset      length;
+    char*       contents; /* only used by static ns */
 } NodeInfo;
 
 #define PORTAL_STATICNS 0x80
@@ -90,6 +91,7 @@ typedef struct StaticNS {
     Crumb       crumb;
     Offset      length;
     Mode        mode;
+    char*       contents;
 } StaticNS;
 
 typedef struct Dev {

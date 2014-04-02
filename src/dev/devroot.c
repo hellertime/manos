@@ -1,31 +1,21 @@
-#include <assert.h>
 #include <errno.h>
 #include <manos.h>
 #include <string.h>
 
-static struct Contents {
-    char *name;
-    size_t size;
-    char *cnt;
-} contents[] = {
-    { "pwd", 5, "#!pwd" }
-,   { "ls", 4, "#!ls" }
-};
-
 static StaticNS rootSNS[] = {
     /* root */
-    { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555 }
+    { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555 , 0 }
 
     /* first level */
-,   { "bin", MKSTATICNS_CRUMB(0, 1, CRUMB_ISDIR), 0, 0555 }
-,   { "dev", MKSTATICNS_CRUMB(0, 2, CRUMB_ISDIR), 0, 0555 }
+,   { "bin", MKSTATICNS_CRUMB(0, 1, CRUMB_ISDIR), 0, 0555 , 0}
+,   { "dev", MKSTATICNS_CRUMB(0, 2, CRUMB_ISDIR), 0, 0555 , 0}
 
     /* children of bin */
-,   { "pwd", MKSTATICNS_CRUMB(1, 3, CRUMB_ISFILE), 5, 0555 }
-,   { "ls", MKSTATICNS_CRUMB(1, 4, CRUMB_ISFILE), 4, 0555 }
+,   { "pwd", MKSTATICNS_CRUMB(1, 3, CRUMB_ISFILE), 5, 0555, "#!pwd" }
+,   { "ls", MKSTATICNS_CRUMB(1, 4, CRUMB_ISFILE), 4, 0555 , "#!ls" }
 
     /* sentinel */
-,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0 }
+,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0, 0}
 };
 
 static Portal* attachRoot(char* path) {
@@ -77,52 +67,7 @@ static int getInfoRoot(const Portal *p, NodeInfo* ni) {
 }
 
 static ptrdiff_t readRoot(Portal* p, void* buf, size_t size, Offset offset) {
-    if (size == 0) return 0;
-
-    unsigned i = STATICNS_CRUMB_SELF_IDX(p->crumb);
-    assert(i < COUNT_OF(rootSNS) - 1);
-    StaticNS* sns = &rootSNS[i];
-    if (sns->crumb.flags & CRUMB_ISDIR) {
-        Portal px;
-        NodeInfo ni;
-
-        clonePortal(p, &px);
-        NodeInfo* nix = getNodeInfoStaticNS(&px, rootSNS, WalkDown, &ni);
-
-        size_t bytes = size;
-        char* c = buf;
-
-        Offset skip = offset;
-        Offset entries = 0;
-
-        while (nix && bytes && (strlen(ni.name)+1) <= bytes) {
-            /* for directories offset is treated as an integral dir index */
-            px.crumb = ni.crumb;
-            if (skip) {
-                skip--;
-            } else {
-                memcpy(c, ni.name, strlen(ni.name));
-                c   += strlen(ni.name);
-                *c++ = 0;
-                bytes -= strlen(ni.name) + 1;
-                entries++;
-            }
-            nix = getNodeInfoStaticNS(&px, rootSNS, WalkNext, &ni);
-        }
-
-        return entries;
-    } else {
-        if (sns->length == 0) return 0;
-
-        for (unsigned i = 0; i < COUNT_OF(contents); i++) {
-            if (strcmp(contents[i].name, sns->name) == 0) {
-                size_t bytes = size > sns->length ? sns->length : size;
-                memcpy(buf, contents[i].cnt, sns->length);
-                return bytes;
-            }
-        }
-        return 0;
-    }
+    return readStaticNS(p, rootSNS, buf, size, offset);
 }
 
 static ptrdiff_t writeRoot(Portal* p, void* buf, size_t size, Offset offset) {
