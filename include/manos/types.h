@@ -17,6 +17,7 @@ typedef int DeviceId;
 
 #define DEV_DEVROOT 'R'
 #define DEV_DEVLED  'l'
+#define DEV_DEVSWPB 'B'
 
 #define CAP_READ      0
 #define CAP_WRITE     1

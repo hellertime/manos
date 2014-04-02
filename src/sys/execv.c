@@ -10,10 +10,20 @@
  *
  * TOTAL HACK!
  */
-int sysexecv(const char *path, int argc, char * const argv[]) {
+int sysexecv(const char *path, char * const argv[]) {
+    int argc;
     int isRel = *path != '/';
     int ret = -1;
     char *buf = NULL;
+
+    /*
+     * While various standards exist for maximum args (ARG_MAX, _SC_ARG_MAX)
+     * Since our runtime is stll being defined for now we just punt at 256
+     */
+    for (argc = 0; argc < 256; argc++) {
+        if (argv[argc] == NULL) /* this function mandates that argv[argc] == NULL */
+            break;
+    }
 
     errno = EPERM;
 
@@ -21,7 +31,21 @@ int sysexecv(const char *path, int argc, char * const argv[]) {
     if (!pth)
         goto error;
 
-    Portal* p = syswalk(isRel ? dot : slash, pth->elems, pth->nelems);
+    Portal* p = NULL;
+
+    /* Simple command searching. If the command isn't found on the first walk:
+     * If the path is relative, try again from /bin
+     */
+    if (((p = syswalk(isRel ? dot : slash, pth->elems, pth->nelems)) == NULL) && isRel) {
+        char *bin = "bin";
+        Portal* pbin = syswalk(slash, &bin, 1);
+        if (!pbin) {
+            errno = EIO;
+            goto error;
+        }
+        p = syswalk(pbin, pth->elems + pth->nelems - 1, 1);
+        kfree(pbin);
+    }
     if (p && (p->crumb.flags & CRUMB_ISFILE)) {
         NodeInfo ni;
         if (deviceTable[p->device]->getInfo(p, &ni) == -1)

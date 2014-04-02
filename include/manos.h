@@ -8,7 +8,7 @@
 extern Portal* slash;
 extern Portal* dot;
 
-#define MANOS_MAXDEV 2
+#define MANOS_MAXDEV 3
 extern Dev* deviceTable[MANOS_MAXDEV];
 
 #define MANOS_MAXFD 4096

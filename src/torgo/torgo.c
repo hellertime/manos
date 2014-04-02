@@ -110,7 +110,7 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
  */
 void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv) {
   int argc_ = getLengthParseResult(result);
-  char **argv_ = kmallocz(argc_ * sizeof *argv_);
+  char **argv_ = kmallocz((1 + argc_) * sizeof *argv_); /* sysexecv must have a NULL terminated array of pointers */
 
   ParseTokenIterator *tokens = getParseTokenIteratorParseResult(result);
   CharBuf *tokenBuilder = mkCharBuf(32);
@@ -207,7 +207,7 @@ int torgo_main(int argc, char *argv[]) {
         populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
 
         shellErrno = 0;
-        shellErrno = sysexecv(cmdArgv[0], cmdArgc, cmdArgv);
+        shellErrno = sysexecv(cmdArgv[0], cmdArgv);
 
         /*
          * Some commands need shell environment access and so cannot be passed of to 'exec' at the moment

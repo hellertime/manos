@@ -25,6 +25,9 @@ Path* mkPath(const char *path) {
         c++;
     }
 
+    if (nelems == 0 && strlen(path))
+        nelems = 1;
+
     /* allocate char* buffer */
     p->elems = kmalloc(sizeof c * nelems);
     p->nelems = nelems;

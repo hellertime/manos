@@ -12,12 +12,10 @@
  * Reading a bytes from ./<n>raw returns the actual state right from hardware
  */
 
+#include <errno.h>
 #include <stdint.h>
 
-#include <libc.h>
-
-#include <manos/dev.h>
-#include <manos/types.h>
+#include <manos.h>
 
 #if defined PLATFORM_NICE
 
@@ -28,9 +26,9 @@ static uint32_t __FAKE_REG = 0;
 #define PORT_PCR_MUX(x) 0
 #define PORT_PCR_PE_MASK 0
 #define PORT_PCR_PS_MASK 0
-#define SIM_SGCG5 __FAKE_REG
-#define SIM_SGCG5_PORTD_MASK 0
-#define SIM_SGCG5_PORTE_MASK 0
+#define SIM_SCGC5 __FAKE_REG
+#define SIM_SCGC5_PORTD_MASK 0
+#define SIM_SCGC5_PORTE_MASK 0
 #define PTE_BASE_PTR 0
 #define PTD_BASE_PTR 0
 #define GPIO_PDIR_REG(x) __FAKE_REG
@@ -38,6 +36,23 @@ static uint32_t __FAKE_REG = 0;
 #include <derivative.h>
 #endif
 
+/* for now put this here */
+#if defined PLATFORM_K70CW
+void nanosleep(unsigned long int nanos);
+__asm(
+		"    .global nanosleep\n"
+		"nanosleep:\n"
+		"    adds r0,r0,#-1\n"
+		"    bne  nanosleep\n"
+		"    bx   lr\n"
+	);
+#else
+void nanosleep(unsigned long int nanos) {
+    while(nanos-->0)
+        ;
+    return;
+}
+#endif
 /*
  * Define names for the bits in the PDIR register. Which correspond to the selection bit for each switch.
  * The mapping comes from sheet #7 of the TWR-K70F120M schematic
@@ -73,6 +88,7 @@ static void makeGPIOIn(Button which) {
   int gpio = 1;
   volatile uint32_t * const buttonPcr[] = { &BUTTON_ONE_PCR, &BUTTON_TWO_PCR };
   *(buttonPcr[which]) = PORT_PCR_MUX(gpio) | PORT_PCR_PE_MASK | PORT_PCR_PS_MASK; /* enable internal pull up/down resistor as pull up */
+  USED(gpio);;
 }
 
 /*
@@ -111,49 +127,54 @@ static void initSwpb(void) {
   initButtons();
 }
 
-static struct DirEnt swpbDirEnt[] = {
-  { "1",    { FidOne,    0 }, 0, 0444 },
-  { "1raw", { FidOneRaw, 0 }, 0, 0444 },
-  { "2",    { FidTwo,    0 }, 0, 0444 },
-  { "2raw", { FidTwoRaw, 0 }, 0, 0444 }
+static StaticNS swpbSNS[] = {
+    /* root */
+    { "#B", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555, 0 }
+
+    /* one level */
+,   { "1",    MKSTATICNS_CRUMB(0, FidOne,    CRUMB_ISFILE), 0, 0444, 0 }
+,   { "1raw", MKSTATICNS_CRUMB(0, FidOneRaw, CRUMB_ISFILE), 0, 0444, 0 }
+,   { "2",    MKSTATICNS_CRUMB(0, FidTwo,    CRUMB_ISFILE), 0, 0444, 0 }
+,   { "2raw", MKSTATICNS_CRUMB(0, FidTwoRaw, CRUMB_ISFILE), 0, 0444, 0 }
+
+    /* sentinel */
+,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0, 0 }
 };
 
-static struct Portal* attachSwpb(char *path) {
-  for (unsigned i = 0; i < COUNT_OF(swpbDirEnt); i++) {
-    if (streq(swpbDirEnt[i].path, path)) {
-      struct Portal *p = attachDev(DEV_DEVSWPB, path);
-      p->fid = swpbDirEnt[i].fid;
-      return p;
-    }
-  }
-  
-  return NULL;
+static Portal* attachSwpb(char *path) {
+  Portal* p = attachDev(DEV_DEVSWPB, path);
+  p->crumb = swpbSNS[0].crumb;
+  return p;
 }
 
-static struct Portal* openSwpb(struct Portal *p, OMode mode) {
-  return openDev(p, mode);
+static NodeInfo* swpbNodeInfoFn(const Portal* p, WalkDirection d, NodeInfo* ni) {
+   return getNodeInfoStaticNS(p, swpbSNS, d, ni);
 }
 
-static void closeSwpb(struct Portal *p) {
+static WalkTrail* walkSwpb(Portal* p, char** path, unsigned n) {
+    return genericWalk((const Portal*)p, (const char**)path, n, swpbNodeInfoFn);
+}
+
+static Portal* openSwpb(Portal *p, Caps caps) {
+  return openDev(p, caps);
+}
+
+static void closeSwpb(Portal *p) {
   UNUSED(p);
 }
 
-static Err getInfoSwpb(struct Portal *p, struct DevInfo *info) {
-  return getInfoDev(p, swpbDirEnt, COUNT_OF(swpbDirEnt), info);
+static int getInfoSwpb(const Portal *p, NodeInfo* ni) {
+  return getNodeInfoStaticNS(p, swpbSNS, WalkSelf, ni) == NULL ? -1 : 0;
 }
 
-static int32_t readSwpb(struct Portal *p, void *buf, uint32_t size, Offset offset, Err *err) {
-  *err = E_OK;
-  if (size == 0 || offset != 0) {
-    return 0;
+static ptrdiff_t readSwpb(struct Portal *p, void *buf, size_t size, Offset offset) {
+  if (size == 0) return 0;
+  
+  if (p->crumb.flags & CRUMB_ISDIR) {
+    return readStaticNS(p, swpbSNS, buf, size, offset);
   }
   
-  if (p->fid.type & FID_ISDIR) {
-    return 0;
-  }
-  
-  SwpbFidEnt fid = (SwpbFidEnt)p->fid.tag;
-  
+  SwpbFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb); 
   switch(fid) {
   case FidOne:
   case FidTwo:
@@ -166,35 +187,38 @@ static int32_t readSwpb(struct Portal *p, void *buf, uint32_t size, Offset offse
 	/* get state returns a '1' when the button is up */
 	ButtonState state = getState((Button)fid - FidOneRaw);
     *(char*)buf = '0' + state;
+    p->offset++;
     return 1;
   }
   default:
-    return 0;
+    errno = ENODEV;
+    return -1;
   }
 }
 
-static int32_t writeSwpb(struct Portal *p, void *buf, uint32_t size, Offset offset, Err *err) {
+static ptrdiff_t writeSwpb(Portal *p, void *buf, size_t size, Offset offset) {
   UNUSED(p);
   UNUSED(buf);
   UNUSED(size);
   UNUSED(offset);
-  *err = E_PERM;
+  errno = EPERM;
   return -1;
 }
 
-struct Dev swpbDev = {
-  .id = DEV_DEVSWPB,
-  .name = "swpb",
-  .init = initSwpb,
-  .reset = resetDev,
-  .shutdown = shutdownDev,
-  .attach = attachSwpb,
-  .create = createDev,
-  .open = openSwpb,
-  .close = closeSwpb,
-  .remove = removeDev,
-  .getInfo = getInfoSwpb,
-  .setInfo = setInfoDev,
-  .read = readSwpb,
-  .write = writeSwpb
+Dev devSwpb = {
+    .id       = DEV_DEVSWPB
+,   .name     = "swpb"
+,   .init     = initSwpb
+,   .reset    = resetDev
+,   .shutdown = shutdownDev
+,   .attach   = attachSwpb
+,   .walk     = walkSwpb
+,   .create   = createDev
+,   .open     = openSwpb
+,   .close    = closeSwpb
+,   .remove   = removeDev
+,   .getInfo  = getInfoSwpb
+,   .setInfo  = setInfoDev
+,   .read     = readSwpb
+,   .write    = writeSwpb
 };

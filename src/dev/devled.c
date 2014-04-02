@@ -163,7 +163,7 @@ static void initLed(void) {
 
 static StaticNS ledSNS[] = {
     /* root */
-    { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555, 0 }
+    { "#l", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555, 0 }
 
     /* one level */
 ,   { "orange", MKSTATICNS_CRUMB(0, FidOrange, CRUMB_ISFILE), 0, 0644, 0 }

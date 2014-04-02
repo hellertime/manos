@@ -4,7 +4,7 @@
 
 static StaticNS rootSNS[] = {
     /* root */
-    { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555 , 0 }
+    { "#/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555 , 0 }
 
     /* first level */
 ,   { "bin", MKSTATICNS_CRUMB(0, 1, CRUMB_ISDIR), 0, 0555 , 0}
@@ -16,7 +16,8 @@ static StaticNS rootSNS[] = {
 ,   { "cat", MKSTATICNS_CRUMB(1, 5, CRUMB_ISFILE), 5, 0555, "#!cat" }
 
     /* children of dev */
-,   { "led", MKSTATICNS_CRUMB(2, DEV_DEVLED, CRUMB_ISMOUNT), 0, 0555, 0 }
+,   { "swpb", MKSTATICNS_CRUMB(2, 6, CRUMB_ISMOUNT), DEV_DEVSWPB, 0444, 0 }
+,   { "led", MKSTATICNS_CRUMB(2, 7, CRUMB_ISMOUNT), DEV_DEVLED, 0444, 0 }
 
     /* sentinel */
 ,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0, 0}

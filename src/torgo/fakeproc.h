@@ -2,10 +2,12 @@
  */
 extern Dev devRoot;
 extern Dev devLed;
+extern Dev devSwpb;
 
 Dev* deviceTable[MANOS_MAXDEV] = {
     &devRoot
 ,   &devLed
+,   &devSwpb
 };
 
 Portal* descriptorTable[MANOS_MAXFD] = {0};

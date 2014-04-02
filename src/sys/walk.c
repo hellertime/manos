@@ -26,7 +26,13 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
         n -= t->top;
         topCrumb(t, &px->crumb);
         if (px->crumb.flags & CRUMB_ISMOUNT) {
-            DeviceIndex idx = fromDeviceId(CRUMB_MOUNT_DEVICE_ID(px->crumb));
+            /* This is a total hack.
+             * Until a better mount table exists.
+             * Stuff the device id in the mount nodes length
+             */
+            NodeInfo ni;
+            deviceTable[px->device]->getInfo(px, &ni);
+            DeviceIndex idx = fromDeviceId(ni.length); /* HACK! */
             closePortal(px);
             kfree(px);
             assert(idx != -1 && "Crumb has an unknown device id");

@@ -54,7 +54,7 @@ int setInfoDev(Portal*, NodeInfo*);
 DeviceIndex fromDeviceId(DeviceId);
 DeviceId toDeviceId(DeviceIndex);
 
-int sysexecv(const char*, int, char * const []);
+int sysexecv(const char*, char * const []);
 int sysgetInfoFd(int fd, NodeInfo*);
 int sysopen(const char*, Caps);
 void sysclose(int fd);
