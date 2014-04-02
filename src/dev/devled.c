@@ -14,12 +14,10 @@
  *    Writing a byte ('1' or '0') to ./<color> updates the state of the LED.
  */
 
+#include <errno.h>
 #include <stdint.h>
 
-#include <libc.h>
-
-#include <manos/types.h>
-#include <manos/dev.h>
+#include <manos.h>
 
 #ifdef PLATFORM_NICE
 
@@ -32,6 +30,7 @@ static uint32_t __FAKE_REG = 0;
 #define PORTA_PCR29 __FAKE_REG
 #define PORT_PCR_MUX(x) 0
 #define GPIO_PDDR_REG(x) __FAKE_REG
+#define GPIO_PDOR_REG(x) __FAKE_REG
 #define GPIO_PSOR_REG(x) __FAKE_REG
 #define GPIO_PCOR_REG(x) __FAKE_REG
 #define SIM_SCGC5 __FAKE_REG
@@ -156,17 +155,24 @@ static void initLed(void) {
   /* enable PTA clock */
   SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
 
-  for (int i = 0; i < COUNT_OF(leds); i++) {
+  for (unsigned i = 0; i < COUNT_OF(leds); i++) {
     setLed(leds[i], LedOff);
     makeGPIOOut(leds[i]);
   }
 }
 
-static struct DirEnt ledDirEnt[] = {
-  { "orange",  { FidOrange, 0 }, 0, 0664 }
-, { "yellow",  { FidYellow, 0 }, 0, 0664 }
-, { "green",   { FidGreen,  0 }, 0, 0664 }
-, { "blue",    { FidBlue,   0 }, 0, 0664 }
+static StaticNS ledSNS[] = {
+    /* root */
+    { "/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555, 0 }
+
+    /* one level */
+,   { "orange", MKSTATICNS_CRUMB(0, FidOrange, CRUMB_ISFILE), 0, 0644, 0 }
+,   { "yellow", MKSTATICNS_CRUMB(0, FidYellow, CRUMB_ISFILE), 0, 0644, 0 }
+,   { "green",  MKSTATICNS_CRUMB(0, FidGreen, CRUMB_ISFILE),  0, 0644, 0 }
+,   { "blue",   MKSTATICNS_CRUMB(0, FidBlue, CRUMB_ISFILE),   0, 0644, 0 }
+
+    /* sentinel */
+,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0, 0 }
 };
 
 /*
@@ -174,15 +180,23 @@ static struct DirEnt ledDirEnt[] = {
  *
  * 'attach' message handler. delgates to the generic device handler.
  */
-static struct Portal* attachLed(char *path) {
-  for (int i = 0; i < COUNT_OF(ledDirEnt); i++) {
-    if (streq(ledDirEnt[i].path, path)) {
-      struct Portal *p = attachDev(DEV_DEVLED, path);
-      p->fid = ledDirEnt[i].fid;
-      return p;
-    }
-  }
-  return NULL;
+static Portal* attachLed(char *path) {
+  Portal* p = attachDev(DEV_DEVROOT, path);
+  p->crumb = ledSNS[0].crumb;
+  return p;
+}
+
+static NodeInfo* ledNodeInfoFn(const Portal* p, WalkDirection d, NodeInfo* ni) {
+    return getNodeInfoStaticNS(p, ledSNS, d, ni);
+}
+
+/*
+ * walkLed :: Portal -> [String] -> Int -> WalkTrail
+ *
+ * 'walk' the device in the static namespace
+ */
+static WalkTrail* walkLed(Portal *p, char **path, unsigned n) {
+    return genericWalk((const Portal*)p, (const char**)path, n, ledNodeInfoFn);
 }
 
 /*
@@ -190,8 +204,8 @@ static struct Portal* attachLed(char *path) {
  *
  * 'open' message handler. The opens a Portal to the led device.
  */
-static struct Portal* openLed(struct Portal *p, OMode mode) {
-  return openDev(p, mode);
+static Portal* openLed(Portal *p, Caps caps) {
+  return openDev(p, caps);
 }
 
 /*
@@ -199,7 +213,7 @@ static struct Portal* openLed(struct Portal *p, OMode mode) {
  *
  * noop
  */
-static void closeLed(struct Portal *p) {
+static void closeLed(Portal *p) {
   UNUSED(p);
 }
 
@@ -208,8 +222,8 @@ static void closeLed(struct Portal *p) {
  * 
  * Fill out a DevInfo struct generically.
  */
-static Err getInfoLed(struct Portal *p, struct DevInfo *info) {
-  return getInfoDev(p, ledDirEnt, COUNT_OF(ledDirEnt), info);
+static int getInfoLed(const Portal *p, NodeInfo *ni) {
+  return getNodeInfoStaticNS(p, ledSNS, WalkSelf, ni) == NULL ? -1 : 0;
 }
 
 /*
@@ -219,28 +233,26 @@ static Err getInfoLed(struct Portal *p, struct DevInfo *info) {
  * size of the read (except 0) the result of the read is 
  * one byte. If offset is non-zero the read has no value.
  */
-static int32_t readLed(struct Portal *p, void *buf, uint32_t size, Offset offset, Err *err) {
-  *err = E_OK;
-  if (size == 0 || offset != 0) {
-    return 0;
+static ptrdiff_t readLed(Portal *p, void *buf, size_t size, Offset offset) {
+  if (size == 0) return 0;
+
+  if (p->crumb.flags & CRUMB_ISDIR) {
+    return readStaticNS(p, ledSNS, buf, size, offset);
   }
 
-  if (p->fid.type & FID_ISDIR) {
-    return 0;
-  }
-
-  switch ((LedFidEnt)p->fid.tag) {
+  LedFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb);
+  switch (fid) {
   case FidOrange:
   case FidYellow:
   case FidGreen:
   case FidBlue: {
-	LedColor which = (LedColor)(p->fid.tag - FidOrange);
+    LedColor which = (LedColor)(fid - FidOrange);
     *(char*)buf = '0' + getLed(which);
     return 1;
   }
   default:
-	*err = E_NODEV;
-	return -1;
+    errno = ENODEV;
+    return -1;
   }
 }
 
@@ -251,9 +263,9 @@ static int32_t readLed(struct Portal *p, void *buf, uint32_t size, Offset offset
  * Like the read operation zero sized writes and non-zero offsets 
  * result in a non-write.
  */
-static int32_t writeLed(struct Portal *p, void *buf, uint32_t size, Offset offset, Err *err) {
-  *err = E_OK; /* everythings gonna be alright */
-  if (size == 0 || offset != 0) {
+static ptrdiff_t writeLed(Portal *p, void *buf, size_t size, Offset offset) {
+  UNUSED(offset);
+  if (size == 0) {
     return 0;
   }
 
@@ -262,13 +274,14 @@ static int32_t writeLed(struct Portal *p, void *buf, uint32_t size, Offset offse
     return 0;
   }
 
-  switch ((LedFidEnt)p->fid.tag) {
+  LedFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb);
+  switch (fid) {
   case FidOrange:
   case FidYellow:
   case FidGreen:
   case FidBlue: {
-	LedColor which = (LedColor)(p->fid.tag - FidOrange);
-	LedState state = (LedState)(c - '0');
+    LedColor which = (LedColor)(fid - FidOrange);
+    LedState state = (LedState)(c - '0');
     setLed(which, state);
     return 1;
   }
@@ -277,19 +290,20 @@ static int32_t writeLed(struct Portal *p, void *buf, uint32_t size, Offset offse
   }
 }
 
-struct Dev ledDev = {
-  .id = DEV_DEVLED,
-  .name = "led",
-  .init = initLed,
-  .reset = resetDev,
-  .shutdown = shutdownDev,
-  .attach = attachLed,
-  .create = createDev,
-  .open = openLed,
-  .close = closeLed,
-  .remove = removeDev,
-  .getInfo = getInfoLed,
-  .setInfo = setInfoDev,
-  .read = readLed,
-  .write = writeLed
+Dev devLed = {
+    .id       = DEV_DEVLED
+,   .name     = "led"
+,   .init     = initLed
+,   .reset    = resetDev
+,   .shutdown = shutdownDev
+,   .attach   = attachLed
+,   .walk     = walkLed
+,   .create   = createDev
+,   .open     = openLed
+,   .close    = closeLed
+,   .remove   = removeDev
+,   .getInfo  = getInfoLed
+,   .setInfo  = setInfoDev
+,   .read     = readLed
+,   .write    = writeLed
 };
