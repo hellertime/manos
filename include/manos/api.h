@@ -65,6 +65,7 @@ char* getcwd(char*, size_t);
 Path* mkPath(const char*);
 
 #define UNUSED(x) (void)(x)
+#define USED UNUSED
 #define COUNT_OF(xs) ((sizeof xs) / (sizeof xs[0]))
 
 #endif /* ! MANOS_API_H */

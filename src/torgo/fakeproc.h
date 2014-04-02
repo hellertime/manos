@@ -1,10 +1,11 @@
-/*
- * Until we have a real process model, this file will holds the bits an pieces to fake it
+/* * Until we have a real process model, this file will holds the bits an pieces to fake it
  */
 extern Dev devRoot;
+extern Dev devLed;
 
 Dev* deviceTable[MANOS_MAXDEV] = {
     &devRoot
+,   &devLed
 };
 
 Portal* descriptorTable[MANOS_MAXFD] = {0};

@@ -14,6 +14,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
     }
 
     if (clonePortal(p, px) == NULL) {
+        kfree(px);
         errno = errno ? errno : ENOTRECOVERABLE;
         return NULL;
     }
@@ -24,7 +25,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
         subPath += t->top;
         n -= t->top;
         topCrumb(t, &px->crumb);
-        if (n && px->crumb.flags & CRUMB_ISMOUNT) {
+        if (px->crumb.flags & CRUMB_ISMOUNT) {
             DeviceIndex idx = fromDeviceId(CRUMB_MOUNT_DEVICE_ID(px->crumb));
             closePortal(px);
             kfree(px);
@@ -38,5 +39,8 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
         break;
     }
 
-    return px;
+    if (n)
+        kfree(px);
+
+    return n ? NULL : px;
 }

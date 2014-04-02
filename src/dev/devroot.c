@@ -14,6 +14,9 @@ static StaticNS rootSNS[] = {
 ,   { "pwd", MKSTATICNS_CRUMB(1, 3, CRUMB_ISFILE), 5, 0555, "#!pwd" }
 ,   { "ls", MKSTATICNS_CRUMB(1, 4, CRUMB_ISFILE), 4, 0555 , "#!ls" }
 
+    /* children of dev */
+,   { "led", MKSTATICNS_CRUMB(2, DEV_DEVLED, CRUMB_ISMOUNT), 0, 0555, 0 }
+
     /* sentinel */
 ,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0, 0}
 };
