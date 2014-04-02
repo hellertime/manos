@@ -2,6 +2,26 @@
 #include <manos.h>
 #include <string.h>
 
+/*
+ * Devroot - Magic namespace.
+ *
+ * Devroot is a hack. Since namespace mounting is not yet 
+ * implemented, instead the static namespace is specialized
+ * into a root 'device' which binds together the other device
+ * namespaces.
+ *
+ * A couple of fields are overloaded to give us some features
+ * that aren't fully realized yet.
+ *
+ * The first is the 'executable' format. A file with mode 0555,
+ * and with special contents will be executable by sysexec.
+ * This is sure to change shortly.
+ *
+ * The second hack is mount points. If a node has the CRUMB_ISMOUNT
+ * flag set, its length field is reused to hold the mount point
+ * device id. Ugly.
+ */
+
 static StaticNS rootSNS[] = {
     /* root */
     { "#/", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555 , 0 }

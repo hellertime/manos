@@ -1,5 +1,9 @@
 /*
  * dev.c -- default implementation of Dev functions
+ *
+ * Not every method has a generic option. Some just
+ * make no sense unspecialized. The few that can
+ * tend to be reused often and are codified here.
  */
 
 #include <errno.h>
