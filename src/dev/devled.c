@@ -181,7 +181,7 @@ static StaticNS ledSNS[] = {
  * 'attach' message handler. delgates to the generic device handler.
  */
 static Portal* attachLed(char *path) {
-  Portal* p = attachDev(DEV_DEVROOT, path);
+  Portal* p = attachDev(DEV_DEVLED, path);
   p->crumb = ledSNS[0].crumb;
   return p;
 }
