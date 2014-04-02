@@ -38,12 +38,14 @@ ptrdiff_t readStaticNS(Portal* p, const StaticNS* sns, void* buf, size_t size, O
             nix = getNodeInfoStaticNS(&px, sns, WalkNext, &ni);
         }
 
+        p->offset += entries;
         return entries;
     } else {
         if (snsEnt->length == 0) return 0;
         
         size_t bytes = size > snsEnt->length ? snsEnt->length : size;
         memcpy(buf, snsEnt->contents, snsEnt->length);
+        p->offset += bytes;
         return bytes;
     }
 }

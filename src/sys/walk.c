@@ -21,7 +21,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
 
     char** subPath = path;
     while (n) {
-        WalkTrail* t = deviceTable[p->device]->walk(px, subPath, n);
+        WalkTrail* t = deviceTable[px->device]->walk(px, subPath, n);
         subPath += t->top;
         n -= t->top;
         topCrumb(t, &px->crumb);

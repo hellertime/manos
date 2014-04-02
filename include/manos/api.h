@@ -55,8 +55,10 @@ DeviceIndex fromDeviceId(DeviceId);
 DeviceId toDeviceId(DeviceIndex);
 
 int sysexecv(const char*, int, char * const []);
+int sysgetInfoFd(int fd, NodeInfo*);
 int sysopen(const char*, Caps);
 void sysclose(int fd);
+ptrdiff_t sysread(int fd, void*, size_t);
 Portal* syswalk(Portal*, char**, unsigned);
 
 int dirread(int fd, NodeInfo**);

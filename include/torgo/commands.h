@@ -8,8 +8,9 @@ typedef struct CmdTable {
   Cmd cmd;
 } CmdTable;
 
+int cmdCat__Main(int, char * const []);
 int cmdLs__Main(int, char * const []);
 int cmdPwd__Main(int, char * const []);
 
-extern CmdTable builtinCmds[2];
+extern CmdTable builtinCmds[3];
 #endif /* ! SHELL_COMMANDS_H */

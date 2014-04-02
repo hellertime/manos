@@ -41,6 +41,5 @@ int dirread(int fd, NodeInfo** buf) {
         c += strlen(c) + 1;
     }
     *buf = (NodeInfo*)backing;
-    p->offset += dirs;
     return dirs;
 }

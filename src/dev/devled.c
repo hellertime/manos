@@ -240,6 +240,8 @@ static ptrdiff_t readLed(Portal *p, void *buf, size_t size, Offset offset) {
     return readStaticNS(p, ledSNS, buf, size, offset);
   }
 
+  if (p->offset) return 0; /* eof */
+
   LedFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb);
   switch (fid) {
   case FidOrange:
@@ -248,6 +250,7 @@ static ptrdiff_t readLed(Portal *p, void *buf, size_t size, Offset offset) {
   case FidBlue: {
     LedColor which = (LedColor)(fid - FidOrange);
     *(char*)buf = '0' + getLed(which);
+    p->offset++;
     return 1;
   }
   default:

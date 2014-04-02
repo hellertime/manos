@@ -1,7 +1,18 @@
 #include <errno.h>
 #include <manos.h>
 
-int getInfo(const Portal* p, NodeInfo* ni) {
+int sysgetInfoFd(int fd, NodeInfo* ni) {
+    Portal* p = descriptorTable[fd];
+    if (!p) {
+        errno = EBADF;
+        return -1;
+    }
+
+    if (p->crumb.flags & CRUMB_ISDIR) {
+        errno = EISDIR;
+        return -1;
+    }
+
     return deviceTable[p->device]->getInfo(p, ni);
 }
 
