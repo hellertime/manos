@@ -3,9 +3,11 @@
 
 char* getcwd(char* buf, size_t n) {
     Portal* p = syswalk(dot, 0, 0);
-    closePortal(p);
+    NodeInfo ni;
+    deviceTable[p->device]->getInfo(p, &ni);
     kfree(p);
-    memcpy(buf, "fake", strlen("fake") > n ? n - 1 : strlen("fake"));
-    *(buf + strlen("fake")) = 0;
+    unsigned x = strlen(ni.name) > n ? n - 1 : strlen(ni.name);
+    memcpy(buf, ni.name, x);
+    *(buf + x) = 0;
     return buf;
 }
