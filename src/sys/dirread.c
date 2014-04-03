@@ -21,7 +21,7 @@ int dirread(int fd, NodeInfo** buf) {
         return -1;
     }
 
-    if (!p->crumb.flags & CRUMB_ISDIR) {
+    if (!(p->crumb.flags & CRUMB_ISDIR)) {
         errno = ENOTDIR;
         return -1;
     }
