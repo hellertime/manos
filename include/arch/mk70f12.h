@@ -18,6 +18,7 @@ typedef uint32_t uintptr_t;
 #define fprintf(x, y, args...) printf(y, args)
 
 void mcgInit(void);
+void sdramInit(void);
 
 #endif /* PLATFORM_K70CW */
 

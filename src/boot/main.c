@@ -9,6 +9,7 @@ int main(int argc, char** argv) {
 
 #ifdef PLATFORM_K70CW
     mcgInit();
+    sdramInit();
 #endif
 
     return torgo_main(argc, argv);
