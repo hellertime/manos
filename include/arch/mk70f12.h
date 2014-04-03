@@ -3,12 +3,10 @@
 
 #ifdef PLATFORM_K70CW
 
-#include <stdint.h>
-
 #define ENOTRECOVERABLE EINVAL
 
-typedef int32_t intptr_t
-typedef uint32_t uintptr_t
+typedef int32_t intptr_t;
+typedef uint32_t uintptr_t;
 
 #endif /* PLATFORM_K70CW */
 
