@@ -786,8 +786,8 @@ static void hexdump(FILE* out, void* buf, size_t length) {
  * Dumps a chunk to out
  */
 void dumpChunk(FILE *out, ChunkHeader* chunk, int doHexdump) {
-  fprintf(out, "**** YAMalloc Chunk Dump ****\n\n");
-  fprintf(out, "General Info:\n\n");
+  fputs("**** YAMalloc Chunk Dump ****\n\n", out);
+  fputs("General Info:\n\n", out);
   fprintf(out, "    Chunk addr: 0x%08" PRIxPTR "\n", (uintptr_t)chunk);
   
   uintptr_t mem = (uintptr_t)getPayload(chunk);
@@ -808,12 +808,12 @@ void dumpChunk(FILE *out, ChunkHeader* chunk, int doHexdump) {
 
   if (!isFree) {
 	if (!checkBitmap(mem)) {
-	  fprintf(out, "    WARNING: Allocated chunk NOT recorded in BITMAP!\n");
+	  fputs("    WARNING: Allocated chunk NOT recorded in BITMAP!\n", out);
 	}
     fprintf(out, "    Chunk PID: %d (%d)\n", getTag(chunk).pid, getFooter(chunk)->pid);
   } else {
 	if (checkBitmap(mem)){
-	  fprintf(out, "    WARNING: Free chunk HAS record in BITMAP!\n");
+	  fputs("    WARNING: Free chunk HAS record in BITMAP!\n", out);
 	}
     fprintf(out, "    Chunk Prev Ptr: 0x%08" PRIxPTR "\n", (uintptr_t)chunk->prev);
     fprintf(out, "    Chunk Next Ptr: 0x%08" PRIxPTR "\n", (uintptr_t)chunk->next);
@@ -822,7 +822,7 @@ void dumpChunk(FILE *out, ChunkHeader* chunk, int doHexdump) {
   fflush(out);
 
   if (doHexdump) {
-    fprintf(out, "Memory Dump:\n\n");
+    fputs("Memory Dump:\n\n", out);
     hexdump(out, (void*)chunk, getSize(chunk));
   }
 }
@@ -835,14 +835,14 @@ void dumpChunk(FILE *out, ChunkHeader* chunk, int doHexdump) {
 void kmallocDump(FILE *out) {
   initRam(); /* incase we haven't initialized the memory already */
 
-  fprintf(out, "**** YAMalloc Memory Dump ****\n\n");
-  fprintf(out, "General Info:\n\n");
+  fputs("**** YAMalloc Memory Dump ****\n\n", out);
+  fputs("General Info:\n\n", out);
   fprintf(out, "    Addr ram0:    0x%08" PRIxPTR "\n", (uintptr_t)ram0);
   fprintf(out, "    Addr ramHigh: 0x%08" PRIxPTR "\n", (uintptr_t)ramHighAddress);
   fprintf(out, "    Min. Allocation size (B): %d\n", MIN_ALLOC_BYTES);
-  fprintf(out, "\n");
+  fputs("\n", out);
   fflush(out);
-  fprintf(out, "Allocator Header Info:\n\n");
+  fputs("Allocator Header Info:\n\n", out);
   fprintf(out, "    # Chunk Offsets In Bitmap: %d\n", numChunkOffsets);
   fprintf(out, "    Size of bin area (B) : %d\n", sizeof(header->bins[0]) * MAX_BINS);
   fprintf(out, "    Size of Bitmap (B)   : %d\n", ALLOCATION_BITMAP_SIZE);
@@ -856,19 +856,19 @@ void kmallocDump(FILE *out) {
   fprintf(out, "    Addr of heap start : 0x%08" PRIxPTR "\n", (uintptr_t)heap);
   fprintf(out, "    Size of heap (B)   : %" PRIuPTR "\n", (uintptr_t)(ramHighAddress - heap));
   fprintf(out, "    Last address is DWORD aligned : %s\n", (IS_DWORD_ALIGNED(ramHighAddress) ? "yes" : "no"));
-  fprintf(out, "\n");
+  fputs("\n", out);
   fflush(out);
-  fprintf(out, "Bitmap Info:\n\n");
+  fputs("Bitmap Info:\n\n", out);
 
   for (int i = 0; i < ALLOCATION_BITMAP_SIZE; i++) {
     if (!(i % 10)) {
       if (i != 0) {
-        fprintf(out, "\n");
+        fputs("\n", out);
       }
 
       fprintf(out, " %.8" PRIxPTR " ", (uintptr_t)header->bitmap + i);
     } else if (i != 0) {
-      fprintf(out, " ");
+      fputs(" ", out);
     }
 
     char c = header->bitmap[i];
@@ -876,9 +876,9 @@ void kmallocDump(FILE *out) {
       fputc('.' + (3 * ((c >> (j - 1)) & 1)), out); /* unset print '.', set print '1' (hence the multiple of 3) */
     }
   }
-  fprintf(out, "\n");
+  fputs("\n", out);
 
-  fprintf(out, "Heap Info:\n\n");
+  fputs("Heap Info:\n\n", out);
 
   for (uintptr_t i = (uintptr_t)heap; i < (uintptr_t)ramHighAddress; ) {
     fprintf(out, "** Chunk Offset 0x%08" PRIxPTR "\n", i);
@@ -896,15 +896,15 @@ void kmallocDump(FILE *out) {
     i += getSize(chunk);
   }
 
-  fprintf(out, "\n");
-  fprintf(out, "Bin Info:\n\n");
+  fputs("\n", out);
+  fputs("Bin Info:\n\n", out);
 
   for (int i = 0; i < MAX_BINS; i++) {
     if (i == 0) {
       struct ChunkHeader *chunks = RECENT_CHUNK_BIN;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          fprintf(out, "** SPECIAL BIN: Recent Chunks\n\n");
+          fputs("** SPECIAL BIN: Recent Chunks\n\n", out);
         }
         fprintf(out, "**** Recent Chunks [%d] ****\n\n", j);
         dumpChunk(out, chunks, 0);
@@ -914,7 +914,7 @@ void kmallocDump(FILE *out) {
       chunks = REMAINDER_CHUNK_BIN;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          fprintf(out, "** SPECIAL BIN: Last Split Remainders\n\n");
+          fputs("** SPECIAL BIN: Last Split Remainders\n\n", out);
         }
         fprintf(out, "**** Last Split Remainder Chunk [%d] ****\n\n", j);
         dumpChunk(out, chunks, 0);
