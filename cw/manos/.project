@@ -22,16 +22,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>include</name>
-			<type>2</type>
-			<location>C:/Users/Chris/CodeWarrior/manos/include</location>
-		</link>
-		<link>
-			<name>src</name>
-			<type>2</type>
-			<location>C:/Users/Chris/CodeWarrior/manos/src</location>
-		</link>
-	</linkedResources>
 </projectDescription>

@@ -1,0 +1,22 @@
+
+walk:
+
+In a walk from/to this represents the steps taken to get there.
+
+These are breadcrumbs that map the path back to, from where we
+are. A reverse set of directions.
+
+Since a trail is a result of a walk, the size of the trail will
+be known at the start of the walk, though we may find that in 
+the end the trail is shorter -- if the walk fails along the way.
+
+getNodeInfo:
+
+Every device that can populate the namespace must provide a
+function which can make a NodeInfo structure for a node
+or a node realtive to that node (Up, Prev, Next, Self)
+
+Many devices will have very simple namespace structure and
+can get by with an array of StaticNS objects to cover all
+nodes. For those devices a generic getNodeInfo function
+can be used.

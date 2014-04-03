@@ -32,51 +32,6 @@ void Default_Handler()
 	__asm("bkpt");
 }
 
-void Default_NMI_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_HardFault_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_MemManage_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_BusFault_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_UsageFault_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_SVC_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_DebugMonitor_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_PendSV_Handler()
-{
-	__asm("bkpt");
-}
-
-void Default_SysTick_Handler()
-{
-	__asm("bkpt");
-}
-
 /**
  **===========================================================================
  **  Reset handler
@@ -96,15 +51,15 @@ void __init_hardware()
 }
 
 /* Weak definitions of handlers point to Default_Handler if not implemented */
-void NMI_Handler() __attribute__ ((weak, alias("Default_NMI_Handler")));
-void HardFault_Handler() __attribute__ ((weak, alias("Default_HardFault_Handler")));
-void MemManage_Handler() __attribute__ ((weak, alias("Default_MemManage_Handler")));
-void BusFault_Handler() __attribute__ ((weak, alias("Default_BusFault_Handler")));
-void UsageFault_Handler() __attribute__ ((weak, alias("Default_UsageFault_Handler")));
-void SVC_Handler() __attribute__ ((weak, alias("Default_SVC_Handler")));
-void DebugMonitor_Handler() __attribute__ ((weak, alias("Default_DebugMonitor_Handler")));
-void PendSV_Handler() __attribute__ ((weak, alias("Default_PendSV_Handler")));
-void SysTick_Handler() __attribute__ ((weak, alias("Default_SysTick_Handler")));
+void NMI_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void HardFault_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void MemManage_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void BusFault_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void UsageFault_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void SVC_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void DebugMonitor_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void PendSV_Handler() __attribute__ ((weak, alias("Default_Handler")));
+void SysTick_Handler() __attribute__ ((weak, alias("Default_Handler")));
 
 
 /* The Interrupt Vector Table */
