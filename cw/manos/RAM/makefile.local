@@ -1,0 +1,21 @@
+################################################################################
+# These macros are used by makefiles and argument files.
+# When a space is included in the path and quotes (") cannot be used,
+# a _ESCAPE version of the macro is added that escapes the space with backslash (\).
+################################################################################
+
+export WALK=C:/Users/Chris/CodeWarrior/manos/src/walk
+export GNU_Make_Install_DirEnv=$(CWInstallLocationEnv)/gnu/bin
+export ProjDirPath=C:/Users/Chris/CodeWarrior/manos/cw/manos
+export CWInstallLocationEnv=C:/Freescale/CW MCU v10.5
+export PORTAL=C:/Users/Chris/CodeWarrior/manos/src/portal
+export KMALLOC=C:/Users/Chris/CodeWarrior/manos/src/kmalloc
+export PATH1=C:/Users/Chris/CodeWarrior/manos/src/path
+export CRUMB=C:/Users/Chris/CodeWarrior/manos/src/crumb
+export DEV=C:/Users/Chris/CodeWarrior/manos/src/dev
+export BOOT=C:/Users/Chris/CodeWarrior/manos/src/boot
+export SYS=C:/Users/Chris/CodeWarrior/manos/src/sys
+export ARMSourceryDirEnv=$(CWInstallLocationEnv)/Cross_Tools/arm-none-eabi-gcc-4_7_3/bin
+export PROCESS=C:/Users/Chris/CodeWarrior/manos/src/process
+export NODEINFO=C:/Users/Chris/CodeWarrior/manos/src/nodeinfo
+export TORGO=C:/Users/Chris/CodeWarrior/manos/src/torgo
