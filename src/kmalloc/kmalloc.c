@@ -773,7 +773,7 @@ static void hexdump(FILE* out, void* buf, size_t length) {
   }
 
   while ((i++ % 32) != 0) {
-    fprintf(out, "  ");
+    fputs("  ", out);
   }
 
   fprintf(out, " %s\n", ascii);
