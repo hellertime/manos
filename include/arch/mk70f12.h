@@ -17,6 +17,8 @@ typedef uint32_t uintptr_t;
 
 #define fprintf(x, y, args...) printf(y, args)
 
+void mcgInit(void);
+
 #endif /* PLATFORM_K70CW */
 
 #endif /* ! MANOS_ARCH_MK70F12_H */
