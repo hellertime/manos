@@ -15,6 +15,7 @@ int sysexecv(const char *path, char * const argv[]) {
     int isRel = *path != '/';
     int ret = -1;
     char *buf = NULL;
+    Portal* p = NULL;
 
     /*
      * While various standards exist for maximum args (ARG_MAX, _SC_ARG_MAX)
@@ -30,8 +31,6 @@ int sysexecv(const char *path, char * const argv[]) {
     Path* pth = mkPath(path);
     if (!pth)
         goto error;
-
-    Portal* p = NULL;
 
     /* Simple command searching. If the command isn't found on the first walk:
      * If the path is relative, try again from /bin
