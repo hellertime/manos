@@ -3,6 +3,7 @@
 
 #ifdef PLATFORM_K70CW
 
+#define ENODATA EINVAL
 #define ENOTRECOVERABLE EINVAL
 
 #define PRIu32 "lu"
