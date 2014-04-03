@@ -208,6 +208,7 @@ int torgo_main(int argc, char *argv[]) {
 
         shellErrno = 0;
         shellErrno = sysexecv(cmdArgv[0], cmdArgv);
+        UNUSED(shellErrno);
 
         /*
          * Some commands need shell environment access and so cannot be passed of to 'exec' at the moment
