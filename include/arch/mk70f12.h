@@ -3,6 +3,8 @@
 
 #ifdef PLATFORM_K70CW
 
+#include <stdint.h>
+
 #define ENOTRECOVERABLE EINVAL
 
 typedef int32_t intptr_t
