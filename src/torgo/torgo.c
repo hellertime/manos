@@ -168,7 +168,7 @@ void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv
  * drives the parse. Certain builtins that need to effect
  * the environment are defined here.
  */
-int torgo_main(int argc, char *argv[]) {
+int torgo_main(int argc, char * const argv[]) {
   UNUSED(argc);
   UNUSED(argv);
   const char *ps1 = "torgo > ", *ps2 = "> ";

@@ -1,9 +1,6 @@
-#define XHEAP_SIZE 8199
-static char _DRAM[XHEAP_SIZE];
-
-#define SDRAM_SIZE 8192
-#define SDRAM_START (char*)&_DRAM
-#define SDRAM_END (SDRAM_START + SDRAM_SIZE)
+#define SDRAM_SIZE 134217728 /* 128 * 1024 * 1024 */
+#define SDRAM_START 0x80000000
+#define SDRAM_END (SDRAM_START + SDRAM_SIZE - 1)
 
 /**
  * This can be computed at runtime using the following method
@@ -15,7 +12,7 @@ static char _DRAM[XHEAP_SIZE];
  * Solve m = 1/(8k + 1) * 8k(M - h)
  * Solve b = m / 8k, ALLOCATION_BITMAP_SIZE = b
  */
-#define ALLOCATION_BITMAP_SIZE 56 /* M = HEAP_SIZE, k = MIN_ALLOC_BYTES, h = 1028 */
+#define ALLOCATION_BITMAP_SIZE 1040439 /* M = HEAP_SIZE, k = MIN_ALLOC_BYTES, h = 1028 */
 
 /*
  * Note that this header assumes that MIN_ALLOC_BYTES == 16, and the
