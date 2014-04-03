@@ -3,6 +3,7 @@
 
 #include "manos/types.h"
 #include "manos/api.h"
+#include "arch/mk70f12.h"
 
 /* fakeproc stuff */
 extern Portal* slash;
