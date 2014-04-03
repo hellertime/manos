@@ -13,7 +13,7 @@
 typedef int32_t intptr_t;
 typedef uint32_t uintptr_t;
 
-#define fprintf(x,y,z) printf(y,z)
+#define fprintf(x,y,...) printf(y,__VA_ARGS__)
 
 #endif /* PLATFORM_K70CW */
 
