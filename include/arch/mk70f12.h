@@ -13,6 +13,8 @@
 typedef int32_t intptr_t;
 typedef uint32_t uintptr_t;
 
+#define fprintf(x,y,z) printf(y,z)
+
 #endif /* PLATFORM_K70CW */
 
 #endif /* ! MANOS_ARCH_MK70F12_H */
