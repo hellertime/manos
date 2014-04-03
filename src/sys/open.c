@@ -11,7 +11,7 @@ int sysopen(const char* path, Caps caps) {
     if (!pth)
         goto error;
 
-    f((p = syswalk(isRel ? dot : slash, pth->elems, pth->nelems)) == NULL)
+    if((p = syswalk(isRel ? dot : slash, pth->elems, pth->nelems)) == NULL)
         goto error;
 
     int fd = -1;
