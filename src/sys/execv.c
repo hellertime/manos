@@ -12,11 +12,16 @@
  */
 int sysexecv(const char *path, char * const argv[]) {
     int argc;
-    int isRel = *path != '/';
     int ret = -1;
     char *buf = NULL;
     Portal* p = NULL;
 
+    if (!path) {
+        errno = EINVAL;
+        goto error;
+    }
+
+    int isRel = *path != '/';
     /*
      * While various standards exist for maximum args (ARG_MAX, _SC_ARG_MAX)
      * Since our runtime is stll being defined for now we just punt at 256
