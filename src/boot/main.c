@@ -25,17 +25,7 @@ int main(int argc, char** argv) {
 
     u = &firstProc;
 
-    Proc* uptr = kmallocz(sizeof *uptr);
-    if (!uptr) {
-        puts("PANIC! Cannot create first user\n");
-        return 1;
-    }
 
-    memcpy(u, uptr, sizeof *uptr);
-
-    u->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
-    u->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
- 
     for (unsigned i = 0; i < COUNT_OF(deviceTable); i++) {
         deviceTable[i]->init();
         deviceTable[i]->reset();
@@ -48,5 +38,24 @@ int main(int argc, char** argv) {
 #elif PLATFORM_NICE
     niceConsole();
 #endif
+
+    sysputs("Initializing first user...\n");
+
+    Proc* uptr = kmallocz(sizeof *uptr);
+    if (!uptr) {
+        puts("PANIC! Cannot create first user\n");
+        return 1;
+    }
+
+    memcpy(u, uptr, sizeof *uptr);
+
+    sysputs("Creating namespace...\n");
+
+    u->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
+    u->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
+
+    sysputchar('\n');
+    sysputs("MANOS: Welcome Master...\n");
+    sysputchar('\n');
     return torgo_main(argc, argv);
 }
