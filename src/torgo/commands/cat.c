@@ -3,7 +3,7 @@
 
 int cmdCat__Main(int argc, char * const argv[]) {
     if (argc < 2) {
-        puts("usage: cat PATH");
+        sysprintln("usage: cat PATH");
         return -1;
     }
 
@@ -14,7 +14,7 @@ int cmdCat__Main(int argc, char * const argv[]) {
     /* a very slow cat */
     char c;
     while (sysread(fd, &c, 1) == 1) {
-        putchar(c);
+        sysputchar(c);
     }
 
     sysclose(fd);

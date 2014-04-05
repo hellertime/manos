@@ -11,7 +11,7 @@ int cmdLs__Main(int argc, char * const argv[]) {
     int n;
     while ((n = dirread(fd, &ni)) > 0) {
         for (int i = 0; i < n; i++)
-            puts(ni[i].name);
+            sysprintln(ni[i].name);
 
         kfree(ni);
     }

@@ -6,7 +6,6 @@ int cmdPwd__Main(int argc, char * const argv[]) {
     UNUSED(argv);
     char buf[4096];
     getcwd(buf, sizeof buf);
-    puts(buf);
-    putchar('\n');
+    sysprintln(buf);
     return 0;
 }
