@@ -89,8 +89,10 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
         break;
       case '\n':
         keepReading = 0;
+        sysputchar('\r');
         /* fall through */
       default:
+        sysputchar(c);
         appendCharBuf(shell->readBuf, c);
         break;
     }
