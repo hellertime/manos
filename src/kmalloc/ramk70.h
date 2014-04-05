@@ -1,6 +1,6 @@
 #define SDRAM_SIZE 134217728 /* 128 * 1024 * 1024 */
 #define SDRAM_START 0x80000000
-#define SDRAM_END (SDRAM_START + SDRAM_SIZE - 1)
+#define SDRAM_END ((SDRAM_START + SDRAM_SIZE - 1) & ~3) /* WORD ALIGN Upper address */
 
 /**
  * This can be computed at runtime using the following method

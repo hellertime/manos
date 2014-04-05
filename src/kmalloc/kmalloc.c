@@ -369,11 +369,7 @@ static void initRam(void) {
      * boundaries we need to push the start of the heap to a WORD aligned address
      * so that the first chunk user data will be on a DOUBLE WORD address.
      */
-#if defined PLATFORM_K70CW
-    heap = ram0 + WORD_PAD(sizeof(struct AllocHeader)) + WORD_BYTES;
-#else
     heap = ram0 + WORD_PAD(sizeof(struct AllocHeader));
-#endif
     
     totalRAM = (uint32_t)(ramHighAddress - heap);
     
