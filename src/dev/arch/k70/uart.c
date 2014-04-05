@@ -40,7 +40,7 @@ Uart k70Uart[] = {
 
 static Uart* k70UartHotplug(void) {
 #ifdef PLATFORM_K70CW
-    return k70UartHW;
+    return k70Uart;
 #else
     return NULL;
 #endif

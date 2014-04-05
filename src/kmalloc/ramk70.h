@@ -11,8 +11,9 @@
  * Let a byte hold 8 bits.
  * Solve m = 1/(8k + 1) * 8k(M - h)
  * Solve b = m / 8k, ALLOCATION_BITMAP_SIZE = b
+ * Round to double-word to ensure enough bytes -> b + 7 & ~7
  */
-#define ALLOCATION_BITMAP_SIZE 1040439 /* M = HEAP_SIZE, k = MIN_ALLOC_BYTES, h = 1028 */
+#define ALLOCATION_BITMAP_SIZE 1040440 /* M = HEAP_SIZE, k = MIN_ALLOC_BYTES, h = 1028 */
 
 /*
  * Note that this header assumes that MIN_ALLOC_BYTES == 16, and the

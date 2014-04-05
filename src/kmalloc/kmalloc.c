@@ -353,7 +353,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
 static void initRam(void) {
   if (ram0 == NULL) {
     ram0 = (char*)SDRAM_START;
-    ramHighAddress = SDRAM_END;
+    ramHighAddress = (char*)SDRAM_END;
 
     /* Zero out the header RAM */
     char* z = ram0;
