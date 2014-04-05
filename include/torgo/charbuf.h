@@ -18,6 +18,7 @@ void clearCharBuf(CharBuf *buf);
 int isEmptyCharBuf(const CharBuf *buf);
 const char* concatCharBuf(CharBuf *buf, const char *str);
 char appendCharBuf(CharBuf *buf, char c);
+char dropLastCharBuf(CharBuf *buf);
 
 const char* fromCharBuf(const CharBuf *buf);
 

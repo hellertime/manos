@@ -115,6 +115,20 @@ char appendCharBuf(CharBuf *buf, char c) {
 }
 
 /*
+ * dropLastCharBuff :: CharBuf -> char
+ *
+ * Remove the last char from the charbuf
+ */
+char dropLastCharBuf(CharBuf* buf) {
+   char c = 0;
+   if (buf->used) {
+       c = buf->data[--buf->used];
+       buf->data[buf->used] = 0;
+   } 
+   return c;
+}
+
+/*
  * fromCharBuf :: CharBuf -> CStr
  *
  * Returns pointer to the buffer for use in stdlib

@@ -87,6 +87,9 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
       case EOF:
         keepReading = 0;
         break;
+      case 127: /* DEL */
+          dropLastCharBuf(shell->readBuf);
+          break;
       case '\r':
       case '\n':
         keepReading = 0;
