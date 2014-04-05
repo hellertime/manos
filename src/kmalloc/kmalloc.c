@@ -191,6 +191,17 @@ static int32_t allocPM = 0; /* +/- count */
 #define clearBitmap(addr) (header->bitmap[getAddrByte((addr))] &= ~(1 << getAddrBit((addr))))
 #define checkBitmap(addr) (header->bitmap[getAddrByte((addr))] & (1 << getAddrBit((addr))))
 
+
+static void __attribute__((used)) xbitmap(void* p) {
+    int o = getAddrBitmapOffset(p);
+    int B = getAddrByte(p);
+    int b = getAddrBit(p);
+    o = B;
+    b = o + B;
+    B = b - o;
+    return;
+}
+
 /*
  * the header is a global value in the allocator
  */
@@ -385,9 +396,6 @@ static void initRam(void) {
     firstChunk->prev = &getBinByIndex(MAX_BINS - 1).clean;
     
     allocFree = getSize(firstChunk);
-
-    sysprintln("Total System RAM: %" PRIu32, totalRAM);
-    sysprintln(" # Chunk Offsets: %d", numChunkOffsets);
   }
   return;
 }
