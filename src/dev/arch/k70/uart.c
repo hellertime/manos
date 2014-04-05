@@ -29,7 +29,7 @@ extern UartHW k70UartHW;
 Uart k70Uart[] = {
 {    .regs    = &k70Control[0]
 ,    .name    = "k70Uart2"
-,    .clock   = 20480 /* kHz */
+,    .clock   = 60000000   /* Hz */
 ,    .hw      = &k70UartHW
 ,    .next    = 0
 },
@@ -87,7 +87,7 @@ static int k70UartBaud(Uart* uart, unsigned baud) {
         return -1;
     }
 
-    uint16_t newSBR = (uint16_t)((uart->clock * 1000) / (baud * 16));   /* See Ref manual 54.4.4/1980 */
+    uint16_t newSBR = (uint16_t)(uart->clock / baud / 16);              /* See Ref manual 54.4.4/1980 */
     uint8_t saveBDH = UART_BDH_REG(ctrl->mmap) & ~(UART_BDH_SBR(0x1f)); /* Mask off old SB before saving BDH */
 
     /* Change not in effect until BDL is written so write High, then Low */
@@ -95,7 +95,8 @@ static int k70UartBaud(Uart* uart, unsigned baud) {
     UART_BDL_REG(ctrl->mmap) = (uint8_t)(newSBR & UART_BDL_SBR_MASK);
 
     /* Compute a potential fractional divider to fine-tune the baud */
-    uint16_t newBRFA = ((((uint32_t)uart->clock*32000) / (baud * 16)) - (newSBR * 32));
+    /* uint16_t newBRFA = ((((uint32_t)uart->clock*32000) / (baud * 16)) - (newSBR * 32)); */
+    uint16_t newBRFA = 0;
     uint8_t   saveC4 = UART_C4_REG(ctrl->mmap) & ~(UART_C4_BRFA(0x1f)); /* Mask off old BRFA before saving C4 */
 
     UART_C4_REG(ctrl->mmap) = saveC4 | UART_C4_BRFA(newBRFA);
