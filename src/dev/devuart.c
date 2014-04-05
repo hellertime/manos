@@ -22,8 +22,8 @@ static unsigned uartSNSCount = 0;
 static StaticNS* uartSNS = NULL; /* to be populated at startup */
 
 static void resetUart(void) {
-    Uart* uart;
-    Uart* hpChain;
+    Uart* uart = NULL;
+    Uart* hpChain = NULL;
 
     unsigned hpCount = 0;
     for (unsigned i = 0; i < MANOS_MAXUART; i++) {
