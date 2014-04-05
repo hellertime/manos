@@ -7,9 +7,6 @@ Uart niceUart[] = {
 {    .name    = "stdout"
 ,    .clock   = 0
 ,    .hw      = &niceUartHW
-#ifdef PLATFORM_NICE
-,    .console = 1
-#endif
 ,    .next    = 0
 }
 };
@@ -68,3 +65,11 @@ UartHW niceUartHW = {
 ,   .getc    = niceUartGetc
 ,   .putc    = niceUartPutc
 };
+
+void niceConsole(void) {
+    Uart* uart = &niceUart[0];
+
+    sysuartctl(uart, "b9600 l8 pn s1");
+    consoleUart = uart;
+    uart->console =1;
+}

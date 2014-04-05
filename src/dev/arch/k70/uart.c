@@ -31,9 +31,6 @@ Uart k70Uart[] = {
 ,    .name    = "k70Uart2"
 ,    .clock   = 20480 /* kHz */
 ,    .hw      = &k70UartHW
-#ifdef PLATFORM_K70CW
-,    .console = 1
-#endif
 ,    .next    = 0
 },
 };
@@ -134,3 +131,11 @@ UartHW k70UartHW = {
 ,   .getc    = k70UartGetc
 ,   .putc    = k70UartPutc
 };
+
+void k70Console(void) {
+    Uart* uart = &k70Uart[0];
+
+    sysuartctl(uart, "b9600 l8 pn s1");
+    consoleUart = uart;
+    uart->console = 1;
+}

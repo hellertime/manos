@@ -13,6 +13,7 @@ extern UartHW* uartHardwareTable[MANOS_MAXUART];
 
 extern Proc* u; /* always the current user pointer */
 
+extern Uart* consoleUart; /* UART connected to the console */
 extern Uart* hotpluggedUarts; /* populated with the installed UARTS */
 
 #endif /* ! MANOS_H */

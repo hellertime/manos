@@ -12,6 +12,9 @@ int main(int argc, char** argv) {
 #ifdef PLATFORM_K70CW
     mcgInit();
     sdramInit();
+    k70Console();
+#elif PLATFORM_NICE
+    niceConsole();
 #endif
 
     /*

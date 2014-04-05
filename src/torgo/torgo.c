@@ -76,15 +76,13 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
 
   clearCharBuf(shell->readBuf);
 
-  fputs(promptStr, stdout);
+  sysputs(promptStr);
 
   if (promptStr[strlen(promptStr) - 1] != ' ')
-    fputc(' ', stdout);
+    sysputchar(' ');
   
-  fflush(stdout);
-
   while (keepReading && (readMax == -1 || readMax > 0)) {
-    int c = fgetc(stdin);
+    int c = sysgetchar();
     switch (c) {
       case EOF:
         keepReading = 0;
@@ -180,9 +178,9 @@ int torgo_main(int argc, char * const argv[]) {
     if (isEmptyCharBuf(input)) {
       shell->state = ShellStateEOF;
       if (hasUnparsedInputParser(shell->parser)) {
-        fputs("error: unexpected end-of-file\n", stdout);
+        sysputs("error: unexpected end-of-file\n");
       }
-      fputs("\n", stdout);
+      sysputs("\n");
       break;
     }
 

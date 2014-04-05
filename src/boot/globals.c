@@ -22,5 +22,6 @@ UartHW* uartHardwareTable[MANOS_MAXUART] = {
 
 Proc* u = NULL; 
 
+Uart* consoleUart = NULL;
 Uart* hotpluggedUarts = NULL;
 

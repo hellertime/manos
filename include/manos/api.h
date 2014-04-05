@@ -67,6 +67,13 @@ int dirread(int fd, NodeInfo**);
 char* getcwd(char*, size_t);
 
 Path* mkPath(const char*);
+    
+void niceConsole(void);
+void k70Console(void);
+
+int sysgetchar(void);
+void sysputchar(int);
+void sysputs(const char*);
 
 #define UNUSED(x) (void)(x)
 #define USED UNUSED
