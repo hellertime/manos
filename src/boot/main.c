@@ -4,6 +4,7 @@
 #include <inttypes.h>
 
 int torgo_main(int, char**);
+void kmallocBitmapFunctionIntegrityCheck(void);
 
 extern uint32_t totalRAM;
 extern size_t numChunkOffsets;
@@ -61,6 +62,10 @@ int main(int argc, char** argv) {
     sysprintln("Total System RAM: %" PRIu32 "", totalRAM);
     sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
     sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);
+
+    sysprintln("Validating Bitmap ...\n\n");
+
+    kmallocBitmapFunctionIntegrityCheck();
 
     sysprintln("\nMANOS: Welcome Master...\n");
     return torgo_main(argc, argv);

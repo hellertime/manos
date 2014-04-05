@@ -16,7 +16,7 @@ static char _DRAM[ONE_MEBIBYTE_WITH_DWORD_PADDING];
  * Solve m = 1/(8k + 1) * 8k(M - h)
  * Solve b = m / 8k, ALLOCATION_BITMAP_SIZE = b
  */
-#define ALLOCATION_BITMAP_SIZE 8120 /* M = ONE_MEBIBYTE, k = MIN_ALLOC_BYTES, h = 1028 */
+#define ALLOCATION_BITMAP_SIZE 8128 /* M = ONE_MEBIBYTE, k = MIN_ALLOC_BYTES, h = 1028 */
 
 /*
  * Note that this header assumes that MIN_ALLOC_BYTES == 16, and the

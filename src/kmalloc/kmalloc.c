@@ -183,7 +183,8 @@ static int32_t allocPM = 0; /* +/- count */
  * From that we can select the byte of the bitmap buffer to load
  * the bit to operate on.
  */
-#define getAddrBitmapOffset(addr) (size_t)(((numChunkOffsets * (uintptr_t)((char*)(addr) - heap)) / (uintptr_t)(totalRAM)))
+/* #define getAddrBitmapOffset(addr) (size_t)(((numChunkOffsets * (uintptr_t)((char*)(addr) - heap)) / (uintptr_t)(totalRAM))) */
+#define getAddrBitmapOffset(addr) (size_t)(((uintptr_t)addr - (uintptr_t)heap) / MIN_ALLOC_BYTES)
 #define getAddrBit(addr) ((DWORD_BYTES - 1) - (getAddrBitmapOffset((addr)) & (DWORD_BYTES - 1)))
 #define getAddrByte(addr) (getAddrBitmapOffset((addr)) / DWORD_BYTES)
 
@@ -968,4 +969,33 @@ void kmallocDump(FILE *out) {
       }
     }
   }
+}
+
+/*
+ * This function is a debug routine that is meant to verify the correctness of the
+ * bitmap set/check functions used by the allocator.
+ *
+ * It is a response to a issue seen only on the k70 where two allocations appeared
+ * to map to the same bit even though their addresses were > 16 bytes from each 
+ * other (something that testing off the device has shown should be an impossibility)
+ *
+ * The premise here is to make a pass over all possible 16 byte address boundaries in
+ * the memory space (from heap to heap + totalRAM) and check and set the appropriate 
+ * bit. If the bit has been previously set we output the address in stars.
+ */
+void kmallocBitmapFunctionIntegrityCheck(void) {
+    char bitmap[ALLOCATION_BITMAP_SIZE] = {0}; /* Initialize bitmap to all clear */
+    for (uintptr_t addr = (uintptr_t)heap; addr < (uintptr_t)(heap + totalRAM); addr += MIN_ALLOC_BYTES) {
+        size_t offset = getAddrBitmapOffset(addr);
+        unsigned byte = getAddrByte(addr);
+        unsigned bit  = getAddrBit(addr);
+
+        int isSet = bitmap[byte] & (1 << bit);
+        if (isSet)
+            sysprintln("**** 0x%.8" PRIx32 " **** (%" PRIu32 ", %d, %d)", addr, offset, byte, bit);
+        else
+            sysprintln("     0x%.8" PRIx32 "      (%" PRIu32 ", %d, %d)", addr, offset, byte, bit);
+
+        bitmap[byte] |= (1 << bit);
+    }
 }
