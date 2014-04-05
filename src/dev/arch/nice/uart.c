@@ -69,6 +69,7 @@ UartHW niceUartHW = {
 void niceConsole(void) {
     Uart* uart = &niceUart[0];
 
+    uart->hw->enable(uart);
     sysuartctl(uart, "b9600 l8 pn s1");
     consoleUart = uart;
     uart->console =1;

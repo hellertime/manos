@@ -136,6 +136,7 @@ UartHW k70UartHW = {
 void k70Console(void) {
     Uart* uart = &k70Uart[0];
 
+    uart->hw->enable(uart);
     sysuartctl(uart, "b9600 l8 pn s1");
     consoleUart = uart;
     uart->console = 1;
