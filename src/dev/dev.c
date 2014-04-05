@@ -9,6 +9,11 @@
 #include <errno.h>
 #include <manos.h>
 
+void powerDev(OnOff onoff) {
+  UNUSED(onoff);
+  /* noop */
+}
+
 void initDev(void) {
   /* noop */
 }

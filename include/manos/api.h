@@ -43,6 +43,7 @@ Portal* closePortal(Portal*);
 #define PORTAL_ISDIR(p) ((p)->crumb.flags & CRUMB_ISDIR)
 #define PORTAL_ISSTATICNS(p) ((p)->crumb.flags & CRUMB_ISSTATIC)
 
+void powerDev(OnOff);
 void initDev(void);
 void shutdownDev(void);
 void resetDev(void);

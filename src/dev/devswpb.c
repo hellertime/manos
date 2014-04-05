@@ -208,6 +208,7 @@ static ptrdiff_t writeSwpb(Portal *p, void *buf, size_t size, Offset offset) {
 Dev devSwpb = {
     .id       = DEV_DEVSWPB
 ,   .name     = "swpb"
+,   .power    = powerDev
 ,   .init     = initSwpb
 ,   .reset    = resetDev
 ,   .shutdown = shutdownDev

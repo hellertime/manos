@@ -14,6 +14,7 @@ typedef uint16_t StaticIndex;
 typedef unsigned long Time;
 typedef int DeviceIndex;
 typedef int DeviceId;
+typedef int OnOff;
 
 #define DEV_DEVROOT 'R'
 #define DEV_DEVLED  'l'
@@ -103,6 +104,7 @@ typedef struct Dev {
     DeviceId id;
     char *name;
 
+    void (*power)(OnOff);
     void (*init)(void);
     void (*reset)(void);
     void (*shutdown)(void);

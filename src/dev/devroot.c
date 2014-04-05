@@ -108,6 +108,7 @@ static ptrdiff_t writeRoot(Portal* p, void* buf, size_t size, Offset offset) {
 Dev devRoot = {
     .id       = DEV_DEVROOT
 ,   .name     = "root"
+,   .power    = powerDev
 ,   .init     = initDev
 ,   .reset    = resetDev
 ,   .shutdown = shutdownDev

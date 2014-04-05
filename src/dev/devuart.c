@@ -146,9 +146,17 @@ static int getInfoUart(const Portal* p, NodeInfo *ni) {
     return getNodeInfoStaticNS(p, uartSNS, WalkSelf, ni) == NULL ? -1 : 0;
 }
 
+static void powerUart(OnOff onoff) {
+    for (Uart* uart = hotpluggedUarts; uart; uart = uart->next) {
+        if(uart->hw->power)
+            uart->hw->power(uart, onoff);
+    }
+}
+
 Dev devUart = {
     .id       = DEV_DEVUART
 ,   .name     = "uart"
+,   .power    = powerUart
 ,   .init     = initDev
 ,   .reset    = resetUart
 ,   .shutdown = shutdownDev

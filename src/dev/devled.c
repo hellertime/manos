@@ -296,6 +296,7 @@ static ptrdiff_t writeLed(Portal *p, void *buf, size_t size, Offset offset) {
 Dev devLed = {
     .id       = DEV_DEVLED
 ,   .name     = "led"
+,   .power    = powerDev
 ,   .init     = initLed
 ,   .reset    = resetDev
 ,   .shutdown = shutdownDev
