@@ -662,6 +662,14 @@ void* kmalloc(size_t size) {
     /* indicate this chunk is allocated */
     getTag(chunk).free = getFooter(chunk)->free = 0;
 
+    /* TODO: This is debug to see what is coming out of the allocator and where the bitmap thinks it goes */
+    char buf[4096];
+    sysputs("New Allocation:\n");
+    sysputs("Addr: ");
+    sprintf(buf, "%.8" PRIxPTR "\n", (uintptr_t)mem);
+    sysputs(buf);
+    sysputs("Bitmap Record: ");
+    sprintf(buf, "offset: %" PRIu32 " byte: %" PRIu32 " bit: %" PRIu32 "\n", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
     /* tag this address as allocated in the bitmap */
     assert(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
     setBitmap(mem);
