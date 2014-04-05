@@ -192,16 +192,28 @@ static int32_t allocPM = 0; /* +/- count */
 #define checkBitmap(addr) (header->bitmap[getAddrByte((addr))] & (1 << getAddrBit((addr))))
 
 
+static int xoffsetVal = 0;
+
 static int __attribute__((used)) xoffset(void* p) {
-    return getAddrBitmapOffset(p);
+    return (xoffsetVal =  getAddrBitmapOffset(p));
 }
+
+static int xbyteVal = 0;
 
 static int __attribute__((used)) xbyte(void* p) {
-    return getAddrByte(p);
+    return (xbyteVal = getAddrByte(p));
 }
 
+static int xbitVal = 0;
+
 static int __attribute__((used)) xbit(void* p) {
-    return getAddrBit(p);
+    return (xbitVal = getAddrBit(p));
+}
+
+static void __attribute__((used)) xbitmap(void* p) {
+    xoffset(p);
+    xbyte(p);
+    xbit(p);
 }
 
 /*
