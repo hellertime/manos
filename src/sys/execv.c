@@ -15,6 +15,7 @@ int sysexecv(const char *path, char * const argv[]) {
     int ret = -1;
     char *buf = NULL;
     Portal* p = NULL;
+    Path* pth = NULL;
 
     if (!path) {
         errno = EINVAL;
@@ -33,8 +34,7 @@ int sysexecv(const char *path, char * const argv[]) {
 
     errno = EPERM;
 
-    Path* pth = mkPath(path);
-    if (!pth)
+    if (!(pth = mkPath(path)))
         goto error;
 
     /* Simple command searching. If the command isn't found on the first walk:
