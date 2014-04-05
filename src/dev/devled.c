@@ -38,7 +38,7 @@ static uint32_t __FAKE_REG = 0;
 #define PTA_BASE_PTR 0
 
 #else
-#include <derivative.h>
+#include <arch/k70/derivative.h>
 #endif
 
 /*

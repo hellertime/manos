@@ -33,7 +33,7 @@ static uint32_t __FAKE_REG = 0;
 #define PTD_BASE_PTR 0
 #define GPIO_PDIR_REG(x) __FAKE_REG
 #else
-#include <derivative.h>
+#include <arch/k70/derivative.h>
 #endif
 
 /* for now put this here */
