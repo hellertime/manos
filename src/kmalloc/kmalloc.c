@@ -670,6 +670,7 @@ void* kmalloc(size_t size) {
     sysputs(buf);
     sysputs("Bitmap Record: ");
     sprintf(buf, "offset: %d byte: %d bit: %d\n", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
+    sysputs(buf);
     /* tag this address as allocated in the bitmap */
     assert(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
     setBitmap(mem);
