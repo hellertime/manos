@@ -1,9 +1,12 @@
 #include <manos.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 int torgo_main(int, char**);
 
+extern uint32_t totalRAM;
+extern size_t numChunkOffsets;
 /*
  * Kernel entry point. For now it just launches the shell.
  */
@@ -39,23 +42,26 @@ int main(int argc, char** argv) {
     niceConsole();
 #endif
 
-    sysputs("Initializing first user...\n");
+    sysprintln("Initializing first user...");
 
     Proc* uptr = kmallocz(sizeof *uptr);
     if (!uptr) {
-        puts("PANIC! Cannot create first user\n");
+        sysprintln("PANIC! Cannot create first user");
         return 1;
     }
 
     memcpy(u, uptr, sizeof *uptr);
 
-    sysputs("Creating namespace...\n");
+    sysprintln("Creating namespace...");
 
     u->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
     u->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
 
+    sysprintln("Total System RAM: %" PRIu32 "", totalRAM);
+    sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
+
     sysputchar('\n');
-    sysputs("MANOS: Welcome Master...\n");
+    sysprintln("MANOS: Welcome Master...");
     sysputchar('\n');
     return torgo_main(argc, argv);
 }

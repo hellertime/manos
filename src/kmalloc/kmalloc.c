@@ -167,9 +167,9 @@ typedef struct AllocHeader {
  * provide. This is used by the bitmap to track allocations.
  */
 static char *heap;
-static size_t numChunkOffsets;
+size_t numChunkOffsets;
 
-static uint32_t totalRAM = 0; /* ramHighAddress - heap */
+uint32_t totalRAM = 0; /* ramHighAddress - heap */
 static uint32_t allocHWM = 0; /* high water mark */
 static uint32_t allocCount = 0; /* # allocations */
 static uint32_t freeCount = 0; /* # frees */
