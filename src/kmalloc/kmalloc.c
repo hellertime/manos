@@ -669,7 +669,7 @@ void* kmalloc(size_t size) {
     sprintf(buf, "%.8" PRIxPTR "\n", (uintptr_t)mem);
     sysputs(buf);
     sysputs("Bitmap Record: ");
-    sprintf(buf, "offset: %" PRIu32 " byte: %" PRIu32 " bit: %" PRIu32 "\n", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
+    sprintf(buf, "offset: %d byte: %d bit: %d\n", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
     /* tag this address as allocated in the bitmap */
     assert(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
     setBitmap(mem);
