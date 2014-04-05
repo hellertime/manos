@@ -691,6 +691,7 @@ void* kmalloc(size_t size) {
     sysprintln("Bitmap o: %d B: %d b: %d", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
 
     /* tag this address as allocated in the bitmap */
+    xbitmap(mem);
     assert(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
     setBitmap(mem);
     
