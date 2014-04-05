@@ -91,7 +91,7 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
           if (dropLastCharBuf(shell->readBuf) != 0)
               sysputs("\b \b"); /* backup, erase, backup */
           else
-              sysputs("\a\b");
+              sysputchar('\a'); /* BEEP */
           break;
       case '\r':
       case '\n':
