@@ -22,7 +22,8 @@ NodeInfo* mkNodeInfo(const Portal*, Crumb, const char*, Offset, Mode, NodeInfo*)
 
 /* can only be used when constructing a static NS */
 #define STATICNS_SENTINEL 0xffff
-#define MKSTATICNS_CRUMB(p, s, f) { ((f) | CRUMB_ISSTATIC), (((p) & 0xffff) << 16) | ((s) & 0xffff) }
+#define MKSTATICNS_FID(p, s) ((((p) & 0xfff) << 16) | ((s) & 0xffff))
+#define MKSTATICNS_CRUMB(p, s, f) { ((f) | CRUMB_ISSTATIC), MKSTATICNS_FID(p,s) }
 #define MKSTATICNS_SENTINEL_CRUMB MKSTATICNS_CRUMB(STATICNS_SENTINEL, STATICNS_SENTINEL, 0)
 #define STATICNS_CRUMB_ISSENTINEL(c) (((c).flags & CRUMB_ISSTATIC) && ((c).fid == STATICNS_SENTINEL))
 
@@ -59,6 +60,7 @@ int sysgetInfoFd(int fd, NodeInfo*);
 int sysopen(const char*, Caps);
 void sysclose(int fd);
 ptrdiff_t sysread(int fd, void*, size_t);
+int sysuartctl(Uart*, const char*);
 Portal* syswalk(Portal*, char**, unsigned);
 
 int dirread(int fd, NodeInfo**);

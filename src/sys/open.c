@@ -11,13 +11,13 @@ int sysopen(const char* path, Caps caps) {
     if (!pth)
         goto error;
 
-    if((p = syswalk(isRel ? dot : slash, pth->elems, pth->nelems)) == NULL)
+    if((p = syswalk(isRel?u->dot:u->slash, pth->elems, pth->nelems)) == NULL)
         goto error;
 
     int fd = -1;
     for (fd = 0; fd < MANOS_MAXFD; fd++) {
-        if (descriptorTable[fd] == NULL) {
-            descriptorTable[fd] = deviceTable[p->device]->open(p, caps);
+        if (u->descriptorTable[fd] == NULL) {
+            u->descriptorTable[fd] = deviceTable[p->device]->open(p, caps);
             return fd;
         }
     }

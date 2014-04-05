@@ -159,8 +159,6 @@ void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv
   *argv = argv_;
 }
 
-#include "fakeproc.h"
-
 /*
  * main
  *
@@ -174,14 +172,6 @@ int torgo_main(int argc, char * const argv[]) {
   const char *ps1 = "torgo > ", *ps2 = "> ";
   Shell *shell = mkShell();
   int shellErrno = 0;
-  
-  setvbuf(stdin, NULL, _IONBF, 0);
-
-#ifdef HAS_FAKEPROC
-  initDeviceTable();
-  slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
-  dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
-#endif
   
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {

@@ -9,9 +9,10 @@
  * Written by James L. Frankel (frankel@seas.harvard.edu)
  */
 
-#include <derivative.h>
+#include <arch/k70/derivative.h>
 
 void mcgInit(void) {
+#ifdef PLATFORM_K70CW
     /* This routine will transition from FEI -> FBE -> PBE -> PEE */
     
     /* Initialize SIM dividers */
@@ -91,4 +92,5 @@ void mcgInit(void) {
      *  FlexBus clock = 40 MHz
      *  FLASH clock = 20 MHz
      *  DDR clock = 150 MHz */
+#endif /* PLATFORM_K70CW */
 }

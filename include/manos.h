@@ -5,14 +5,14 @@
 #include "manos/api.h"
 #include "arch/mk70f12.h"
 
-/* fakeproc stuff */
-extern Portal* slash;
-extern Portal* dot;
-
-#define MANOS_MAXDEV 3
+#define MANOS_MAXDEV 4
 extern Dev* deviceTable[MANOS_MAXDEV];
 
-#define MANOS_MAXFD 4096
-extern Portal* descriptorTable[MANOS_MAXFD];
+#define MANOS_MAXUART 2
+extern UartHW* uartHardwareTable[MANOS_MAXUART];
+
+extern Proc* u; /* always the current user pointer */
+
+extern Uart* hotpluggedUarts; /* populated with the installed UARTS */
 
 #endif /* ! MANOS_H */

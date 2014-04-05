@@ -129,7 +129,7 @@ static void initSwpb(void) {
 
 static StaticNS swpbSNS[] = {
     /* root */
-    { "#B", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555, 0 }
+    { ".", MKSTATICNS_CRUMB(STATICNS_SENTINEL, 0, CRUMB_ISDIR), 0, 0555, 0 }
 
     /* one level */
 ,   { "1",    MKSTATICNS_CRUMB(0, FidOne,    CRUMB_ISFILE), 0, 0444, 0 }

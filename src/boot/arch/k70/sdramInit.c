@@ -10,7 +10,7 @@
  */
 
 #include <stdint.h>
-#include <derivative.h>
+#include <arch/k70/derivative.h>
 
 #define SIM_MCR_DDRCFG_LPDDR_HALF_STRENGTH 0
 #define SIM_MCR_DDRCFG_LPDDR_FULL_STRENGTH 1
@@ -61,6 +61,7 @@
 #define DDR_CR30_INTSTAT_ANY_MASK (1<<DDR_CR30_INTSTAT_ANY_SHIFT) 
 
 void sdramInit(void) {
+#ifdef PLATFORM_K70CW
   /* Enable DDR controller clock using the System Clock Gating
      Control Register 3 (SIM_SCGC3) (See 12.2.11 on page 338 of
      the K70 Sub-Family * Reference Manual, Rev. 2, Dec 2011) */
@@ -532,4 +533,5 @@ void sdramInit(void) {
      Register (MCM_CR) (See 17.2.3 on page 419 of the K70 Sub-Family
      Reference Manual, Rev. 2, Dec 2011) */
   MCM_CR |= MCM_CR_DDRSIZE(MCM_CR_DDRSIZE_128_MBYTES);
+#endif /* PLATFORM_K70CW */
 }

@@ -2,7 +2,7 @@
 #include <string.h>
 
 char* getcwd(char* buf, size_t n) {
-    Portal* p = syswalk(dot, 0, 0);
+    Portal* p = syswalk(u->dot, 0, 0);
     NodeInfo ni;
     deviceTable[p->device]->getInfo(p, &ni);
     kfree(p);

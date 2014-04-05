@@ -40,9 +40,9 @@ int sysexecv(const char *path, char * const argv[]) {
     /* Simple command searching. If the command isn't found on the first walk:
      * If the path is relative, try again from /bin
      */
-    if (((p = syswalk(isRel ? dot : slash, pth->elems, pth->nelems)) == NULL) && isRel) {
+    if (((p = syswalk(isRel?u->dot:u->slash, pth->elems, pth->nelems)) == NULL) && isRel) {
         char *bin = "bin";
-        Portal* pbin = syswalk(slash, &bin, 1);
+        Portal* pbin = syswalk(u->slash, &bin, 1);
         if (!pbin) {
             errno = EIO;
             goto error;

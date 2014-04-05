@@ -1,15 +1,18 @@
-SRCS = $(sort $(wildcard src/*/*.c)) $(sort $(wildcard src/*/*/*.c))
+MAIN = src/boot/main.c
+SRCS = $(filter-out $(MAIN),$(sort $(shell find src -name '*.c')))
 OBJS = $(SRCS:.c=.o)
 
 LDFLAGS =
 CPPFLAGS = -DPLATFORM_NICE
 CFLAGS = -pipe
 CFLAGS_C99 = -std=c99
-CFLAGS_ERR = -Wall -pedantic -Werror -Wextra
+CFLAGS_MSEXT = -fms-extensions
+CFLAGS_ERR = -Wall -Werror -Wextra
 CFLAGS_DBG = -g -ggdb -gdwarf-2 -g3
 CFLAGS_TORGO = -I./include/torgo
 
 CFLAGS_ALL = $(CFLAGS_C99)
+CFLAGS_ALL += $(CFLAGS_MSEXT)
 CFLAGS_ALL += $(CFLAGS_ERR)
 CFLAGS_ALL += $(CFLAGS_DBG)
 CFLAGS_ALL += $(CFLAGS_TORGO)
@@ -40,9 +43,9 @@ t/sns-walk: t/sns-walk.c $(ALL_LIBS)
 	@$(CC) $(CFLAGS_ALL) -o $@ $< -L./lib -lmanos
 	@echo "CC $@"
 
-manos-boot: lib/libmanos.a
+manos-boot: $(MAIN) lib/libmanos.a
 	rm -f $@
-	@$(CC) $(CFLAGS_ALL) -o $@ -L./lib -lmanos
+	@$(CC) $(CFLAGS_ALL) -o $@ $< -L./lib -lmanos
 	@echo "BUILD $@"
 
 clean:

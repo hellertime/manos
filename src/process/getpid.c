@@ -1,5 +1,5 @@
 #include <manos.h>
 
 Pid getpid(void) {
-    return 0;
+    return u->pid;
 }

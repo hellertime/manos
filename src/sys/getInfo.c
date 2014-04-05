@@ -2,7 +2,7 @@
 #include <manos.h>
 
 int sysgetInfoFd(int fd, NodeInfo* ni) {
-    Portal* p = descriptorTable[fd];
+    Portal* p = u->descriptorTable[fd];
     if (!p) {
         errno = EBADF;
         return -1;

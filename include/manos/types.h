@@ -18,6 +18,7 @@ typedef int DeviceId;
 #define DEV_DEVROOT 'R'
 #define DEV_DEVLED  'l'
 #define DEV_DEVSWPB 'B'
+#define DEV_DEVUART 'u'
 
 #define CAP_READ      0
 #define CAP_WRITE     1
@@ -88,12 +89,14 @@ typedef struct Portal {
 
 typedef NodeInfo* (*GetNodeInfoFn)(const Portal*, WalkDirection, NodeInfo*);
 
+#define MANOS_MAXNAME 256
+
 typedef struct StaticNS {
-    const char* name;
-    Crumb       crumb;
-    Offset      length;
-    Mode        mode;
-    char*       contents;
+    char   name[MANOS_MAXNAME];
+    Crumb  crumb;
+    Offset length;
+    Mode   mode;
+    char*  contents;
 } StaticNS;
 
 typedef struct Dev {
@@ -114,5 +117,41 @@ typedef struct Dev {
     ptrdiff_t (*read)(Portal*, void*, size_t, Offset);
     ptrdiff_t (*write)(Portal*, void*, size_t, Offset);
 } Dev;
+
+typedef struct Uart Uart;
+typedef struct UartHW UartHW;
+
+struct Uart {
+    void*    regs;
+    char*    name;
+    uint32_t clock;
+    UartHW*  hw;
+    unsigned baud;
+    int      bits;
+    int      enabled;
+    int      console;
+    Uart*    next;
+};
+
+struct UartHW {
+    char* name;
+    Uart* (*hotplug)(void);
+    void (*enable)(Uart*);    
+    void (*disable)(Uart*);
+    void (*power)(Uart*, int);
+    int (*baud)(Uart*, unsigned);
+    int (*bits)(Uart*, int);
+    char (*getc)(Uart*);
+    void (*putc)(Uart*, char);
+};
+
+#define MANOS_MAXFD 4096
+
+typedef struct Proc {
+    Pid     pid;
+    Portal* descriptorTable[MANOS_MAXFD];
+    Portal* slash;
+    Portal* dot;
+} Proc;
 
 #endif /* ! MANOS_TYPES_H */
