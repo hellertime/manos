@@ -75,6 +75,7 @@ void k70Console(void);
 int sysgetchar(void);
 void sysputchar(int);
 void sysputs(const char*);
+int sysprintln(const char*, ...);
 
 #define UNUSED(x) (void)(x)
 #define USED UNUSED

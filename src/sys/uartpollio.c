@@ -1,9 +1,10 @@
 #include <errno.h>
 #include <manos.h>
 #include <string.h>
+#include <stdarg.h>
 
-#define GETC()  consoleUart->hw->getc(consoleUart)
-#define PUTC(c) consoleUart->hw->putc(consoleUart, (c))
+#define UARTGETC()  consoleUart->hw->getc(consoleUart)
+#define UARTPUTC(c) consoleUart->hw->putc(consoleUart, (c))
 
 int sysgetchar(void) {
     if (consoleUart == NULL || consoleUart->hw->getc == NULL) {
@@ -11,7 +12,7 @@ int sysgetchar(void) {
         return -1;
     }
 
-    return GETC();
+    return UARTGETC();
 }
 
 void sysputchar(int c) {
@@ -20,7 +21,7 @@ void sysputchar(int c) {
         return;
     }
 
-    PUTC(c);
+    UARTPUTC(c);
 }
 
 void sysputs(const char* s) {
@@ -33,8 +34,21 @@ void sysputs(const char* s) {
 
     while (s < end) {
         if (*s == '\n')
-            PUTC('\r');
+            UARTPUTC('\r');
 
-        PUTC(*s++);
+        UARTPUTC(*s++);
     }
+}
+
+#include <stdio.h>
+
+int sysprintln(const char* fmt, ...) {
+    static char buf[4096];
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = vsnprintf(buf, sizeof buf, fmt, ap);
+    va_end(ap);
+    sysputs(buf);
+    sysputchar('\n');
+    return ret;
 }
