@@ -89,6 +89,7 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
         break;
       case 127: /* DEL */
           dropLastCharBuf(shell->readBuf);
+          sysputchar('\b'); /* Backspace */
           break;
       case '\r':
       case '\n':
