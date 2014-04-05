@@ -192,31 +192,6 @@ static int32_t allocPM = 0; /* +/- count */
 #define clearBitmap(addr) (header->bitmap[getAddrByte((addr))] &= ~(1 << getAddrBit((addr))))
 #define checkBitmap(addr) (header->bitmap[getAddrByte((addr))] & (1 << getAddrBit((addr))))
 
-
-static int xoffsetVal = 0;
-
-static int __attribute__((used)) xoffset(void* p) {
-    return (xoffsetVal =  getAddrBitmapOffset(p));
-}
-
-static int xbyteVal = 0;
-
-static int __attribute__((used)) xbyte(void* p) {
-    return (xbyteVal = getAddrByte(p));
-}
-
-static int xbitVal = 0;
-
-static int __attribute__((used)) xbit(void* p) {
-    return (xbitVal = getAddrBit(p));
-}
-
-static void __attribute__((used)) xbitmap(void* p) {
-    xoffset(p);
-    xbyte(p);
-    xbit(p);
-}
-
 /*
  * the header is a global value in the allocator
  */
@@ -692,7 +667,6 @@ void* kmalloc(size_t size) {
     sysprintln("Bitmap o: %d B: %d b: %d", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
 
     /* tag this address as allocated in the bitmap */
-    xbitmap(mem);
     assert(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
     setBitmap(mem);
     
