@@ -12,9 +12,6 @@ int main(int argc, char** argv) {
 #ifdef PLATFORM_K70CW
     mcgInit();
     sdramInit();
-    k70Console();
-#elif PLATFORM_NICE
-    niceConsole();
 #endif
 
     /*
@@ -46,6 +43,9 @@ int main(int argc, char** argv) {
   
 #if PLATFORM_K70CW
     setvbuf(stdin, NULL, _IONBF, 0);
+    k70Console();
+#elif PLATFORM_NICE
+    niceConsole();
 #endif
     return torgo_main(argc, argv);
 }
