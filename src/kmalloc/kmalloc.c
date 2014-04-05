@@ -183,7 +183,7 @@ static int32_t allocPM = 0; /* +/- count */
  * From that we can select the byte of the bitmap buffer to load
  * the bit to operate on.
  */
-#define getAddrBitmapOffset(addr) (size_t)(((numChunkOffsets * (uintptr_t)((char*)(addr) - heap)) / (uintptr_t)(ramHighAddress - heap)))
+#define getAddrBitmapOffset(addr) (size_t)(((numChunkOffsets * (uintptr_t)((char*)(addr) - heap)) / (uintptr_t)(totalRAM)))
 #define getAddrBit(addr) ((DWORD_BYTES - 1) - (getAddrBitmapOffset((addr)) & (DWORD_BYTES - 1)))
 #define getAddrByte(addr) (getAddrBitmapOffset((addr)) / DWORD_BYTES)
 
@@ -373,13 +373,14 @@ static void initRam(void) {
     
     totalRAM = (uint32_t)(ramHighAddress - heap);
     
-    /* invalidate the heap */
-    for (char* x = heap; x < ramHighAddress; x++) {
-      *x = (char)0xfa;
+    /* invalidate the heap -- since heap is word aligned use that to our advantage */
+    for (char* x = heap; x < ramHighAddress; ) {
+      *(uint32_t*)x = 0xfafafafa;
+      x += sizeof(uint32_t);
     }
-    numChunkOffsets = (ramHighAddress - heap) / MIN_ALLOC_BYTES;
+    numChunkOffsets = totalRAM / MIN_ALLOC_BYTES;
 
-    ChunkHeader* firstChunk = initChunk(heap, ramHighAddress - heap);
+    ChunkHeader* firstChunk = initChunk(heap, totalRAM);
     getBinByIndex(MAX_BINS - 1).clean = firstChunk;
     firstChunk->prev = &getBinByIndex(MAX_BINS - 1).clean;
     
@@ -850,7 +851,7 @@ void kmallocDump(FILE *out) {
   fprintf(out, "    Addr of bitmap end             : 0x%08" PRIxPTR "\n", (uintptr_t)header->bitmap + ALLOCATION_BITMAP_SIZE);
   fprintf(out, "    Addr of header end             : 0x%08" PRIxPTR "\n", (uintptr_t)((char*)header + sizeof(struct AllocHeader)));
   fprintf(out, "    Addr of heap start : 0x%08" PRIxPTR "\n", (uintptr_t)heap);
-  fprintf(out, "    Size of heap (B)   : %" PRIuPTR "\n", (uintptr_t)(ramHighAddress - heap));
+  fprintf(out, "    Size of heap (B)   : %" PRIuPTR "\n", (uintptr_t)(totalRAM));
   fprintf(out, "    Last address is DWORD aligned : %s\n", (IS_DWORD_ALIGNED(ramHighAddress) ? "yes" : "no"));
   fputs("\n", out);
   fflush(out);
