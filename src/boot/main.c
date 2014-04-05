@@ -7,6 +7,7 @@ int torgo_main(int, char**);
 
 extern uint32_t totalRAM;
 extern size_t numChunkOffsets;
+extern char* heap;
 /*
  * Kernel entry point. For now it just launches the shell.
  */
@@ -59,9 +60,8 @@ int main(int argc, char** argv) {
 
     sysprintln("Total System RAM: %" PRIu32 "", totalRAM);
     sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
+    sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);
 
-    sysputchar('\n');
-    sysprintln("MANOS: Welcome Master...");
-    sysputchar('\n');
+    sysprintln("\nMANOS: Welcome Master...\n");
     return torgo_main(argc, argv);
 }

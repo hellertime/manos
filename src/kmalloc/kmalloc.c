@@ -166,7 +166,7 @@ typedef struct AllocHeader {
  * 'numChunkOffsets' is the number of MIN_ALLOC_BYTES chunks the memory can 
  * provide. This is used by the bitmap to track allocations.
  */
-static char *heap;
+char *heap;
 size_t numChunkOffsets;
 
 uint32_t totalRAM = 0; /* ramHighAddress - heap */

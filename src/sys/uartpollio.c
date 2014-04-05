@@ -49,6 +49,6 @@ int sysprintln(const char* fmt, ...) {
     int ret = vsnprintf(buf, sizeof buf, fmt, ap);
     va_end(ap);
     sysputs(buf);
-    sysputchar('\n');
+    sysputs("\n");
     return ret;
 }
