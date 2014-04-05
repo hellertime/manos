@@ -88,8 +88,10 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
         keepReading = 0;
         break;
       case 127: /* DEL */
-          dropLastCharBuf(shell->readBuf);
-          sysputs("\b \b"); /* backup, erase, backup */
+          if (dropLastCharBuf(shell->readBuf) != 0)
+              sysputs("\b \b"); /* backup, erase, backup */
+          else
+              sysputs("\a\b");
           break;
       case '\r':
       case '\n':
