@@ -51,8 +51,10 @@ static void __attribute__((used)) svcHandlerDispatch(StackFrame* frame) {
             frame->ret = dispatchTable[idx].fn(frame->a);
        break;
     default:
-        sysprintln("Uknown SVN: %d", idx);
+        sysprintln("Uknown SVC: %d", idx);
+        break;
     }
+    return;
 }
 #undef X
 
