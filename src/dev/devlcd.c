@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <manos.h>
+#include <stdlib.h>
 
 static Lcd* enableLcd(Lcd* lcd) {
     lcd->hw->enable(lcd);
@@ -76,11 +77,51 @@ static ptrdiff_t readLcd(Portal* p, void* buf, size_t size, Offset offset) {
 
 static ptrdiff_t writeLcd(Portal* p, void* buf, size_t size, Offset offset) {
     UNUSED(offset);
-    UNUSED(p);
-    UNUSED(buf);
-    UNUSED(size);
-    errno = EPERM;
-    return -1;
+    if (size == 0) return 0;
+
+    if (!lcdScreen || p->crumb.flags & CRUMB_ISDIR) {
+        errno = EPERM;
+        return -1;
+    }
+
+    NodeInfo ni;
+    if (getNodeInfoStaticNS(p, lcdSNS, WalkSelf, &ni) == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
+
+    char *c = NULL;
+    int color = -1;
+    size_t bytes = 0;
+    LcdFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb);
+    switch (fid) {
+    case FidFg:
+    case FidBg:
+        color = strtol(buf, &c, 0);
+        bytes = (size_t)(c - (char*)buf);
+        if (bytes > size) {
+            errno = EINVAL;
+            return -1;
+        }
+
+        if (fid == FidFg)
+            lcdScreen->colors.fg = color;
+        else
+            lcdScreen->colors.bg = color;
+
+        break;
+    case FidClear:
+        if (*(char*)buf == '1') {
+            lcdScreen->hw->clear(lcdScreen);
+            bytes = 1;
+        }
+        break;
+    default:
+        errno = ENODEV;
+        return -1;
+    }
+
+    return bytes;
 }
 
 static int getInfoLcd(const Portal* p, NodeInfo* ni) {
