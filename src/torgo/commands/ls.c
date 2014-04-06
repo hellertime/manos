@@ -1,5 +1,4 @@
 #include <manos.h>
-#include <stdio.h>
 
 int cmdLs__Main(int argc, char * const argv[]) {
     char* path = ".";

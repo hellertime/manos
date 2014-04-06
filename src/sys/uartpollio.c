@@ -25,7 +25,11 @@ void sysputchar(int c) {
 }
 
 void sysputs(const char* s) {
-    const char* end = s + strlen(s);
+    sysnputs(s, strlen(s));
+}
+
+void sysnputs(const char* s, size_t n) {
+    const char* end = s + n;
 
     if (consoleUart == NULL || consoleUart->hw->putc == NULL) {
         errno = ENODEV;
@@ -38,17 +42,26 @@ void sysputs(const char* s) {
 
         UARTPUTC(*s++);
     }
+
 }
 
-#include <stdio.h>
-
 int sysprintln(const char* fmt, ...) {
-    static char buf[4096];
     va_list ap;
+    static char buf[4096];
     va_start(ap, fmt);
-    int ret = vsnprintf(buf, sizeof buf, fmt, ap);
+    int ret = fmtVsnprintf(buf, sizeof buf, fmt, ap);
     va_end(ap);
     sysputs(buf);
     sysputs("\n");
+    return ret + 1;
+}
+
+int sysprint(const char* fmt, ...) {
+    va_list ap;
+    static char buf[4096];
+    va_start(ap, fmt);
+    int ret = fmtVsnprintf(buf, sizeof buf, fmt, ap);
+    va_end(ap);
+    sysputs(buf);
     return ret;
 }

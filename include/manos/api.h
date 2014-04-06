@@ -2,6 +2,8 @@
 #define MANOS_API_H
 
 #include <stddef.h>
+#include <stdarg.h>
+#include <stdint.h>
 
 Pid getpid(void);
 
@@ -74,8 +76,14 @@ void k70Console(void);
 
 int sysgetchar(void);
 void sysputchar(int);
+void sysnputs(const char*, size_t);
 void sysputs(const char*);
 int sysprintln(const char*, ...);
+int sysprint(const char*, ...);
+
+ptrdiff_t fmtVsnprintf(char [], size_t, const char*, va_list);
+ptrdiff_t fmtSnprintf(char [], size_t, const char*, ...);
+ptrdiff_t fmtSprintf(char [], const char*, ...);
 
 #define UNUSED(x) (void)(x)
 #define USED UNUSED

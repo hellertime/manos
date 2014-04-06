@@ -1,5 +1,4 @@
 #include <manos.h>
-#include <stdio.h>
 
 int cmdPwd__Main(int argc, char * const argv[]) {
     UNUSED(argc);

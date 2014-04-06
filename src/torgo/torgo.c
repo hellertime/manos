@@ -5,7 +5,6 @@
  */
 
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -84,7 +83,7 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
   while (keepReading && (readMax == -1 || readMax > 0)) {
     int c = sysgetchar();
     switch (c) {
-      case EOF:
+      case 0:
         keepReading = 0;
         break;
       case 127: /* DEL */
@@ -242,8 +241,6 @@ int torgo_main(int argc, char * const argv[]) {
       } else {
         ps = ps2;
       }
-      fflush(stdout);
-
       freeParseResult(result);
     }
   }

@@ -1,5 +1,4 @@
 #include <manos.h>
-#include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -37,7 +36,6 @@ int main(int argc, char** argv) {
     }
   
 #if PLATFORM_K70CW
-    setvbuf(stdin, NULL, _IONBF, 0);
     k70Console();
 #elif PLATFORM_NICE
     niceConsole();

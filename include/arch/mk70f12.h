@@ -15,8 +15,6 @@
 typedef int32_t intptr_t;
 typedef uint32_t uintptr_t;
 
-#define fprintf(x, y, args...) printf(y, args)
-
 void mcgInit(void);
 void sdramInit(void);
 

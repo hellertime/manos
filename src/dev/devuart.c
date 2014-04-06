@@ -1,5 +1,4 @@
 #include <manos.h>
-#include <stdio.h>
 #include <string.h>
 
 static Uart* enableUart(Uart* uart) {
@@ -62,14 +61,14 @@ static void resetUart(void) {
         sns->mode = 0666;
         sns->contents = (char*)uart; /* link back to hardware */
         sns++;
-        sprintf(sns->name, "%s_ctl", uart->hw->name);
+        fmtSprintf(sns->name, "%s_ctl", uart->hw->name);
         sns->crumb.flags = CRUMB_ISFILE | CRUMB_ISSTATIC;
         sns->crumb.fid = MKSTATICNS_FID(0, (i * 3) + 2);
         sns->length = 0;
         sns->mode = 0666;
         sns->contents = (char*)uart; /* all files have the link */
         sns++;
-        sprintf(sns->name, "%s_status", uart->hw->name);
+        fmtSprintf(sns->name, "%s_status", uart->hw->name);
         sns->crumb.flags = CRUMB_ISFILE | CRUMB_ISSTATIC;
         sns->crumb.fid = MKSTATICNS_FID(0, (i * 3) + 3);
         sns++;

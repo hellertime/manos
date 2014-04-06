@@ -1,5 +1,4 @@
 #include <manos.h>
-#include <stdio.h>
 
 int cmdCat__Main(int argc, char * const argv[]) {
     if (argc < 2) {
