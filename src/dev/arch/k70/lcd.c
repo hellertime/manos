@@ -145,7 +145,7 @@ static void k70LcdClear(Lcd* lcd) {
     if (r == g && r == b) { /* monochromatic case */
         memset(ctrl->mmap, r, lcd->fbSize);
     } else {
-        for (uint32_t* pixel = (uint32_t*)ctrl->mmap; pixel < (uint32_t*)ctrl->mmap + (ctrl->xsize + ctrl->ysize); pixel++) {
+        for (uint32_t* pixel = (uint32_t*)ctrl->mmap; pixel < (uint32_t*)ctrl->mmap + (ctrl->xsize * ctrl->ysize); pixel++) {
             *pixel = lcd->colors.bg;
         }
     }
