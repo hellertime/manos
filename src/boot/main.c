@@ -66,11 +66,11 @@ int main(int argc, char** argv) {
 #ifdef PLATFORM_K70CW
     u->tty = kopen("/dev/uart/k70Uart", CAP_READWRITE);
 #else
-    u->tty = kopen("/dev/uart/stdout", CAP_READWRITE);
+    u->tty = kopen("/dev/uart/stdio", CAP_READWRITE);
 #endif
 
     if (u->tty == -1) {
-        sysprintln("ERROR: Cannot open stdout");
+        sysprintln("ERROR: Cannot open tty");
     }
 
 #ifdef PLATFORM_K70CW

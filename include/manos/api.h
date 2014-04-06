@@ -108,5 +108,6 @@ void kclose(int);
 int kfstat(int, NodeInfo*);
 int kopen(const char*, Caps);
 ptrdiff_t kread(int, void*, size_t);
+ptrdiff_t kwrite(int, void*, size_t);
 
 #endif /* ! MANOS_API_H */

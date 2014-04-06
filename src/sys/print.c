@@ -4,11 +4,11 @@
 #include <string.h>
 
 int fputchar(int fd, char c) {
-    return syswrite(fd, &c, 1);
+    return kwrite(fd, &c, 1);
 }
 
 int fputstrn(int fd, const char* s, size_t n) {
-    return syswrite(fd, (char*)s, n);
+    return kwrite(fd, (char*)s, n);
 }
 
 int fputstr(int fd, const char* s) {
