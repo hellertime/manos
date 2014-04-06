@@ -18,23 +18,23 @@ __asm(
 #error "Unsupported Compiler"
 #endif
 
-static int execSyscall(int args[]) {
+static int execSyscall(int* args) {
     return sysexecv((const char*)args[0], (char * const *)args[1]);
 }
 
-static void closeSyscall(int args[]) {
+static void closeSyscall(int* args) {
     sysclose(args[0]);
 }
 
-static int fstatSyscall(int args[]) {
+static int fstatSyscall(int* args) {
     return sysgetInfoFd(args[0], (NodeInfo*)args[1]);
 }
 
-static int openSyscall(int args[]) {
+static int openSyscall(int* args) {
     return sysopen((const char*)args[0], (Caps)args[1]);
 }
 
-static int readSyscall(int args[]) {
+static int readSyscall(int* args) {
     return sysread(args[0], (void*)args[1], (size_t)args[2]);
 }
 
@@ -44,7 +44,7 @@ static int readSyscall(int args[]) {
 
 #define X(c, f, r) { .fn = f##Syscall, .isVoid = r },
 static struct {
-    int (*fn)(int[]);
+    int (*fn)(int*);
     int isVoid;
 } dispatchTable[] = {
     SYSCALL_MAP
