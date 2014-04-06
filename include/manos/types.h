@@ -151,6 +151,7 @@ struct UartHW {
 
 typedef struct Proc {
     Pid     pid;
+    int     tty;
     Portal* descriptorTable[MANOS_MAXFD];
     Portal* slash;
     Portal* dot;

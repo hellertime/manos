@@ -61,8 +61,9 @@ DeviceId toDeviceId(DeviceIndex);
 int sysexecv(const char*, char * const []);
 int sysgetInfoFd(int fd, NodeInfo*);
 int sysopen(const char*, Caps);
-void sysclose(int fd);
-ptrdiff_t sysread(int fd, void*, size_t);
+void sysclose(int);
+ptrdiff_t sysread(int, void*, size_t);
+ptrdiff_t syswrite(int, void*, size_t);
 int sysuartctl(Uart*, const char*);
 Portal* syswalk(Portal*, char**, unsigned);
 
@@ -80,6 +81,13 @@ void sysnputs(const char*, size_t);
 void sysputs(const char*);
 int sysprintln(const char*, ...);
 int sysprint(const char*, ...);
+
+int fputchar(int, char);
+int fputstrn(int, const char*, size_t);
+int fputstr(int, const char*);
+int vfprint(int, const char*, va_list);
+int fprint(int, const char*, ...);
+int fprintln(int, const char*, ...);
 
 ptrdiff_t fmtVsnprintf(char [], size_t, const char*, va_list);
 ptrdiff_t fmtSnprintf(char [], size_t, const char*, ...);

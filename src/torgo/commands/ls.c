@@ -10,7 +10,7 @@ int cmdLs__Main(int argc, char * const argv[]) {
     int n;
     while ((n = dirread(fd, &ni)) > 0) {
         for (int i = 0; i < n; i++)
-            sysprintln(ni[i].name);
+            fprintln(u->tty, ni[i].name);
 
         kfree(ni);
     }

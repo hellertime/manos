@@ -64,10 +64,20 @@ int main(int argc, char** argv) {
     sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);
 
 #ifdef PLATFORM_K70CW
+    u->tty = kopen("/dev/uart/k70Uart", CAP_READWRITE);
+#else
+    u->tty = kopen("/dev/uart/stdout", CAP_READWRITE);
+#endif
+
+    if (u->tty == -1) {
+        sysprintln("ERROR: Cannot open stdout");
+    }
+
+#ifdef PLATFORM_K70CW
     sysprintln("Entering User Mode...");
     enterUserMode();
 #endif
 
-    sysprintln("\nMANOS: Welcome Master...\n");
+    fprintln(u->tty, "\nMANOS: Welcome Master...\n");
     return torgo_main(argc, argv);
 }

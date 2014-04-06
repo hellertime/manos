@@ -81,7 +81,10 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
     sysputchar(' ');
   
   while (keepReading && (readMax == -1 || readMax > 0)) {
-    int c = sysgetchar();
+    char c;
+    if (kread(u->tty, &c, 1) == 0)
+        c = 0; /* EOF */
+
     switch (c) {
       case 0:
         keepReading = 0;

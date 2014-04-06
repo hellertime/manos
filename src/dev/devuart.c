@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <manos.h>
 #include <string.h>
 
@@ -19,6 +20,12 @@ static void disableUart(Uart* uart) {
 
 static unsigned uartSNSCount = 0;
 static StaticNS* uartSNS = NULL; /* to be populated at startup */
+
+typedef enum {
+    UartCtlFile
+,   UartStatusFile
+,   UartDataFile
+} UartFileType;
 
 static void resetUart(void) {
     Uart* uart = NULL;
@@ -52,25 +59,29 @@ static void resetUart(void) {
     sns->contents = 0;
     sns++;
 
+    /* build a 'static' namespace, overload length and contents for our purposes on files */
     uart = hotpluggedUarts;
     for (unsigned i = 0; i < hpCount; i++) {
         strcpy(sns->name, uart->hw->name);
         sns->crumb.flags = CRUMB_ISFILE | CRUMB_ISSTATIC;
         sns->crumb.fid = MKSTATICNS_FID(0, (i * 3) + 1);
-        sns->length = 0;
+        sns->length = UartDataFile;
         sns->mode = 0666;
         sns->contents = (char*)uart; /* link back to hardware */
         sns++;
         fmtSprintf(sns->name, "%s_ctl", uart->hw->name);
         sns->crumb.flags = CRUMB_ISFILE | CRUMB_ISSTATIC;
         sns->crumb.fid = MKSTATICNS_FID(0, (i * 3) + 2);
-        sns->length = 0;
+        sns->length = UartCtlFile;
         sns->mode = 0666;
         sns->contents = (char*)uart; /* all files have the link */
         sns++;
         fmtSprintf(sns->name, "%s_status", uart->hw->name);
         sns->crumb.flags = CRUMB_ISFILE | CRUMB_ISSTATIC;
         sns->crumb.fid = MKSTATICNS_FID(0, (i * 3) + 3);
+        sns->length = UartStatusFile;
+        sns->mode = 0444;
+        sns->contents = (char*)uart;
         sns++;
 
         if (uart->console) {
@@ -111,12 +122,13 @@ static void closeUart(Portal* p) {
         return;
 
     NodeInfo ni;
-    if (getNodeInfoStaticNS(p, uartSNS, WalkSelf, &ni) == NULL)
+    if (getNodeInfoStaticNS(p, uartSNS, WalkSelf, &ni) == NULL) {
+        errno = ENODEV;
         return;
+    }
 
-    char* c = ni.name;
-    while (*c && *c != '_') c++;
-    if (strcmp(c+1, "ctl") == 0 || strcmp(c+1, "status") == 0) {
+    UartFileType t = ni.length; /* overloaded this field for private use */
+    if (t == UartCtlFile || t == UartDataFile) {
         Uart* uart = (Uart*)ni.contents;
         disableUart(uart);
     }    
@@ -129,18 +141,69 @@ static ptrdiff_t readUart(Portal* p, void* buf, size_t size, Offset offset) {
         return readStaticNS(p, uartSNS, buf, size, offset);
     }
 
-    return 0; /* not yet ready to run this */
+    NodeInfo ni;
+    if (getNodeInfoStaticNS(p, uartSNS, WalkSelf, &ni) == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
+    size_t bytes = 0;
+    Uart* uart = (Uart*)ni.contents;
+    switch ((UartFileType)ni.length) {
+    case UartDataFile:
+        if (!uart->hw->getc) {
+            errno = ENODEV;
+            return -1;
+        }
+        while (bytes < size) {
+            *((char*)buf + bytes) = uart->hw->getc(uart);
+            bytes++;
+        }
+        return bytes;
+    default:
+        errno = EINVAL;
+        return -1;
+    }
 }
 
 static ptrdiff_t writeUart(Portal* p, void* buf, size_t size, Offset offset) {
+    UNUSED(offset);
     if (size == 0) return 0;
 
-    UNUSED(p);
-    UNUSED(buf);
-    UNUSED(offset);
-    return 0; /* also not ready */
+    if (p->crumb.flags & CRUMB_ISDIR) {
+        errno = EPERM;
+        return -1;
+    }
+
+    NodeInfo ni;
+    if (getNodeInfoStaticNS(p, uartSNS, WalkSelf, &ni) == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
+
+    size_t bytes = 0;
+    Uart* uart = (Uart*)ni.contents;
+    switch ((UartFileType)ni.length) {
+    case UartDataFile:
+        if (!uart->hw->putc) {
+            errno = ENODEV;
+            return -1;
+        }
+
+        while (bytes < size) {
+            char c = *((char*)buf + bytes);
+            if (uart->console && c == '\n')
+                uart->hw->putc(uart, '\r');
+            uart->hw->putc(uart, c);
+            bytes++;
+        }
+        return bytes;
+    default:
+        errno = EINVAL;
+        return -1;
+    }
 }
 
+/* TODO: This is incorrect since length is overloaded! */
 static int getInfoUart(const Portal* p, NodeInfo *ni) {
     return getNodeInfoStaticNS(p, uartSNS, WalkSelf, ni) == NULL ? -1 : 0;
 }

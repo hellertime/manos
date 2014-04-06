@@ -13,7 +13,7 @@ int cmdCat__Main(int argc, char * const argv[]) {
     /* a very slow cat */
     char c;
     while (kread(fd, &c, 1) == 1) {
-        sysputchar(c);
+        fputchar(u->tty, c);
     }
 
     kclose(fd);

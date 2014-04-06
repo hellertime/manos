@@ -112,6 +112,24 @@ ptrdiff_t kread(int fd, void* buf, size_t n) {
 }
 #endif
 
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+ptrdiff_t __attribute__((naked)) __attribute__((noinline)) kwrite(int fd, void* buf, size_t n) {
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_WRITE)
+}
+#pragma GCC diagnostic pop
+#else
+ptrdiff_t kwrite(int fd, void* buf, size_t n) {
+    return syswrite(fd, buf, n);
+}
+#endif
+
 #else
 #error "Unsupported Compiler"
 #endif

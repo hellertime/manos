@@ -7,7 +7,7 @@
 extern UartHW niceUartHW;
 
 Uart niceUart[] = {
-{    .name    = "stdout"
+{    .name    = "stdio"
 ,    .clock   = 0
 ,    .hw      = &niceUartHW
 ,    .next    = 0
@@ -66,7 +66,7 @@ static void niceUartPutc(Uart* uart, char c) {
 }
 
 UartHW niceUartHW = {
-    .name    = "stdout"
+    .name    = "stdio"
 ,   .hotplug = niceUartHotplug
 ,   .enable  = niceUartEnable
 ,   .disable = niceUartDisable
