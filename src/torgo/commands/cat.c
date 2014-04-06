@@ -2,7 +2,7 @@
 
 int cmdCat__Main(int argc, char * const argv[]) {
     if (argc < 2) {
-        sysprintln("usage: cat PATH");
+        fprintln(u->tty, "usage: cat PATH");
         return -1;
     }
 

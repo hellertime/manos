@@ -75,10 +75,10 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
 
   clearCharBuf(shell->readBuf);
 
-  sysputs(promptStr);
+  fputstr(u->tty, promptStr);
 
   if (promptStr[strlen(promptStr) - 1] != ' ')
-    sysputchar(' ');
+    fputchar(u->tty, ' ');
   
   while (keepReading && (readMax == -1 || readMax > 0)) {
     char c;
@@ -91,20 +91,20 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
         break;
       case 127: /* DEL */
           if (dropLastCharBuf(shell->readBuf) != 0)
-              sysputs("\b \b"); /* backup, erase, backup */
+              fputstr(u->tty, "\b \b"); /* backup, erase, backup */
           else
-              sysputchar('\a'); /* BEEP */
+              fputchar(u->tty, '\a'); /* BEEP */
           break;
       case '\r':
       case '\n':
         keepReading = 0;
         if (c == '\r') {
-            sysputchar(c);
+            fputchar(u->tty, c);
             c = '\n';
         }
         /* fall through */
       default:
-        sysputchar(c);
+        fputchar(u->tty, c);
         appendCharBuf(shell->readBuf, c);
         break;
     }
@@ -192,9 +192,9 @@ int torgo_main(int argc, char * const argv[]) {
     if (isEmptyCharBuf(input)) {
       shell->state = ShellStateEOF;
       if (hasUnparsedInputParser(shell->parser)) {
-        sysputs("error: unexpected end-of-file\n");
+        fputstr(u->tty, "error: unexpected end-of-file\n");
       }
-      sysputs("\n");
+      fputstr(u->tty, "\n");
       break;
     }
 

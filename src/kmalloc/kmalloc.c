@@ -864,7 +864,7 @@ void kmallocDump(void) {
 
     char c = header->bitmap[i];
     for (int j = 8; j > 0; j--) {
-      sysputchar('.' + (3 * ((c >> (j - 1)) & 1))); /* unset print '.', set print '1' (hence the multiple of 3) */
+      fputchar(u->tty, '.' + (3 * ((c >> (j - 1)) & 1))); /* unset print '.', set print '1' (hence the multiple of 3) */
     }
   }
   fputstr(u->tty, "\n");
