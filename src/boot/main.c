@@ -2,6 +2,8 @@
 #include <string.h>
 #include <inttypes.h>
 
+extern void enterUserMode(void);
+
 int torgo_main(int, char**);
 
 extern uint32_t totalRAM;
@@ -60,6 +62,11 @@ int main(int argc, char** argv) {
     sysprintln("Total System RAM: %" PRIu32 "", totalRAM);
     sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
     sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);
+
+#ifdef PLATFORM_K70CW
+    sysprintln("Entering User Mode...");
+    enterUserMode();
+#endif
 
     sysprintln("\nMANOS: Welcome Master...\n");
     return torgo_main(argc, argv);
