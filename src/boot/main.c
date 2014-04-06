@@ -15,6 +15,7 @@ int main(int argc, char** argv) {
 #ifdef PLATFORM_K70CW
     mcgInit();
     sdramInit();
+    svcInit(7);
 #endif
 
     /*

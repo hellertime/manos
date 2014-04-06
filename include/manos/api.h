@@ -89,4 +89,13 @@ ptrdiff_t fmtSprintf(char [], const char*, ...);
 #define USED UNUSED
 #define COUNT_OF(xs) ((sizeof xs) / (sizeof xs[0]))
 
+/*
+ * System calls
+ */
+int exec(const char*, char * const []);
+void close(int);
+int fstat(int, NodeInfo*);
+int open(const char*, Caps);
+ptrdiff_t read(int, void*, size_t);
+
 #endif /* ! MANOS_API_H */

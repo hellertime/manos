@@ -6,7 +6,7 @@ int cmdLs__Main(int argc, char * const argv[]) {
         path = argv[1];
 
     NodeInfo* ni;
-    int fd = sysopen(path, CAP_READ);
+    int fd = open(path, CAP_READ);
     int n;
     while ((n = dirread(fd, &ni)) > 0) {
         for (int i = 0; i < n; i++)
@@ -15,7 +15,7 @@ int cmdLs__Main(int argc, char * const argv[]) {
         kfree(ni);
     }
 
-    sysclose(fd);
+    close(fd);
 
     return 0;
 }

@@ -7,15 +7,15 @@ int cmdCat__Main(int argc, char * const argv[]) {
     }
 
     NodeInfo ni;
-    int fd = sysopen(argv[1], CAP_READ);
-    sysgetInfoFd(fd, &ni);
+    int fd = open(argv[1], CAP_READ);
+    fstat(fd, &ni);
 
     /* a very slow cat */
     char c;
-    while (sysread(fd, &c, 1) == 1) {
+    while (read(fd, &c, 1) == 1) {
         sysputchar(c);
     }
 
-    sysclose(fd);
+    close(fd);
     return 0;
 }

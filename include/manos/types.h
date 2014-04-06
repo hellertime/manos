@@ -156,4 +156,16 @@ typedef struct Proc {
     Portal* dot;
 } Proc;
 
+typedef struct StackFrame {
+    /* argument 1 / integer result / scratch register */
+    /* argument 2 / scratch register */
+    /* argument 3 / scratch register */
+    /* argument 4 / scratch register */
+    int a[4]; /* stored as a vector, and passed en-mass */
+    int ip;   /* scratch register / new-sb in inter-link-unit calls */
+    int lr;   /* link address / scratch register */
+    int ret;  /* return value */
+    int xpsr; /* combined APSR / IPSR / EPSR bits -- does the hardware push this ? */
+} StackFrame;
+
 #endif /* ! MANOS_TYPES_H */
