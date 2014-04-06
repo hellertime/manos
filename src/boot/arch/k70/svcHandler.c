@@ -46,7 +46,7 @@ static struct {
 
 #define X(c, f, r) case MANOS_SYSCALL_##c:
 static void __attribute__((used)) svcHandlerDispatch(StackFrame* frame) {
-    SyscallIndex idx = (SyscallIndex)(((uint8_t*)frame->ret)[-2]);
+    SyscallIndex idx = (SyscallIndex)(((uint8_t*)frame->pc)[-2]);
     switch(idx) {
     SYSCALL_MAP
         if (dispatchTable[idx].isVoid)
