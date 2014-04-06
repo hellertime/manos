@@ -1,15 +1,16 @@
-#include <manos.h>
-
+#include <manos.h> 
 extern Dev devRoot;
 extern Dev devLed;
 extern Dev devSwpb;
 extern Dev devUart;
+extern Dev devLcd;
 
 Dev* deviceTable[MANOS_MAXDEV] = {
     &devRoot
 ,   &devLed
 ,   &devSwpb
 ,   &devUart
+,   &devLcd
 };
 
 extern UartHW k70UartHW;
@@ -25,3 +26,8 @@ Proc* u = NULL;
 Uart* consoleUart = NULL;
 Uart* hotpluggedUarts = NULL;
 
+#ifdef PLATFORM_K70CW
+LcdHw* lcdHw = &k70LcdHw;
+#else
+LcdHw* lcdHw = NULL;
+#endif

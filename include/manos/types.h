@@ -20,6 +20,7 @@ typedef int OnOff;
 #define DEV_DEVLED  'l'
 #define DEV_DEVSWPB 'B'
 #define DEV_DEVUART 'u'
+#define DEV_DEVLCD  'D'
 
 #define CAP_READ      0
 #define CAP_WRITE     1
@@ -168,5 +169,27 @@ typedef struct StackFrame {
     int pc;   /* program counter */
     int xpsr; /* combined APSR / IPSR / EPSR bits -- does the hardware push this ? */
 } StackFrame;
+
+typedef struct LcdHw LcdHw;
+
+typedef struct Lcd {
+    void*    regs;
+    char*    name;
+    LcdHw*   hw;
+    uint32_t fbSize;
+    uint32_t colorDepth;
+    struct {
+    uint32_t bg;
+    uint32_t fg;
+    } colors;
+} Lcd;
+
+struct LcdHw {
+    char* name;
+    Lcd* (*hotplug)(void);
+    void (*enable)(Lcd*);
+    void (*disable)(Lcd*);
+    void (*clear)(Lcd*);
+};
 
 #endif /* ! MANOS_TYPES_H */

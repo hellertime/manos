@@ -1,5 +1,4 @@
-#define SDRAM_SIZE 134217728 /* 128 * 1024 * 1024 */
-#define SDRAM_START 0x80000000
+#define SDRAM_SIZE 133695488 /* 128 * 1024 * 1024 - LCD_SDRAM_SIZE */
 #define SDRAM_END ((SDRAM_START + SDRAM_SIZE - 1) & ~3) /* WORD ALIGN Upper address */
 
 /**
@@ -13,7 +12,7 @@
  * Solve b = m / 8k, ALLOCATION_BITMAP_SIZE = b
  * Round to double-word to ensure enough bytes -> b + 7 & ~7
  */
-#define ALLOCATION_BITMAP_SIZE 1040440 /* M = HEAP_SIZE, k = MIN_ALLOC_BYTES, h = 1028 */
+#define ALLOCATION_BITMAP_SIZE 1036392 /* M = HEAP_SIZE, k = MIN_ALLOC_BYTES, h = 1028 */
 
 /*
  * Note that this header assumes that MIN_ALLOC_BYTES == 16, and the

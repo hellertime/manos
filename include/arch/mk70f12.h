@@ -44,4 +44,13 @@ void sdramInit(void);
 
 #endif /* PLATFORM_K70CW */
 
+#define BASE_RAM 0x80000000
+
+#define LCD_XSIZE 480
+#define LCD_YSIZE 272
+#define LCD_BPP   4
+#define LCD_SDRAM_START BASE_RAM
+#define LCD_SDRAM_SIZE 522240    /* LCD_XSIZE * LCD_YSIZE * LCD_BPP */
+#define SDRAM_START 0x8007f800
+
 #endif /* ! MANOS_ARCH_MK70F12_H */
