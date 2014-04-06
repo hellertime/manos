@@ -95,7 +95,7 @@ static int k70UartBaud(Uart* uart, unsigned baud) {
     UART_BDL_REG(ctrl->mmap) = (uint8_t)(newSBR & UART_BDL_SBR_MASK);
 
     /* Compute a potential fractional divider to fine-tune the baud */
-    uint16_t newBRFA = ((((uint32_t)(uart->clock / 1000)* uart->clock) / (baud * 16)) - (newSBR * 32));
+    uint16_t newBRFA = ((((uint32_t)(uart->clock / 1000)* 32000) / (baud * 16)) - (newSBR * 32));
     uint8_t   saveC4 = UART_C4_REG(ctrl->mmap) & ~(UART_C4_BRFA(0x1f)); /* Mask off old BRFA before saving C4 */
 
     UART_C4_REG(ctrl->mmap) = saveC4 | UART_C4_BRFA(newBRFA);
