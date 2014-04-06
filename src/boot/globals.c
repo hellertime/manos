@@ -27,6 +27,7 @@ Uart* consoleUart = NULL;
 Uart* hotpluggedUarts = NULL;
 
 #ifdef PLATFORM_K70CW
+extern LcdHw k70LcdHw;
 LcdHw* lcdHw = &k70LcdHw;
 #else
 LcdHw* lcdHw = NULL;
