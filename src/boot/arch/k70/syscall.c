@@ -17,7 +17,7 @@
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
-int __attribute__((naked)) __attribute__((noinline)) exec(const char*, char * const []) {
+int __attribute__((naked)) __attribute__((noinline)) exec(const char* path, char * const argv[]) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -27,7 +27,7 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-int exec(const char* path, char * const args[]) {
+int exec(const char* path, char * const argv[]) {
     return sysexecv(path, args);
 }
 #endif
@@ -37,7 +37,7 @@ int exec(const char* path, char * const args[]) {
  */
 
 #ifdef PLATFORM_K70CW
-void __attribute__((naked)) __attribute__((noinline)) close(int) {
+void __attribute__((naked)) __attribute__((noinline)) close(int fd) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -54,7 +54,7 @@ void close(int fd) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
-int __attribute__((naked)) __attribute__((noinline)) fstat(int, NodeInfo*) {
+int __attribute__((naked)) __attribute__((noinline)) fstat(int fd, NodeInfo* ni) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -72,7 +72,7 @@ int fstat(int fd, NodeInfo* ni) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
-int __attribute__((naked)) __attribute__((noinline)) open(const char*, Caps) {
+int __attribute__((naked)) __attribute__((noinline)) open(const char* path, Caps caps) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -90,7 +90,7 @@ int open(const char* path, Caps caps) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
-ptrdiff_t __attribute__((naked)) __attribute__((noinline)) read(int, void*, size_t) {
+ptrdiff_t __attribute__((naked)) __attribute__((noinline)) read(int fd, void* buf, size_t n) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
