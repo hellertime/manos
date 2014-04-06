@@ -38,23 +38,9 @@ static int readSyscall(int args[]) {
     return sysread(args[0], (void*)args[1], (size_t)args[2]);
 }
 
-/*
- * SYSCALL_MAP (x-macro)
- *
- * Constant, Function, isVoid?
- */
-#define SYSCALL_MAP     \
-    X(EXEC,  exec,  0)  \
-    X(CLOSE, close, 1)  \
-    X(FSTAT, fstat, 0)  \
-    X(OPEN,  open,  0)  \
-    X(READ,  read,  0)
+#include <arch/k70/syscall.x>
 
-#define X(c, f, r) MANOS_SYSCALL_##c,
-typedef enum {
-    SYSCALL_MAP
-} SyscallIndex;
-#undef X
+#include "syscall.h"
 
 #define X(c, f, r) { .fn = f##Syscall, .isVoid = r },
 static struct {

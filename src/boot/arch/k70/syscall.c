@@ -6,6 +6,8 @@
 
 #include <manos.h>
 
+#include "syscall.h"
+
 #ifdef __GNUC__
 
 /*
