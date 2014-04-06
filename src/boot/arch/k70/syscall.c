@@ -42,7 +42,7 @@ __asm(
     "svc %[syscall]\n\t"
     "bx lr"
     :
-    : [syscall] "I" (MANOS_CLOSE_SYSCALL)
+    : [syscall] "I" (MANOS_SYSCALL_CLOSE)
 }
 #else
 void close(int fd) {
