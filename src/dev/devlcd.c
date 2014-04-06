@@ -99,7 +99,7 @@ static ptrdiff_t writeLcd(Portal* p, void* buf, size_t size, Offset offset) {
     case FidBg:
         color = strtol(buf, &c, 0);
         bytes = (size_t)(c - (char*)buf);
-        if (bytes > size) {
+        if (!bytes || bytes > size) {
             errno = EINVAL;
             return -1;
         }
