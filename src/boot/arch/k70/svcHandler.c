@@ -24,6 +24,10 @@ static int readSyscall(int* args) {
     return sysread(args[0], (void*)args[1], (size_t)args[2]);
 }
 
+static int writeSyscall(int* args) {
+    return syswrite(args[0], (void*)args[1], (size_t)args[2]);
+}
+
 #include <arch/k70/syscall.x>
 
 #include "syscall.h"

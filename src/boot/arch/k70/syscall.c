@@ -122,6 +122,7 @@ __asm(
     "bx lr"
     :
     : [syscall] "I" (MANOS_SYSCALL_WRITE)
+);
 }
 #pragma GCC diagnostic pop
 #else
