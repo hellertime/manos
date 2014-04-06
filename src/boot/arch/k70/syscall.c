@@ -18,7 +18,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-int __attribute__((naked)) __attribute__((noinline)) exec(const char* path, char * const argv[]) {
+int __attribute__((naked)) __attribute__((noinline)) kexec(const char* path, char * const argv[]) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -28,7 +28,7 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-int exec(const char* path, char * const argv[]) {
+int kexec(const char* path, char * const argv[]) {
     return sysexecv(path, argv);
 }
 #endif
@@ -40,7 +40,7 @@ int exec(const char* path, char * const argv[]) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-void __attribute__((naked)) __attribute__((noinline)) close(int fd) {
+void __attribute__((naked)) __attribute__((noinline)) kclose(int fd) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -50,7 +50,7 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-void close(int fd) {
+void kclose(int fd) {
     sysclose(fd);
 }
 #endif
@@ -59,7 +59,7 @@ void close(int fd) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-int __attribute__((naked)) __attribute__((noinline)) fstat(int fd, NodeInfo* ni) {
+int __attribute__((naked)) __attribute__((noinline)) kfstat(int fd, NodeInfo* ni) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -69,7 +69,7 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-int fstat(int fd, NodeInfo* ni) {
+int kfstat(int fd, NodeInfo* ni) {
     return sysgetInfoFd(fd, ni);
 }
 #endif
@@ -78,7 +78,7 @@ int fstat(int fd, NodeInfo* ni) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-int __attribute__((naked)) __attribute__((noinline)) open(const char* path, Caps caps) {
+int __attribute__((naked)) __attribute__((noinline)) kopen(const char* path, Caps caps) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -88,7 +88,7 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-int open(const char* path, Caps caps) {
+int kopen(const char* path, Caps caps) {
     return sysopen(path, caps);
 }
 #endif
@@ -97,7 +97,7 @@ int open(const char* path, Caps caps) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-ptrdiff_t __attribute__((naked)) __attribute__((noinline)) read(int fd, void* buf, size_t n) {
+ptrdiff_t __attribute__((naked)) __attribute__((noinline)) kread(int fd, void* buf, size_t n) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -107,7 +107,7 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-ptrdiff_t read(int fd, void* buf, size_t n) {
+ptrdiff_t kread(int fd, void* buf, size_t n) {
     return sysread(fd, buf, n);
 }
 #endif

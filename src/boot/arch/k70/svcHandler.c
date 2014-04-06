@@ -3,20 +3,6 @@
 #ifdef PLATFORM_K70CW
 
 #ifdef __GNUC__
-void __attribute__((naked)) svcHandler(void) {
-__asm(
-   "tst    lr, #4\n\t"
-   "ite    eq\n\t"
-   "mrseq  r0, msp\n\t"
-   "mrsne  r0, psp\n\t"
-   "push   {lr}\n\t"
-   "bl     svcHandlerDispatch\n\t"
-   "pop    {pc}"
-);
-}
-#else
-#error "Unsupported Compiler"
-#endif
 
 static int execSyscall(int* args) {
     return sysexecv((const char*)args[0], (char * const *)args[1]);
@@ -55,7 +41,7 @@ static struct {
 #undef X
 
 #define X(c, f, r) case MANOS_SYSCALL_##c:
-void svnHandlerDispatch(StackFrame* frame) {
+static void svcHandlerDispatch(StackFrame* frame) {
     SyscallIndex idx = (SyscallIndex)((uint8_t*)frame->ret - 2);
     switch(idx) {
     SYSCALL_MAP
@@ -69,5 +55,21 @@ void svnHandlerDispatch(StackFrame* frame) {
     }
 }
 #undef X
+
+void __attribute__((naked)) svcHandler(void) {
+__asm(
+   "tst    lr, #4\n\t"
+   "ite    eq\n\t"
+   "mrseq  r0, msp\n\t"
+   "mrsne  r0, psp\n\t"
+   "push   {lr}\n\t"
+   "bl     svcHandlerDispatch\n\t"
+   "pop    {pc}"
+);
+}
+#else
+#error "Unsupported Compiler"
+#endif
+
 
 #endif

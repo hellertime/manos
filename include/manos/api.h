@@ -95,10 +95,10 @@ void svcHandler(void);
 /*
  * System calls
  */
-int exec(const char*, char * const []);
-void close(int);
-int fstat(int, NodeInfo*);
-int open(const char*, Caps);
-ptrdiff_t read(int, void*, size_t);
+int kexec(const char*, char * const []);
+void kclose(int);
+int kfstat(int, NodeInfo*);
+int kopen(const char*, Caps);
+ptrdiff_t kread(int, void*, size_t);
 
 #endif /* ! MANOS_API_H */
