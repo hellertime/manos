@@ -89,7 +89,7 @@ ptrdiff_t fmtSprintf(char [], const char*, ...);
 #define USED UNUSED
 #define COUNT_OF(xs) ((sizeof xs) / (sizeof xs[0]))
 
-void svcInit(int);
+void svcInit(uint8_t);
 void svcHandler(void);
 
 /*
