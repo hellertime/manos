@@ -10,7 +10,7 @@
 
 static void __attribute__((used)) hardFaultHandlerMain(StackFrame* frame) {
     sysprintln("Oops! 0x%08" PRIx32 "", SCB_HFSR);
-    if (SCB_HSFR & SCB_HFSR_FORCED_MASK) {
+    if (SCB_HFSR & SCB_HFSR_FORCED_MASK) {
         sysprintln("*Forced* 0x%08" PRIx32 "", SCB_CFSR);
     }
 
