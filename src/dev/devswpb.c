@@ -173,6 +173,8 @@ static ptrdiff_t readSwpb(struct Portal *p, void *buf, size_t size, Offset offse
   if (p->crumb.flags & CRUMB_ISDIR) {
     return readStaticNS(p, swpbSNS, buf, size, offset);
   }
+
+  if (p->offset) return 0;
   
   SwpbFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb); 
   switch(fid) {
