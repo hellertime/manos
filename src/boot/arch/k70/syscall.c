@@ -17,6 +17,7 @@
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __attribute__((naked)) __attribute__((noinline)) exec(const char* path, char * const argv[]) {
 __asm(
     "svc %[syscall]\n\t"
@@ -37,6 +38,8 @@ int exec(const char* path, char * const argv[]) {
  */
 
 #ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void __attribute__((naked)) __attribute__((noinline)) close(int fd) {
 __asm(
     "svc %[syscall]\n\t"
@@ -45,6 +48,7 @@ __asm(
     : [syscall] "I" (MANOS_SYSCALL_CLOSE)
 );
 }
+#pragma GCC diagnostic pop
 #else
 void close(int fd) {
     sysclose(fd);
@@ -54,6 +58,7 @@ void close(int fd) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __attribute__((naked)) __attribute__((noinline)) fstat(int fd, NodeInfo* ni) {
 __asm(
     "svc %[syscall]\n\t"
@@ -72,6 +77,7 @@ int fstat(int fd, NodeInfo* ni) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __attribute__((naked)) __attribute__((noinline)) open(const char* path, Caps caps) {
 __asm(
     "svc %[syscall]\n\t"
@@ -90,6 +96,7 @@ int open(const char* path, Caps caps) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 ptrdiff_t __attribute__((naked)) __attribute__((noinline)) read(int fd, void* buf, size_t n) {
 __asm(
     "svc %[syscall]\n\t"
