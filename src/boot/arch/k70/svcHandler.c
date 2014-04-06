@@ -64,13 +64,13 @@ static void __attribute__((used)) svcHandlerDispatch(StackFrame* frame) {
 
 void __attribute__((naked)) svcHandler(void) {
 __asm(
-   "tst    lr, #4\n\t"
-   "ite    eq\n\t"
-   "mrseq  r0, msp\n\t"
-   "mrsne  r0, psp\n\t"
-   "push   {lr}\n\t"
-   "bl     svcHandlerDispatch\n\t"
-   "pop    {pc}"
+   "tst   lr, #4\n\t"
+   "ite   eq\n\t"
+   "mrseq r0, msp\n\t"
+   "mrsne r0, psp\n\t"
+   "push  {lr}\n\t"
+   "bl    svcHandlerDispatch\n\t"
+   "pop   {pc}"
 );
 }
 #else
@@ -78,4 +78,4 @@ __asm(
 #endif
 
 
-#endif
+#endif /* PLATFORM_K70CW */

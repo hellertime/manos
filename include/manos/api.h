@@ -99,6 +99,7 @@ ptrdiff_t fmtSprintf(char [], const char*, ...);
 
 void svcInit(uint8_t);
 void svcHandler(void);
+void hardFaultHandler(void);
 
 /*
  * System calls
