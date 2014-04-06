@@ -17,7 +17,7 @@ typedef struct Control {
     uint32_t colorShift[3];
 } Control;
 
-Control k70Control[] = {
+static Control k70Control[] = {
 {    .mmap       = (void*)LCD_SDRAM_START
 ,    .xsize      = LCD_XSIZE
 ,    .ysize      = LCD_YSIZE

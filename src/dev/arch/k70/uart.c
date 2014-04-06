@@ -13,7 +13,7 @@ typedef struct Control {
     volatile uint32_t * const uartPortRxPin; 
 } Control;
 
-Control k70Control[] = {
+static Control k70Control[] = {
 {    .mmap          = UART2_BASE_PTR
 ,    .portScgc      = &SIM_SCGC5
 ,    .portScgcMask  = SIM_SCGC5_PORTE_MASK
