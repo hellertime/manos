@@ -40,7 +40,7 @@ Lcd k70Lcd[] = {
 
 static Lcd* k70LcdHotplug(void) {
 #ifdef PLATFORM_K70CW
-    return k70Lcd[0];
+    return &k70Lcd[0];
 #else
     return NULL;
 #endif
