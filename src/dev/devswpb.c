@@ -58,7 +58,7 @@ void nanosleep(unsigned long int nanos) {
  * The mapping comes from sheet #7 of the TWR-K70F120M schematic
  */
 
-#define BIT_0  0
+#define BIT_0  (1 << 0)
 #define BIT_26 (1 << 26)
 
 #define BUTTON_ONE_BIT BIT_0
