@@ -48,7 +48,7 @@ static void __attribute__((used)) svcHandlerDispatch(StackFrame* frame) {
         if (dispatchTable[idx].isVoid)
             dispatchTable[idx].vfn(frame->a);
         else
-            frame->r0 = dispatchTable[idx].fn(frame->a);
+            frame->a[0] = dispatchTable[idx].fn(frame->a);
        break;
     default:
         sysprintln("Uknown SVC: %d", idx);
