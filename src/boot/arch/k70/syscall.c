@@ -29,7 +29,7 @@ __asm(
 #pragma GCC diagnostic pop
 #else
 int exec(const char* path, char * const argv[]) {
-    return sysexecv(path, args);
+    return sysexecv(path, argv);
 }
 #endif
 

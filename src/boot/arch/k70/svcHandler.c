@@ -44,7 +44,10 @@ static int readSyscall(int* args) {
 
 #define X(c, f, r) { .fn = f##Syscall, .isVoid = r },
 static struct {
-    int (*fn)(int*);
+    union {
+        int (*fn)(int*);
+        void (*vfn)(int*);
+    }
     int isVoid;
 } dispatchTable[] = {
     SYSCALL_MAP
@@ -57,7 +60,7 @@ void svnHandlerDispatch(StackFrame* frame) {
     switch(idx) {
     SYSCALL_MAP
         if (dispatchTable[idx].isVoid)
-            dispatchTable[idx].fn(frame->a);
+            dispatchTable[idx].vfn(frame->a);
         else
             frame->ret = dispatchTable[idx].fn(frame->a);
        break;
