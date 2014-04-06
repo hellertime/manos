@@ -42,12 +42,12 @@ static int readSyscall(int* args) {
 
 #include "syscall.h"
 
-#define X(c, f, r) { .fn = f##Syscall, .isVoid = r },
+#define X(c, f, r) { .fn = (int(*)(int*))f##Syscall, .isVoid = r },
 static struct {
     union {
         int (*fn)(int*);
         void (*vfn)(int*);
-    }
+    };
     int isVoid;
 } dispatchTable[] = {
     SYSCALL_MAP
