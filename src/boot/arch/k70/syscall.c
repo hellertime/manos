@@ -43,6 +43,7 @@ __asm(
     "bx lr"
     :
     : [syscall] "I" (MANOS_SYSCALL_CLOSE)
+);
 }
 #else
 void close(int fd) {
