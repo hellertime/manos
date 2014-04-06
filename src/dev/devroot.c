@@ -34,11 +34,12 @@ static StaticNS rootSNS[] = {
 ,   { "pwd", MKSTATICNS_CRUMB(1, 3, CRUMB_ISFILE), 5, 0555, "#!pwd" }
 ,   { "ls", MKSTATICNS_CRUMB(1, 4, CRUMB_ISFILE), 4, 0555 , "#!ls" }
 ,   { "cat", MKSTATICNS_CRUMB(1, 5, CRUMB_ISFILE), 5, 0555, "#!cat" }
+,   { "echo", MKSTATICNS_CRUMB(1, 6, CRUMB_ISFILE), 6, 0555, "#!echo" }
 
     /* children of dev */
-,   { "swpb", MKSTATICNS_CRUMB(2, 6, CRUMB_ISMOUNT), DEV_DEVSWPB, 0444, 0 }
-,   { "led", MKSTATICNS_CRUMB(2, 7, CRUMB_ISMOUNT), DEV_DEVLED, 0444, 0 }
-,   { "uart", MKSTATICNS_CRUMB(2, 8, CRUMB_ISMOUNT), DEV_DEVUART, 0444, 0 }
+,   { "swpb", MKSTATICNS_CRUMB(2, 7, CRUMB_ISMOUNT), DEV_DEVSWPB, 0444, 0 }
+,   { "led", MKSTATICNS_CRUMB(2, 8, CRUMB_ISMOUNT), DEV_DEVLED, 0444, 0 }
+,   { "uart", MKSTATICNS_CRUMB(2, 9, CRUMB_ISMOUNT), DEV_DEVUART, 0444, 0 }
 
     /* sentinel */
 ,   { "", MKSTATICNS_SENTINEL_CRUMB, 0, 0, 0}
