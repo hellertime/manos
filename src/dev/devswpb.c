@@ -133,8 +133,8 @@ static StaticNS swpbSNS[] = {
 
     /* one level */
 ,   { "1",    MKSTATICNS_CRUMB(0, FidOne,    CRUMB_ISFILE), 0, 0444, 0 }
-,   { "1raw", MKSTATICNS_CRUMB(0, FidOneRaw, CRUMB_ISFILE), 0, 0444, 0 }
 ,   { "2",    MKSTATICNS_CRUMB(0, FidTwo,    CRUMB_ISFILE), 0, 0444, 0 }
+,   { "1raw", MKSTATICNS_CRUMB(0, FidOneRaw, CRUMB_ISFILE), 0, 0444, 0 }
 ,   { "2raw", MKSTATICNS_CRUMB(0, FidTwoRaw, CRUMB_ISFILE), 0, 0444, 0 }
 
     /* sentinel */
