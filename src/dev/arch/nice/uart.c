@@ -1,5 +1,8 @@
 #include <manos.h>
+
+#ifdef PLATFORM_NICE /* dont leak stdio */
 #include <stdio.h>
+#endif
 
 extern UartHW niceUartHW;
 
@@ -46,12 +49,20 @@ static int niceUartBaud(Uart* uart, unsigned baud) {
 
 static char niceUartGetc(Uart* uart) {
     UNUSED(uart);
+#ifdef PLATFORM_NICE
     return getchar();
+#else
+    return 0;
+#endif
 }
 
 static void niceUartPutc(Uart* uart, char c) {
     UNUSED(uart);
+#ifdef PLATFORM_NICE
     putchar(c);
+#else
+    UNUSED(c);
+#endif
 }
 
 UartHW niceUartHW = {
