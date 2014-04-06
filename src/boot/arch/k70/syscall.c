@@ -89,7 +89,7 @@ int open(const char* path, Caps caps) {
 
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
-#pragma GCC diagnositc ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wreturn-type"
 ptrdiff_t __attribute__((naked)) __attribute__((noinline)) read(int, void*, size_t) {
 __asm(
     "svc %[syscall]\n\t"
