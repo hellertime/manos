@@ -5,4 +5,5 @@ CmdTable builtinCmds[] = {
 ,   { "ls",  cmdLs__Main }
 ,   { "pwd", cmdPwd__Main }
 ,   { "echo", cmdEcho__Main }
+,   { "hal", cmdHal__Main }
 };
