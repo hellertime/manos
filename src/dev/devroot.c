@@ -30,7 +30,6 @@
     X("ls", FidBin, BinLs, CRUMB_ISFILE, 4, 0555, "#!ls") \
     X("cat", FidBin, BinCat, CRUMB_ISFILE, 5, 0555, "#!cat") \
     X("echo", FidBin, BinEcho, CRUMB_ISFILE, 6, 0555, "#!echo") \
-    X("hal", FidBin, BinHal, CRUMB_ISFILE, 5, 0555, "#!hal") \
     X("swpb", FidDev, DevSwpb, CRUMB_ISMOUNT, DEV_DEVSWPB, 0444, 0) \
     X("led", FidDev, DevLed, CRUMB_ISMOUNT, DEV_DEVLED, 0444, 0) \
     X("uart", FidDev, DevUart, CRUMB_ISMOUNT, DEV_DEVUART, 0444, 0) \
