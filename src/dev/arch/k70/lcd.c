@@ -133,10 +133,10 @@ static void k70LcdEnable(Lcd* lcd) {
     lcd->colors.bg = 0x00ffffff;
     lcd->colors.fg = 0;
 
-    lcd->hw->clear(lcd);
-
     /* start */
     SIM_MCR |= SIM_MCR_LCDSTART_MASK;
+
+    lcd->hw->clear(lcd);
 }
 
 static void k70LcdDisable(Lcd* lcd) {
@@ -215,7 +215,7 @@ static void k70LcdPutc(Lcd* lcd, int c) {
     default:
         for (uint32_t y = 0; y < ctrl->consFontH; y++) {
             for (uint32_t x = 0; x < ctrl->consFontW; x++) {
-                *(buf + (y * lcd->consY) * ctrl->xsize + (x + lcd->consX)) = profont[c][y][x] ? lcd->colors.fg : lcd->colors.bg;
+                *(buf + (y + lcd->consY) * ctrl->xsize + (x + lcd->consX)) = profont[c][y][x] ? lcd->colors.fg : lcd->colors.bg;
             }
         }
         lcd->consX += ctrl->consFontW;
