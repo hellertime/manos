@@ -47,7 +47,7 @@ int cmdCat__Main(int argc, char * const argv[]) {
 
         c = 0;
         kread(sw1, &c, 1);
-        if (c == 0)
+        if (c == '0')
             break;
     }
 
