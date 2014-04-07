@@ -30,11 +30,11 @@ static int32_t readAdcHw(AdcChan chan) {
 }
 
 static int32_t readPotAdc(void) {
-    return readAdc(AdcPot);
+    return readAdcHw(AdcPot);
 }
 
 static int32_t readTempAdc(void) {
-    return readAdc(AdcTemp);
+    return readAdcHw(AdcTemp);
 }
 
 #define NAMESPACE_MAP    \
@@ -42,7 +42,7 @@ static int32_t readTempAdc(void) {
     X("pot", FidDot, Pot, CRUMB_ISFILE, 0, 0444, 0) \
     X("temp", FidDot, Temp, CRUMB_ISFILE, 0, 0444, 0)
 
-#define X(p, u, s, t, z, m, c) Fid##s
+#define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {
 NAMESPACE_MAP
 } AdcFidEnt;
