@@ -190,6 +190,7 @@ struct LcdHw {
     void (*enable)(Lcd*);
     void (*disable)(Lcd*);
     void (*clear)(Lcd*);
+    void (*blit)(Lcd*, char*);
 };
 
 #endif /* ! MANOS_TYPES_H */

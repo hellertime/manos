@@ -15,7 +15,8 @@ static void disableLcd(Lcd* lcd) {
     X(".", STATICNS_SENTINEL, Dot, CRUMB_ISDIR, 0, 0555, 0) \
     X("clear", FidDot, Clear, CRUMB_ISFILE, 0, 0644, 0) \
     X("fg", FidDot, Fg, CRUMB_ISFILE, 0, 0644, 0) \
-    X("bg", FidDot, Bg, CRUMB_ISFILE, 0, 0644, 0)
+    X("bg", FidDot, Bg, CRUMB_ISFILE, 0, 0644, 0) \
+    X("blit", FidDot, Blit, CRUMB_ISFILE, 522240, 0222, 0)
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {
@@ -116,6 +117,9 @@ static ptrdiff_t writeLcd(Portal* p, void* buf, size_t size, Offset offset) {
             bytes = 1;
         }
         break;
+    case FidBlit:
+        lcdScreen->hw->blit(lcdScreen, buf);
+        return lcdScreen->fbSize;
     default:
         errno = ENODEV;
         return -1;

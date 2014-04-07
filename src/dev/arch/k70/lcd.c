@@ -151,10 +151,18 @@ static void k70LcdClear(Lcd* lcd) {
     }
 }
 
+static void k70LcdBlit(Lcd* lcd, char* bits) {
+    Control* ctrl = lcd->regs;
+    for (uint32_t* in = (uint32_t*)bits, *out = (uint32_t*)ctrl->mmap; out < (uint32_t*)ctrl->mmap + (ctrl->xsize * ctrl->ysize); in++, out++) {
+        *out = *in;
+    }
+}
+
 LcdHw k70LcdHw = {
     .name    = "k70Lcd"
 ,   .hotplug = k70LcdHotplug
 ,   .enable  = k70LcdEnable
 ,   .disable = k70LcdDisable
 ,   .clear   = k70LcdClear
+,   .blit    = k70LcdBlit
 };
