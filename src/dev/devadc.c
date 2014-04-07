@@ -6,8 +6,9 @@
  * /pot which gives raw potentiometer readings
  * /temp which gives raw temp sensor readings
  */
-
+#include <errno.h>
 #include <manos.h>
+#include <stdint.h>
 
 #include <arch/k70/derivative.h>
 
