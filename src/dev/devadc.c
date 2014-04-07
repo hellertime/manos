@@ -13,9 +13,11 @@
 #include <arch/k70/derivative.h>
 
 static void initAdcHw(void) {
+#ifdef PLATFORM_K70CW
     SIM_SCGC3 |= SIM_SCGC3_ADC1_MASK;
     ADC1_CFG1  = ADC_CFG1_MODE(0x1); /* bits 12 & 13 */
     ADC1_SC3   = ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(0x3); /* sample average of 32 per cycle */
+#endif
 }
 
 typedef enum {
