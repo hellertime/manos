@@ -1,4 +1,4 @@
-/e
+/*
  * Trival ADC device. 
  *
  * Provides 
