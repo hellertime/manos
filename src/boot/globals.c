@@ -4,6 +4,7 @@ extern Dev devLed;
 extern Dev devSwpb;
 extern Dev devUart;
 extern Dev devLcd;
+extern Dev devAdc;
 
 Dev* deviceTable[MANOS_MAXDEV] = {
     &devRoot
@@ -11,6 +12,7 @@ Dev* deviceTable[MANOS_MAXDEV] = {
 ,   &devSwpb
 ,   &devUart
 ,   &devLcd
+,   &devAdc
 };
 
 extern UartHW k70UartHW;

@@ -21,6 +21,7 @@ typedef int OnOff;
 #define DEV_DEVSWPB 'B'
 #define DEV_DEVUART 'u'
 #define DEV_DEVLCD  'D'
+#define DEV_DEVADC  'A'
 
 #define CAP_READ      0
 #define CAP_WRITE     1

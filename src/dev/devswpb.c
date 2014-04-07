@@ -167,7 +167,7 @@ static int getInfoSwpb(const Portal *p, NodeInfo* ni) {
   return getNodeInfoStaticNS(p, swpbSNS, WalkSelf, ni) == NULL ? -1 : 0;
 }
 
-static ptrdiff_t readSwpb(struct Portal *p, void *buf, size_t size, Offset offset) {
+static ptrdiff_t readSwpb(Portal *p, void *buf, size_t size, Offset offset) {
   if (size == 0) return 0;
   
   if (p->crumb.flags & CRUMB_ISDIR) {

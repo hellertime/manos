@@ -5,7 +5,7 @@
 #include "manos/api.h"
 #include "arch/mk70f12.h"
 
-#define MANOS_MAXDEV 5
+#define MANOS_MAXDEV 6
 extern Dev* deviceTable[MANOS_MAXDEV];
 
 #define MANOS_MAXUART 2

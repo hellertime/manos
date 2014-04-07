@@ -33,7 +33,8 @@
     X("swpb", FidDev, DevSwpb, CRUMB_ISMOUNT, DEV_DEVSWPB, 0444, 0) \
     X("led", FidDev, DevLed, CRUMB_ISMOUNT, DEV_DEVLED, 0444, 0) \
     X("uart", FidDev, DevUart, CRUMB_ISMOUNT, DEV_DEVUART, 0444, 0) \
-    X("lcd", FidDev, DevLcd, CRUMB_ISMOUNT, DEV_DEVLCD, 0444, 0)
+    X("lcd", FidDev, DevLcd, CRUMB_ISMOUNT, DEV_DEVLCD, 0444, 0) \
+    X("adc", FidDev, DevAdc, CRUMB_ISMOUNT, DEV_DECADC, 0444, 0)
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {
