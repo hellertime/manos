@@ -29,24 +29,27 @@ int cmdCat__Main(int argc, char * const argv[]) {
         }
     }
 
+    int sw1 = kopen("/dev/swpb/1raw", CAP_READ);
+
     NodeInfo ni;
     int fd = kopen(path, CAP_READ);
     kfstat(fd, &ni);
 
-    if (inHex) {
-        uint32_t n;
-        while (kread(fd, &n, sizeof n) == sizeof n) {
-            fprint(u->tty, "%08x", n);
-            if (withNewlines) fputchar(u->tty, '\n');
-        }
-    } else {
-        char c;
-        while (kread(fd, &c, 1) == 1) {
-            fputchar(u->tty, c);
-            if (withNewlines) fputchar(u->tty, '\n');
-        }
+    uint32_t x;
+    while (kread(fd, &x, inHex ? sizeof x : 1)) {
+        if (inHex)
+            fprintf(u->tty, "0x%" PRIx32 "", x);
+        else
+            fputchar(u->tty, x);
+
+        if (withNewlines) fputchar(u->tty, '\n');
+
+        kread(sw1, &x, 1);
+        if (!x)
+            break;
     }
 
+    kclose(sw1);
     kclose(fd);
     return 0;
 }

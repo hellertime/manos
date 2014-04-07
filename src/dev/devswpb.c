@@ -174,8 +174,6 @@ static ptrdiff_t readSwpb(Portal *p, void *buf, size_t size, Offset offset) {
     return readStaticNS(p, swpbSNS, buf, size, offset);
   }
 
-  if (p->offset) return 0;
-  
   SwpbFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb); 
   switch(fid) {
   case FidOne:
