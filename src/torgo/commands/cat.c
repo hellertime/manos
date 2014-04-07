@@ -38,7 +38,7 @@ int cmdCat__Main(int argc, char * const argv[]) {
     uint32_t x;
     while (kread(fd, &x, inHex ? sizeof x : 1)) {
         if (inHex)
-            fprintf(u->tty, "0x%" PRIx32 "", x);
+            fprint(u->tty, "0x%" PRIx32 "", x);
         else
             fputchar(u->tty, x);
 
