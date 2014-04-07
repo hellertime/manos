@@ -20,7 +20,7 @@ DESCRIPTION
 
 #include <ansi_parms.h>
 #include <CWCPlusLib.h>
-
+#include <manos.h>
 _EWL_BEGIN_EXTERN_C
 
 #if defined(__SEMIHOSTING)
@@ -35,9 +35,9 @@ extern void _ExitProcess(int status) _EWL_WEAK;
 extern void _ExitProcess(int status)
 {
 #if defined(__SEMIHOSTING)
-	sys_exit(status);
+	sys_exit(status);#else		UNUSED(status);
 #endif
 	while (1);
 }
 
-_EWL_END_EXTERN_C
+_EWL_END_EXTERN_C

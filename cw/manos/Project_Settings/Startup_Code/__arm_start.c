@@ -1,4 +1,4 @@
-/* CodeWarrior ARM Runtime Support Library
+ /* CodeWarrior ARM Runtime Support Library
 
  * Copyright © 2012 Freescale Semiconductors. All rights reserved.
 

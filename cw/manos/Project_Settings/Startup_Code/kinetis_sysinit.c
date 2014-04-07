@@ -5,8 +5,10 @@
  */
  
 #include "kinetis_sysinit.h"
-#include "derivative.h"
+#include "arch/k70/derivative.h"
 
+extern void svcHandler(void);
+extern void hardFaultHandler(void);
 /**
  **===========================================================================
  **  External declarations
@@ -52,11 +54,11 @@ void __init_hardware()
 
 /* Weak definitions of handlers point to Default_Handler if not implemented */
 void NMI_Handler() __attribute__ ((weak, alias("Default_Handler")));
-void HardFault_Handler() __attribute__ ((weak, alias("Default_Handler")));
+/* void HardFault_Handler() __attribute__ ((weak, alias("Default_Handler"))); */
 void MemManage_Handler() __attribute__ ((weak, alias("Default_Handler")));
 void BusFault_Handler() __attribute__ ((weak, alias("Default_Handler")));
 void UsageFault_Handler() __attribute__ ((weak, alias("Default_Handler")));
-void SVC_Handler() __attribute__ ((weak, alias("Default_Handler")));
+/* void SVC_Handler() __attribute__ ((weak, alias("Default_Handler"))); */
 void DebugMonitor_Handler() __attribute__ ((weak, alias("Default_Handler")));
 void PendSV_Handler() __attribute__ ((weak, alias("Default_Handler")));
 void SysTick_Handler() __attribute__ ((weak, alias("Default_Handler")));
@@ -68,7 +70,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     (void(*)(void)) &_estack,
     __thumb_startup,
     NMI_Handler, 
-    HardFault_Handler, 
+    hardFaultHandler, 
     MemManage_Handler, 
     BusFault_Handler,
     UsageFault_Handler, 
@@ -76,7 +78,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     0, 
     0, 
     0, 
-    SVC_Handler, 
+    svcHandler, 
     DebugMonitor_Handler, 
     0,
     PendSV_Handler, 

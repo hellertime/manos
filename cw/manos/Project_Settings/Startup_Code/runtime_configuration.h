@@ -12,4 +12,6 @@
 #define SUPPORT_SEMIHOST_ARGC_ARGV 0
 #endif
 
-
+#if !defined(_EWL_CONSOLE_SUPPORT)
+#define _EWL_CONSOLE_SUPPORT 0
+#endif
