@@ -40,7 +40,7 @@ static int32_t readTempAdc(void) {
 #define NAMESPACE_MAP    \
     X(".", STATICNS_SENTINEL, Dot, CRUMB_ISDIR, 0, 0555, 0) \
     X("pot", FidDot, Pot, CRUMB_ISFILE, 0, 0444, 0) \
-    X("temp", FidDor, Temp, CRUMB_ISFILE, 0, 0444, 0)
+    X("temp", FidDot, Temp, CRUMB_ISFILE, 0, 0444, 0)
 
 #define X(p, u, s, t, z, m, c) Fid##s
 typedef enum {
@@ -59,7 +59,7 @@ static void initAdc(void) {
     initAdcHw();
 }
 
-static Portal* attachAdm(char *path) {
+static Portal* attachAdc(char *path) {
     Portal* p = attachDev(DEV_DEVADC, path);
     p->crumb = adcSNS[0].crumb;
     return p;
