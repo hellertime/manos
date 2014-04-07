@@ -29,13 +29,14 @@ int cmdCat__Main(int argc, char * const argv[]) {
         }
     }
 
-    int sw1 = kopen("/dev/swpb/1raw", CAP_READ);
+    int sw1 = kopen("/dev/swpb/1", CAP_READ);
 
     NodeInfo ni;
     int fd = kopen(path, CAP_READ);
     kfstat(fd, &ni);
 
     uint32_t x;
+    char c;
     while (kread(fd, &x, inHex ? sizeof x : 1)) {
         if (inHex)
             fprint(u->tty, "0x%" PRIx32 "", x);
@@ -44,8 +45,9 @@ int cmdCat__Main(int argc, char * const argv[]) {
 
         if (withNewlines) fputchar(u->tty, '\n');
 
-        kread(sw1, &x, 1);
-        if (!x)
+        c = 0;
+        kread(sw1, &c, 1);
+        if (c == 0)
             break;
     }
 
