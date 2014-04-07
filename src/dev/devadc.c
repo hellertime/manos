@@ -9,6 +9,8 @@
 
 #include <manos.h>
 
+#include <arch/k70/derivative.h>
+
 static void initAdcHw(void) {
     SIM_SCGC3 |= SIM_SCGC3_ADC1_MASK;
     ADC1_CFG1  = ADC_CFG1_MODE(0x1); /* bits 12 & 13 */
