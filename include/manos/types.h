@@ -183,6 +183,8 @@ typedef struct Lcd {
     uint32_t bg;
     uint32_t fg;
     } colors;
+    uint32_t consX;
+    uint32_t consY;
 } Lcd;
 
 struct LcdHw {
@@ -192,6 +194,8 @@ struct LcdHw {
     void (*disable)(Lcd*);
     void (*clear)(Lcd*);
     void (*blit)(Lcd*, char*);
+    void (*scroll)(Lcd*);
+    void (*putc)(Lcd*,int);
 };
 
 #endif /* ! MANOS_TYPES_H */

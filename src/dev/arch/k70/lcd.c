@@ -4,6 +4,8 @@
 
 #include <arch/k70/derivative.h>
 
+#include <arch/k70/profont.h>
+
 #define R 0
 #define G 1
 #define B 2
@@ -15,6 +17,9 @@ typedef struct Control {
     uint32_t bpp;
     uint32_t colorMask[3];
     uint32_t colorShift[3];
+    uint32_t consFontH;
+    uint32_t consFontW;
+    unsigned consTabSpc;
 } Control;
 
 static Control k70Control[] = {
@@ -24,6 +29,9 @@ static Control k70Control[] = {
 ,    .bpp        = LCD_BPP
 ,    .colorMask  = { 0x00ff0000, 0x0000ff00, 0x000000ff }
 ,    .colorShift = { 16, 8, 0 }
+,    .consFontH  = PROFONT_FONT_HEIGHT
+,    .consFontW  = PROFONT_FONT_WIDTH
+,    .consTabSpc = 8
 }
 };
 
@@ -149,12 +157,74 @@ static void k70LcdClear(Lcd* lcd) {
             *pixel = lcd->colors.bg;
         }
     }
+
+    lcd->consX = 0;
+    lcd->consY = ctrl->ysize - ctrl->consFontH;
 }
 
 static void k70LcdBlit(Lcd* lcd, char* bits) {
     Control* ctrl = lcd->regs;
     for (uint32_t* in = (uint32_t*)bits, *out = (uint32_t*)ctrl->mmap; out < (uint32_t*)ctrl->mmap + (ctrl->xsize * ctrl->ysize); in++, out++) {
         *out = *in;
+    }
+}
+
+static void k70LcdScroll(Lcd* lcd) {
+    Control* ctrl = lcd->regs;
+    uint32_t* buf = ctrl->mmap;
+
+    /* scroll up from bottom */
+    memmove(buf, buf + (ctrl->consFontH * ctrl->xsize), ctrl->bpp * lcd->consY * ctrl->xsize);
+
+    uint8_t r = LCD_PIXEL(ctrl, lcd->colors.bg, R);
+    uint8_t g = LCD_PIXEL(ctrl, lcd->colors.bg, G);
+    uint8_t b = LCD_PIXEL(ctrl, lcd->colors.bg, B);
+
+    /* clear last row */
+    if (r == g && r == b) {
+        memset(buf + (lcd->consY * ctrl->xsize), r, ctrl->bpp * (ctrl->ysize - lcd->consY) * ctrl->xsize);
+    } else {
+        for (uint32_t* pixel = buf + (lcd->consY + ctrl->xsize); pixel < (buf + ctrl->ysize * ctrl->xsize); pixel++) {
+            *pixel = lcd->colors.bg;
+        }
+    }
+}
+
+static void k70LcdPutc(Lcd* lcd, int c) {
+    Control* ctrl = lcd->regs;
+    uint32_t* buf = ctrl->mmap;
+
+    switch (c) {
+    case '\r':
+        lcd->consX = 0;
+        break;
+    case '\n':
+        k70LcdScroll(lcd);
+        break;
+    case '\t':
+        lcd->consX = ((lcd->consX + ctrl->consTabSpc * ctrl->consFontW) / (ctrl->consTabSpc * ctrl->consFontW)) * (ctrl->consTabSpc * ctrl->consFontW);
+        break;
+    case '\b':
+        if (lcd->consX >= ctrl->consFontW) {
+            lcd->consX -= ctrl->consFontW;
+        }
+        break;
+    case '\f':
+        k70LcdClear(lcd);
+        break;
+    default:
+        for (uint32_t y = 0; y < ctrl->consFontH; y++) {
+            for (uint32_t x = 0; x < ctrl->consFontW; x++) {
+                *(buf + (y * lcd->consY) * ctrl->xsize + (x + lcd->consX)) = profont[c][y][x] ? lcd->colors.fg : lcd->colors.bg;
+            }
+        }
+        lcd->consX += ctrl->consFontW;
+        break;
+    }
+
+    if (lcd->consX > ctrl->xsize - ctrl->consFontW) {
+        k70LcdScroll(lcd);
+        lcd->consX = 0;
     }
 }
 
@@ -165,4 +235,6 @@ LcdHw k70LcdHw = {
 ,   .disable = k70LcdDisable
 ,   .clear   = k70LcdClear
 ,   .blit    = k70LcdBlit
+,   .scroll  = k70LcdScroll
+,   .putc    = k70LcdPutc
 };
