@@ -83,7 +83,7 @@ static void closeAdc(Portal* p) {
 }
 
 static int getInfoAdc(const Portal* p, NodeInfo* ni) {
-    return getNodeInfStaticNS(p, adcSNS, WalkSelf, ni) == NULL ? -1 : 0;
+    return getNodeInfoStaticNS(p, adcSNS, WalkSelf, ni) == NULL ? -1 : 0;
 }
 
 static ptrdiff_t readAdc(Portal* p, void* buf, size_t size, Offset offset) {
