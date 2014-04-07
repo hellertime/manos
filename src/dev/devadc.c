@@ -87,7 +87,7 @@ static int getInfoAdc(const Portal* p, NodeInfo* ni) {
 }
 
 static ptrdiff_t readAdc(Portal* p, void* buf, size_t size, Offset offset) {
-    if (size < sizeof uint32_t) return 0;
+    if (size < (sizeof uint32_t)) return 0;
 
     if (p->crumb.flags & CRUMB_ISDIR) {
         return readStaticNS(p, adcSNS, buf, size, offset);
@@ -106,8 +106,8 @@ static ptrdiff_t readAdc(Portal* p, void* buf, size_t size, Offset offset) {
         return -1;
     }
 
-    p->offset += sizeof uint32_t;
-    return sizeof uint32_t;
+    p->offset += (sizeof uint32_t);
+    return (sizeof uint32_t);
 }
 
 static ptrdiff_t writeAdc(Portal *p, void* buf, size_t size, Offset offset) {
