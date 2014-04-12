@@ -198,4 +198,12 @@ struct LcdHw {
     void (*putc)(Lcd*,int);
 };
 
+typedef struct FifoQ {
+    int    isEmpty;
+    size_t readOffset;
+    size_t writeOffset;
+    size_t size;
+    char   buf[];
+} FifoQ;
+
 #endif /* ! MANOS_TYPES_H */

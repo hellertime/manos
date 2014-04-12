@@ -93,6 +93,12 @@ ptrdiff_t fmtVsnprintf(char [], size_t, const char*, va_list);
 ptrdiff_t fmtSnprintf(char [], size_t, const char*, ...);
 ptrdiff_t fmtSprintf(char [], const char*, ...);
 
+FifoQ* newFifoQ(size_t);
+FifoQ* clearFifoQ(FifoQ*);
+int    isFullFifoQ(FifoQ*);
+int    enqueueFifoQ(FifoQ*, char);
+int    dequeueFifoQ(FifoQ*, char*);
+
 #define UNUSED(x) (void)(x)
 #define USED UNUSED
 #define COUNT_OF(xs) ((sizeof xs) / (sizeof xs[0]))
