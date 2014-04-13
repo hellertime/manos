@@ -185,7 +185,7 @@ static ptrdiff_t writeUart(Portal* p, void* buf, size_t size, Offset offset) {
     switch ((UartFileType)ni.length) {
     case UartDataFile:
         if (!uart->hw->putc) {
-            errno = ENODEV;
+            errno = EPERM;
             return -1;
         }
 

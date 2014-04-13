@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 #ifdef PLATFORM_K70CW
     mcgInit();
     sdramInit();
-    svcInit(7);
+    svcInit(MANOS_ARCH_K70_SVC_INT_PRIORITY);
 #endif
 
     /*

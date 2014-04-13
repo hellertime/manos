@@ -5,6 +5,7 @@ extern Dev devSwpb;
 extern Dev devUart;
 extern Dev devLcd;
 extern Dev devAdc;
+extern Dev devTimer;
 
 Dev* deviceTable[MANOS_MAXDEV] = {
     &devRoot
@@ -13,6 +14,7 @@ Dev* deviceTable[MANOS_MAXDEV] = {
 ,   &devUart
 ,   &devLcd
 ,   &devAdc
+,   &devTimer
 };
 
 extern UartHW k70UartHW;
@@ -23,10 +25,18 @@ UartHW* uartHardwareTable[MANOS_MAXUART] = {
 ,   &niceUartHW
 };
 
+extern TimerHW k70TimerHW;
+
+TimerHW* timerHardwareTable[MANOS_MAXTIMER] = {
+    &k70TimerHW
+};
+
 Proc* u = NULL; 
 
 Uart* consoleUart = NULL;
 Uart* hotpluggedUarts = NULL;
+
+Timer* hotpluggedTimers = NULL;
 
 #ifdef PLATFORM_K70CW
 extern LcdHw k70LcdHw;

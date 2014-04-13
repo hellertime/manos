@@ -5,11 +5,16 @@
 #include "manos/api.h"
 #include "arch/mk70f12.h"
 
-#define MANOS_MAXDEV 6
+#define MANOS_MAXDEV 7
 extern Dev* deviceTable[MANOS_MAXDEV];
 
 #define MANOS_MAXUART 2
 extern UartHW* uartHardwareTable[MANOS_MAXUART];
+
+#define MANOS_MAXTIMER 1
+extern TimerHW* timerHardwareTable[MANOS_MAXTIMER];
+
+extern Timer* hotpluggedTimers;
 
 extern Proc* u; /* always the current user pointer */
 

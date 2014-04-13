@@ -22,6 +22,7 @@ typedef int OnOff;
 #define DEV_DEVUART 'u'
 #define DEV_DEVLCD  'D'
 #define DEV_DEVADC  'A'
+#define DEV_DEVTIMER 'T'
 
 #define CAP_READ      0
 #define CAP_WRITE     1
@@ -205,5 +206,32 @@ typedef struct FifoQ {
     size_t size;
     char   buf[];
 } FifoQ;
+
+typedef struct Timestamp {
+    uint32_t counters[2];
+} Timestamp;
+
+typedef struct TimerHW TimerHW;
+
+typedef struct Timer {
+    void*         regs;
+    char*         name;
+    int           clock;
+    int           psd;
+    int           mod;
+    Timestamp     timestamp;
+    TimerHW*      hw;
+    struct Timer* next;
+} Timer;
+
+struct TimerHW {
+    char*  name;
+    Timer* (*hotplug)(void);
+    void   (*disable)(Timer*);
+    void   (*power)(Timer*, int);
+    void   (*reset)(Timer*);
+    void   (*start)(Timer*);
+    void   (*stop)(Timer*);
+};
 
 #endif /* ! MANOS_TYPES_H */
