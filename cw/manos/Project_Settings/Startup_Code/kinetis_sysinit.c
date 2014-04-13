@@ -9,6 +9,8 @@
 
 extern void svcHandler(void);
 extern void hardFaultHandler(void);
+extern void toieHandler(void);
+
 /**
  **===========================================================================
  **  External declarations
