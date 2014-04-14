@@ -149,7 +149,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     Default_Handler,	/* IRQ59 */
     Default_Handler,	/* IRQ60 */
     Default_Handler,	/* IRQ61 */
-    Default_Handler,	/* IRQ62 */
+    toieHandler,	/* IRQ62 */
     Default_Handler,	/* IRQ63 */
     Default_Handler,	/* IRQ64 */
     Default_Handler,	/* IRQ65 */
@@ -165,7 +165,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     Default_Handler,	/* IRQ75 */
     Default_Handler,	/* IRQ76 */
     Default_Handler,	/* IRQ77 */
-    toieHandler,	/* IRQ78 */
+    Default_Handler,	/* IRQ78 */
     Default_Handler,	/* IRQ79 */
     Default_Handler,	/* IRQ80 */
     Default_Handler,	/* IRQ81 */
