@@ -7,6 +7,6 @@ void toieHandler(void) {
     for (Timer* timer = hotpluggedTimers; timer; timer = timer->next) {
         timer->hw->disable(timer);
         timer->hw->start(timer);
-        INC_TIMESTAMP(&(timer->timestamp));
+        timer->timestamp.msecs++;
     }
 }

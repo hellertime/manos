@@ -26,9 +26,11 @@ UartHW* uartHardwareTable[MANOS_MAXUART] = {
 };
 
 extern TimerHW k70TimerHW;
+extern TimerHW niceTimerHW;
 
 TimerHW* timerHardwareTable[MANOS_MAXTIMER] = {
     &k70TimerHW
+,   &niceTimerHW
 };
 
 Proc* u = NULL; 

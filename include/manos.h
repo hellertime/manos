@@ -11,7 +11,7 @@ extern Dev* deviceTable[MANOS_MAXDEV];
 #define MANOS_MAXUART 2
 extern UartHW* uartHardwareTable[MANOS_MAXUART];
 
-#define MANOS_MAXTIMER 1
+#define MANOS_MAXTIMER 2
 extern TimerHW* timerHardwareTable[MANOS_MAXTIMER];
 
 extern Timer* hotpluggedTimers;

@@ -99,16 +99,6 @@ int    isFullFifoQ(FifoQ*);
 int    enqueueFifoQ(FifoQ*, char);
 int    dequeueFifoQ(FifoQ*, char*);
 
-#define ZERO_TIMESTAMP(ts)  \
-do{                         \
-    ts->counters = {0,0};   \
-}while(0)
-
-#define INC_TIMESTAMP(ts)                       \
-do{                                             \
-    (ts)->counters[0] += !(++((ts)->counters[1]));   \
-}while(0)
-
 #define UNUSED(x) (void)(x)
 #define USED UNUSED
 #define COUNT_OF(xs) ((sizeof xs) / (sizeof xs[0]))

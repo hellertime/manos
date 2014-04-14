@@ -2,6 +2,11 @@
 #include <manos.h>
 #include <string.h>
 
+#ifdef PLATFORM_NICE
+#include <sys/time.h>
+#include <time.h>
+#endif
+
 static unsigned timerSNSCount = 0;
 static StaticNS* timerSNS = NULL;
 
@@ -99,8 +104,14 @@ static ptrdiff_t readTimer(Portal* p, void* buf, size_t size, Offset offset) {
     if (offset >= ni.length)
         return 0;
 
+#ifdef PLATFORM_NICE
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    timer->timestamp.msecs = ((uint64_t)tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+#endif
+
     size_t bytes = ni.length - offset;
-    memcpy(buf, (char*)&timer->timestamp.counters + offset, bytes);
+    memcpy(buf, (char*)&timer->timestamp.msecs + offset, bytes);
     return bytes;
 }
 
@@ -124,7 +135,7 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
     char newBuf[8];
     size_t bytes = size > 8 ? 8 : size;
     memcpy(newBuf + (8 - bytes), buf, size);
-    memcpy(timer->timestamp.counters, newBuf, 8);
+    memcpy(&timer->timestamp.msecs, newBuf, 8);
     return bytes;
 }
 

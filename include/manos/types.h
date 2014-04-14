@@ -208,7 +208,7 @@ typedef struct FifoQ {
 } FifoQ;
 
 typedef struct Timestamp {
-    uint32_t counters[2];
+    int64_t msecs;
 } Timestamp;
 
 typedef struct TimerHW TimerHW;
