@@ -101,6 +101,7 @@ static void k70TimerPower(Timer* timer, int onoff) {
         *ctrl->timerScgc |= ctrl->timerScgcMask;
 
         k70TimerDisable(timer);
+        *ctrl->timerSc = 0;
 
         *ctrl->timerMode   = ctrl->timerModeMask;
         *ctrl->timerSimOpt &= ~ctrl->timerSimOptMask;
