@@ -101,7 +101,7 @@ int cmdDate__Main(int argc, char * const argv[]) {
 
 #ifdef PLATFORM_K70CW
         int timer = kopen("/dev/timer/k70Timer", CAP_WRITE);
-        uint64_t seconds = dateToSeconds(d);
+        uint64_t seconds = dateToSeconds(&d);
         kwrite(timer, &seconds, sizeof seconds);
         kclose(timer);
 #elif PLATFORM_NICE
