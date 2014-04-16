@@ -86,13 +86,14 @@ uint64_t dateToSeconds(struct Date* date) {
 }
 
 int cmdDate__Main(int argc, char * const argv[]) {
-    if (argc > 2) {
-        if (strcmp(argv[1], "--set") != 0) {
+    if (argc > 1) {
+        if (argc == 2 || strcmp(argv[1], "--set") != 0) {
             fprint(u->tty, "usage: %s [--set YYYY [MM [DD [HH [MM [SS]]]]]]\n", argv[0]);
             return 1;
         }
 
         struct Date d;
+        memset(&d, 0, sizeof d);
         int* parts[6] = {&d.year, &d.month, &d.day, &d.hours, &d.minutes, &d.seconds};
 
         for (int i = 2; i < argc; i++) {
