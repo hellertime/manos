@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <manos.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define SECONDS_PER_MINUTE 60
 #define MINUTES_PER_HOUR   60
@@ -62,9 +64,52 @@ void secondsToDate(uint64_t seconds, struct Date* date) {
     date->day = dayOfMonth + 1;
 }
 
+uint64_t dateToSeconds(struct Date* date) {
+    uint64_t seconds = date->seconds + (date->minutes * SECONDS_PER_MINUTE) + (date->hours * SECONDS_PER_HOUR);
+    seconds += date->day * SECONDS_PER_DAY;
+    for (int i = 0; i < date->month; i++) {
+        seconds += months[i].days[IS_LEAP(date->year)] * SECONDS_PER_DAY;
+    }
+
+    int year = date->year;
+    while (year > 1970) {
+        seconds += DAYS_IN_YEAR(year) * SECONDS_PER_DAY;
+        year--;
+    }
+
+    while (year < 1970) {
+        seconds += DAYS_IN_YEAR(year) * SECONDS_PER_DAY;
+        year++;
+    }
+
+    return seconds;
+}
+
 int cmdDate__Main(int argc, char * const argv[]) {
-    UNUSED(argc);
-    UNUSED(argv);
+    if (argc > 2) {
+        if (strcmp(argv[1], "--set") != 0) {
+            fprint(u->tty, "usage: %s [--set YYYY [MM [DD [HH [MM [SS]]]]]]\n", argv[0]);
+            return 1;
+        }
+
+        struct Date d;
+        int* parts[6] = {&d.year, &d.month, &d.day, &d.hours, &d.minutes, &d.seconds};
+
+        for (int i = 2; i < argc; i++) {
+             *parts[i - 2] = atoi(argv[i]);
+        }
+
+#ifdef PLATFORM_K70CW
+        int timer = kopen("/dev/timer/k70Timer", CAP_WRITE);
+        uint64_t seconds = dateToSeconds(d);
+        kwrite(timer, &seconds, sizeof seconds);
+        kclose(timer);
+#elif PLATFORM_NICE
+        fprint(u->tty, "Cannot set date on this platform.\n");
+#else
+#error "cmdDate__Main() unsupported platform"
+#endif
+    }
 
 #ifdef PLATFORM_K70CW
     int timer = kopen("/dev/timer/k70Timer", CAP_READ);
