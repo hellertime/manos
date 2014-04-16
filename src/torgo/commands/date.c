@@ -100,6 +100,9 @@ int cmdDate__Main(int argc, char * const argv[]) {
              *parts[i - 2] = atoi(argv[i]);
         }
 
+        if (d.month)
+            d.month--;
+
 #ifdef PLATFORM_K70CW
         int timer = kopen("/dev/timer/k70Timer", CAP_WRITE);
         uint64_t msecs = dateToSeconds(&d) * 1000;
