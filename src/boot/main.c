@@ -33,9 +33,9 @@ int main(int argc, char** argv) {
 
 
     for (unsigned i = 0; i < COUNT_OF(deviceTable); i++) {
-        deviceTable[i]->init();
-        deviceTable[i]->reset();
         deviceTable[i]->power(1);
+        deviceTable[i]->reset();
+        deviceTable[i]->init();
     }
   
 #if PLATFORM_K70CW
