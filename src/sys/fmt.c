@@ -133,13 +133,18 @@ static ptrdiff_t fmtVsnprintfInternal(char buf[], size_t n, int useN, const char
 
            c = x;
 
+           int longModifiers = 0;
            size_t bytes = 0;
            char* s;
            /* 3: handle type */
+restartOnLongModifier:
            switch (*x) {
+           case 'l':
+               x++;
+               longModifiers++;
+               goto restartOnLongModifier;
            case 'd':
            case 'u':
-           case 'l':
                bytes = uintToStr(intBuf, INTBUF_SIZE, 0, va_arg(ap, uint32_t));
                if (bytes < width) bytes = width;
                if (useN && bytes > n) bytes = n;
