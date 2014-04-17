@@ -238,3 +238,26 @@ LcdHw k70LcdHw = {
 ,   .scroll  = k70LcdScroll
 ,   .putc    = k70LcdPutc
 };
+
+static void k70LcdUartPutc(Uart* uart, char c) {
+    Lcd* lcd = uart->regs;
+    k70LcdPutc(lcd, c);
+}
+
+UartHW lcdUartHW = {
+    .name     = "k70LcdUartHW"
+,   .putc     = k70LcdUartPutc
+};
+
+Uart k70LcdUart = {
+    .regs = &k70Lcd[0]
+,   .name = "k70LcdUart"
+,   .hw   = &lcdUartHW
+,   .next = 0
+};
+
+void k70Console(void) {
+    Uart* uart = &k70LcdUart;
+    consoleUart = uart;
+    uart->console = 1;
+}
