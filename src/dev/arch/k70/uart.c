@@ -31,6 +31,7 @@ Uart k70Uart[] = {
 ,    .name    = "k70Uart2"
 ,    .clock   = 60000000   /* Hz */
 ,    .hw      = &k70UartHW
+,    .console = 1
 ,    .next    = 0
 },
 };
