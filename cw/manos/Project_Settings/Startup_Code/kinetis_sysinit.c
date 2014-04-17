@@ -10,6 +10,7 @@
 extern void svcHandler(void);
 extern void hardFaultHandler(void);
 extern void toieHandler(void);
+extern void k70UartInterrupt(void);
 
 /**
  **===========================================================================
@@ -136,7 +137,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     Default_Handler,	/* IRQ46 */
     Default_Handler,	/* IRQ47 */
     Default_Handler,	/* IRQ48 */
-    Default_Handler,	/* IRQ49 */
+    k70UartInterrupt,	/* IRQ49 */
     Default_Handler,	/* IRQ50 */
     Default_Handler,	/* IRQ51 */
     Default_Handler,	/* IRQ52 */

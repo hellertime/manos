@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <manos.h>
+#include <inttypes.h>
 
 #include <arch/k70/derivative.h>
 
@@ -11,6 +12,10 @@ typedef struct Control {
     uint32_t                  uartScgcMask;
     volatile uint32_t * const uartPortTxPin;
     volatile uint32_t * const uartPortRxPin; 
+    uint32_t                  uartIRQ;
+    uint32_t                  uartPriority;
+    uint32_t                  uartInQDepth;
+    uint32_t                  uartOutQDepth;
 } Control;
 
 static Control k70Control[] = {
@@ -21,6 +26,10 @@ static Control k70Control[] = {
 ,    .uartScgcMask  = SIM_SCGC4_UART2_MASK
 ,    .uartPortTxPin = &PORTE_PCR16
 ,    .uartPortRxPin = &PORTE_PCR17
+,    .uartIRQ       = NVIC_IRQ_UART2_STAT
+,    .uartPriority  = MANOS_ARCH_K70_UART2_PRIORITY
+,    .uartInQDepth  = 128
+,    .uartOutQDepth = 128
 }
 };
 
@@ -47,6 +56,8 @@ static Uart* k70UartHotplug(void) {
 static void k70UartPower(Uart* uart, int onoff) {
     Control* ctrl = uart->regs;
     if (onoff == 1) {
+        uart->inQ  = newFifoQ(ctrl->uartInQDepth);
+        uart->outQ = newFifoQ(ctrl->uartOutQDepth);
         *ctrl->portScgc |= ctrl->portScgcMask;
         *ctrl->uartScgc |= ctrl->uartScgcMask;
         *ctrl->uartPortTxPin = PORT_PCR_MUX(0x3);
@@ -56,7 +67,8 @@ static void k70UartPower(Uart* uart, int onoff) {
 
 static void k70UartEnable(Uart* uart) {
     Control* ctrl = uart->regs;
-    UART_C2_REG(ctrl->mmap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK);
+    UART_C2_REG(ctrl->mmap) |= (UART_C2_TE_MASK | UART_C2_RE_MASK | UART_C2_RIE_MASK);
+    enableNvicIrq(ctrl->uartIRQ, ctrl->uartPriority);
 }
 
 static void k70UartDisable(Uart* uart) {
@@ -105,6 +117,7 @@ static int k70UartBaud(Uart* uart, unsigned baud) {
     return 0;
 }
 
+#if 0
 static char k70UartGetc(Uart* uart) {
     Control* ctrl = uart->regs;
     while(!(UART_S1_REG(ctrl->mmap) & UART_S1_RDRF_MASK))
@@ -120,6 +133,38 @@ static void k70UartPutc(Uart* uart, char c) {
 
     UART_D_REG(ctrl->mmap) = (uint8_t)c;
 }
+#endif
+
+#ifdef PLATFORM_K70CW
+#define DISABLE_INTERRUPTS() __asm("cpsid i")
+#define ENABLE_INTERRUPTS() __asm("cpsie i")
+#else
+#define DISABLE_INTERRUPTS() while(0)
+#define ENABLE_INTERRUPTS() while(0)
+#endif
+
+static char k70UartGetc(Uart* uart) {
+    char c;
+    DISABLE_INTERRUPTS();
+    while (! dequeueFifoQ(uart->inQ, &c)) {
+        ENABLE_INTERRUPTS();
+        DISABLE_INTERRUPTS();
+    }
+    ENABLE_INTERRUPTS();
+    return c;
+}
+
+static void k70UartPutc(Uart* uart, char c) {
+    Control* ctrl = uart->regs;
+
+    DISABLE_INTERRUPTS();
+    while (! enqueueFifoQ(uart->outQ, c)) {
+        ENABLE_INTERRUPTS();
+        DISABLE_INTERRUPTS();
+    }
+    UART_C2_REG(ctrl->mmap) |= UART_C2_TIE_MASK;
+    ENABLE_INTERRUPTS();
+}
 
 UartHW k70UartHW = {
     .name    = "k70Uart"
@@ -132,3 +177,30 @@ UartHW k70UartHW = {
 ,   .getc    = k70UartGetc
 ,   .putc    = k70UartPutc
 };
+
+void k70UartInterrupt(void) {
+    Uart* uart    = &k70Uart[0];
+    Control* ctrl = uart->regs;
+
+    uint32_t status = UART2_S1;
+
+    int tdre = status & UART_S1_TDRE_MASK;
+    int rdrf = status & UART_S1_RDRF_MASK;
+    if (! (tdre || rdrf)) {
+        sysprintln("k70Uart() weird uart interrupt 0x%" PRIx32 "", status);
+    }
+
+    if (UART_C2_REG(ctrl->mmap) & UART_C2_TIE_MASK && tdre) {
+        char c;
+        if (dequeueFifoQ(uart->outQ, &c))
+            UART_D_REG(ctrl->mmap) = c;
+
+        if (uart->outQ->isEmpty)
+            UART_C2_REG(ctrl->mmap) &= ~UART_C2_TIE_MASK;
+    }
+
+    if (UART_C2_REG(ctrl->mmap) & UART_C2_RIE_MASK && rdrf) {
+        char c = UART_D_REG(ctrl->mmap);
+        enqueueFifoQ(uart->inQ, c);
+    }
+}

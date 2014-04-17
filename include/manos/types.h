@@ -36,6 +36,14 @@ typedef int OnOff;
 #define CRUMB_ISSTATIC   0x02
 #define CRUMB_ISFILE     0x01
 
+typedef struct FifoQ {
+    int    isEmpty;
+    size_t readOffset;
+    size_t writeOffset;
+    size_t size;
+    char   buf[];
+} FifoQ;
+
 /*
  * A Crumb is a namespace object identifier and metadata
  */
@@ -134,6 +142,8 @@ struct Uart {
     UartHW*  hw;
     unsigned baud;
     int      bits;
+    FifoQ*   inQ;
+    FifoQ*   outQ;
     int      enabled;
     int      console;
     Uart*    next;
@@ -199,14 +209,6 @@ struct LcdHw {
     void (*scroll)(Lcd*);
     void (*putc)(Lcd*,int);
 };
-
-typedef struct FifoQ {
-    int    isEmpty;
-    size_t readOffset;
-    size_t writeOffset;
-    size_t size;
-    char   buf[];
-} FifoQ;
 
 typedef struct Timestamp {
     int64_t msecs;
