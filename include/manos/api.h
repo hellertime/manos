@@ -99,6 +99,9 @@ int    isFullFifoQ(FifoQ*);
 int    enqueueFifoQ(FifoQ*, char);
 int    dequeueFifoQ(FifoQ*, char*);
 
+void secondsToDate(uint64_t, struct Date* date);
+uint64_t dateToSeconds(const struct Date*);
+
 #define UNUSED(x) (void)(x)
 #define USED UNUSED
 #define COUNT_OF(xs) ((sizeof xs) / (sizeof xs[0]))

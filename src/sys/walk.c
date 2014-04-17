@@ -36,7 +36,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
             closePortal(px);
             kfree(px);
             assert(idx != -1 && "Crumb has an unknown device id");
-            px = deviceTable[idx]->attach("");
+            px = deviceTable[idx]->attach(ni.contents ? ni.contents : "");
             freeWalkTrail(t);
             continue;
         }

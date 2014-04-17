@@ -16,13 +16,14 @@ typedef int DeviceIndex;
 typedef int DeviceId;
 typedef int OnOff;
 
-#define DEV_DEVROOT 'R'
-#define DEV_DEVLED  'l'
-#define DEV_DEVSWPB 'B'
-#define DEV_DEVUART 'u'
-#define DEV_DEVLCD  'D'
-#define DEV_DEVADC  'A'
+#define DEV_DEVROOT  'R'
+#define DEV_DEVLED   'l'
+#define DEV_DEVSWPB  'B'
+#define DEV_DEVUART  'u'
+#define DEV_DEVLCD   'D'
+#define DEV_DEVADC   'A'
 #define DEV_DEVTIMER 'T'
+#define DEV_DEVDEV   '='
 
 #define CAP_READ      0
 #define CAP_WRITE     1
@@ -233,5 +234,14 @@ struct TimerHW {
     void   (*start)(Timer*);
     void   (*stop)(Timer*);
 };
+
+typedef struct Date {
+    int seconds;
+    int minutes;
+    int hours;
+    int day;
+    int month;
+    int year;
+} Date;
 
 #endif /* ! MANOS_TYPES_H */
