@@ -3,13 +3,14 @@
 #include <string.h>
 
 static Uart* enableUart(Uart* uart) {
+    uart->hw->enable(uart);
+
     if (uart->bits == 0)
         sysuartctl(uart, "l8");
 
     if (uart->baud == 0)
         sysuartctl(uart, "b9600");
 
-    uart->hw->enable(uart);
     uart->enabled = 1;
     return uart;
 }
