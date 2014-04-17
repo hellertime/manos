@@ -214,8 +214,8 @@ static void powerUart(OnOff onoff) {
 
 static void initUart(void) {
     for (Uart* uart = hotpluggedUarts; uart; uart = uart->next) {
-        if (uart->console && uart->hw->enable)
-            uart->hw->enable(uart);
+        if (uart->console)
+            enableUart(uart);
     }
 }
 
