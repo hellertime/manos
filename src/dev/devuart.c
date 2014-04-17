@@ -85,10 +85,6 @@ static void resetUart(void) {
         sns->contents = (char*)uart;
         sns++;
 
-        if (uart->console) {
-            enableUart(uart);
-        }
-
         uart = uart->next;
     }
 
@@ -216,11 +212,18 @@ static void powerUart(OnOff onoff) {
     }
 }
 
+static void initUart(void) {
+    for (Uart* uart = hotpluggedUarts; uart; uart = uart->next) {
+        if (uart->console && uart->hw->enable)
+            uart->hw->enable(uart);
+    }
+}
+
 Dev devUart = {
     .id       = DEV_DEVUART
 ,   .name     = "uart"
 ,   .power    = powerUart
-,   .init     = initDev
+,   .init     = initUart
 ,   .reset    = resetUart
 ,   .shutdown = shutdownDev
 ,   .attach   = attachUart

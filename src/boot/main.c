@@ -33,8 +33,8 @@ int main(int argc, char** argv) {
 
 
     for (unsigned i = 0; i < COUNT_OF(deviceTable); i++) {
-        deviceTable[i]->power(1);
         deviceTable[i]->reset();
+        deviceTable[i]->power(1);
         deviceTable[i]->init();
     }
   
