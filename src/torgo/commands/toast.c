@@ -17,7 +17,7 @@ int cmdToast__Main(int argc, char * const argv[]) {
     UNUSED(argv);
 
 #ifdef PLATFORM_K70CW
-    int fd = kopen("/dev/timer/k70PDB0", CAP_WRITE);
+    int fd = kopen("/dev/timer/k70OneShot", CAP_WRITE);
     kwrite(fd, &showToast, sizeof &showToast);
     kclose(fd);
     fprintln(u->tty, "Get ready for toast...");
