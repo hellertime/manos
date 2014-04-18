@@ -17,8 +17,9 @@ int cmdToast__Main(int argc, char * const argv[]) {
     UNUSED(argv);
 
 #ifdef PLATFORM_K70CW
+    uintptr_t action = (uintptr_t)&showToast;
     int fd = kopen("/dev/timer/k70OneShot", CAP_WRITE);
-    ptrdiff_t status = kwrite(fd, &showToast, sizeof &showToast);
+    ptrdiff_t status = kwrite(fd, &action, sizeof action);
     kclose(fd);
 
     if (status == -1)
