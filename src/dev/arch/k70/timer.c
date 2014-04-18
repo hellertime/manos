@@ -144,9 +144,9 @@ static void k70PDBPower(Timer* timer, int onoff) {
     if (onoff == 1) {
         *ctrl->timerScgc |= ctrl->timerScgcMask;
 
-        k70TimerDisable(timer);
+        k70PDBDisable(timer);
 
-        k70TimerReset(timer);
+        k70PDBReset(timer);
 
         *ctrl->timerSc = PDB_SC_PRESCALER(timer->psd)
                        | PDB_SC_TRGSEL(15) /* software trigger */
