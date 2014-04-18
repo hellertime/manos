@@ -5,7 +5,8 @@
 
 #define NAMESPACE_MAP   \
     X(".",      STATICNS_SENTINEL,  Dot,    CRUMB_ISDIR,    0,  0555,   0)  \
-    X("date",   FidDot,             Date,   CRUMB_ISFILE,   0,  0644,   0)
+    X("date",   FidDot,             Date,   CRUMB_ISFILE,   0,  0644,   0)  \
+    X("kprint", FidDot,             KPrint, CRUMB_ISFILE,   0,  0222,   0)
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {
@@ -24,6 +25,8 @@ static Portal* attachDevDev(char* path) {
     Portal* p = attachDev(DEV_DEVDEV, path);
     if (strcmp(path, "date") == 0) {
         p->crumb = devdevSNS[FidDate].crumb;
+    } else if (strcmp(path, "kprint") == 0) {
+        p->crumb = devdevSNS[FidKPrint].crumb;
     } else {
         p->crumb = devdevSNS[0].crumb;
     }
@@ -137,6 +140,8 @@ static ptrdiff_t writeDevDev(Portal* p, void* buf, size_t size, Offset offset) {
     switch(fid) {
     case FidDate:
         return writeDate(buf, size);
+    case FidKPrint:
+        return sysprint(buf);
     default:
         errno = EPERM;
         return -1;

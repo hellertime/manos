@@ -222,6 +222,7 @@ typedef struct Timer {
     int           clock;
     int           psd;
     int           mod;
+    void          (*oneShotAction)(void);
     Timestamp     timestamp;
     TimerHW*      hw;
     struct Timer* next;

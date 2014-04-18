@@ -4,7 +4,8 @@
  * toieHandler - timer overflow interrupt handler
  */
 void toieHandler(void) {
-    for (Timer* timer = hotpluggedTimers; timer; timer = timer->next) {
+    Timer* timer = hotpluggedTimers;
+    if (timer) {
         timer->hw->disable(timer);
         timer->hw->start(timer);
         timer->timestamp.msecs++;

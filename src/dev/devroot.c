@@ -31,13 +31,15 @@
     X("cat", FidBin, BinCat, CRUMB_ISFILE, 5, 0555, "#!cat") \
     X("echo", FidBin, BinEcho, CRUMB_ISFILE, 6, 0555, "#!echo") \
     X("date", FidBin, BinDate, CRUMB_ISFILE, 6, 0555, "#!date") \
+    X("toast", FidBin, BinToast, CRUMB_ISFILE, 7, 0555, "#!toast") \
     X("swpb", FidDev, DevSwpb, CRUMB_ISMOUNT, DEV_DEVSWPB, 0444, 0) \
     X("led", FidDev, DevLed, CRUMB_ISMOUNT, DEV_DEVLED, 0444, 0) \
     X("uart", FidDev, DevUart, CRUMB_ISMOUNT, DEV_DEVUART, 0444, 0) \
     X("lcd", FidDev, DevLcd, CRUMB_ISMOUNT, DEV_DEVLCD, 0444, 0) \
     X("adc", FidDev, DevAdc, CRUMB_ISMOUNT, DEV_DEVADC, 0444, 0) \
     X("timer", FidDev, DevTimer, CRUMB_ISMOUNT, DEV_DEVTIMER, 0444, 0) \
-    X("date", FidDev, DevDevDate, CRUMB_ISMOUNT, DEV_DEVDEV, 0644, "date")
+    X("date", FidDev, DevDevDate, CRUMB_ISMOUNT, DEV_DEVDEV, 0644, "date") \
+    X("kprint", FidDev, DevDevKPrint, CRUMB_ISMOUNT, DEV_DEVDEV, 0222, "kprint")
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {

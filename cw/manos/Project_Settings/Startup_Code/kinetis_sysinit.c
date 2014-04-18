@@ -160,7 +160,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     Default_Handler,	/* IRQ69 */
     Default_Handler,	/* IRQ70 */
     Default_Handler,	/* IRQ71 */
-    Default_Handler,	/* IRQ72 */
+    pdbHandler, 	/* IRQ72 */
     Default_Handler,	/* IRQ73 */
     Default_Handler,	/* IRQ74 */
     Default_Handler,	/* IRQ75 */

@@ -6,4 +6,5 @@ CmdTable builtinCmds[] = {
 ,   { "pwd", cmdPwd__Main }
 ,   { "echo", cmdEcho__Main }
 ,   { "date", cmdDate__Main }
+,   { "toast", cmdToast__Main }
 };
