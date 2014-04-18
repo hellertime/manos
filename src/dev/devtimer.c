@@ -101,7 +101,7 @@ static ptrdiff_t readTimer(Portal* p, void* buf, size_t size, Offset offset) {
 
     Timer* timer = (Timer*)ni.contents;
 
-    if (strcmp(timer->name, "K70PDB0") == 0) {
+    if (strcmp(timer->name, "k70PDB0") == 0) {
         errno = EPERM;
         return -1;
     }
@@ -137,7 +137,7 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
 
     Timer* timer = (Timer*)ni.contents;
 
-    if (strcmp(timer->name, "K70PDB0") == 0) {
+    if (strcmp(timer->name, "k70PDB0") == 0) {
         uintptr_t action;
         memcpy(&action, buf, sizeof action);
         timer->oneShotAction = (void (*)(void))action;
