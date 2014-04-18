@@ -138,6 +138,12 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
     Timer* timer = (Timer*)ni.contents;
 
     if (strcmp(timer->name, "k70PDB0") == 0) {
+
+        if (timer->oneShotAction) {
+            errno = EPERM;
+            return -1;
+        }
+
         uintptr_t action;
         memcpy(&action, buf, sizeof action);
         timer->oneShotAction = (void (*)(void))action;
@@ -159,6 +165,7 @@ static int getInfoTimer(const Portal* p, NodeInfo* ni) {
 static void powerTimer(OnOff onoff) {
     for (Timer* timer = hotpluggedTimers; timer; timer = timer->next) {
         if (timer->hw->power) {
+            timer->oneShotAction = 0;
             timer->hw->power(timer, onoff);
             timer->hw->start(timer);
         }

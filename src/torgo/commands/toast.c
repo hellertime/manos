@@ -18,9 +18,13 @@ int cmdToast__Main(int argc, char * const argv[]) {
 
 #ifdef PLATFORM_K70CW
     int fd = kopen("/dev/timer/k70OneShot", CAP_WRITE);
-    kwrite(fd, &showToast, sizeof &showToast);
+    ptrdiff_t status = kwrite(fd, &showToast, sizeof &showToast);
     kclose(fd);
-    fprintln(u->tty, "Get ready for toast...");
+
+    if (status == -1)
+        fprintln(u->tty, "Someone's making toast...");
+    else
+        fprintln(u->tty, "Get ready for toast...");
 #else
     showToast();
 #endif
