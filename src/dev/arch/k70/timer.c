@@ -74,7 +74,7 @@ Timer k70Timer[] = {
 {   .regs  = &k70Control[1]
 ,   .name  = "k70PDB0"
 ,   .psd   = 7 /* 1 << 7 */
-,   .mod   = 0xffff
+,   .mod   = 0x5b8e /* clock is 60MHz, 60MZ / (128 * 40 -- prescalar * mult) == 11719Hz, mod is 11719 * 2 = 2Sec*/
 ,   .hw    = &k70PDBHW
 ,   .next  = 0
 }
