@@ -141,7 +141,8 @@ static ptrdiff_t writeDevDev(Portal* p, void* buf, size_t size, Offset offset) {
     case FidDate:
         return writeDate(buf, size);
     case FidKPrint:
-        return sysnputs(buf, size);
+        sysnputs(buf, size);
+        return size;
     default:
         errno = EPERM;
         return -1;
