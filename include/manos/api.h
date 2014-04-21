@@ -79,9 +79,7 @@ int sysgetchar(void);
 void sysputchar(int);
 void sysnputs(const char*, size_t);
 void sysputs(const char*);
-int sysnprintln(const char*, size_t, ...);
 int sysprintln(const char*, ...);
-int sysnprint(const char*, size_t, ...);
 int sysprint(const char*, ...);
 
 int fputchar(int, char);

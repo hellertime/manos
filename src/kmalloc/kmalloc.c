@@ -11,7 +11,6 @@
 #include <manos.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
 /*
  * Define some constants for padding and aligning data.
@@ -690,7 +689,10 @@ void* kmallocz(size_t size) {
   char* mem = kmalloc(size);
 
   if (mem) {
-    memset(mem, 0 ,size);
+	char* z = mem;
+    for (size_t i = 0; i < size; i++) {
+      *z++ = (char)0;
+    }
   }
 
   return mem;
