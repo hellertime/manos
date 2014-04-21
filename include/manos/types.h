@@ -236,6 +236,7 @@ struct TimerHW {
     void   (*reset)(Timer*);
     void   (*start)(Timer*);
     void   (*stop)(Timer*);
+    void   (*clear)(Timer*);
 };
 
 typedef struct Date {

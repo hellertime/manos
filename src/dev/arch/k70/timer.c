@@ -88,6 +88,11 @@ static Timer* k70TimerHotplug(void) {
 #endif
 }
 
+static void k70PDBClear(Timer* timer) {
+    Control* ctrl = timer->regs;
+    *ctrl->timerSc &= ~PDB_SC_PDBIF_MASK;
+}
+
 static void k70PDBStart(Timer* timer) {
     Control* ctrl = timer->regs;
     *ctrl->timerSc |= PDB_SC_PDBEN_MASK; /* enable pdb */
@@ -196,4 +201,5 @@ TimerHW k70PDBHW = {
 ,   .reset   = k70PDBReset
 ,   .start   = k70PDBStart
 ,   .stop    = k70PDBStop
+,   .clear   = k70PDBClear
 };
