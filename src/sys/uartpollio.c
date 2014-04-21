@@ -81,7 +81,7 @@ int sysnprint(const char* fmt, size_t size, ...) {
     va_list ap;
     static char buf[4096];
     va_start(ap, size);
-    int ret = fmtVsnprintf(buf, sizeof, fmt, ap);
+    int ret = fmtVsnprintf(buf, sizeof buf, fmt, ap);
     va_end(ap);
     sysnputs(buf, size);
     return ret;
