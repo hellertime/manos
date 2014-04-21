@@ -15,5 +15,6 @@ FifoQ* newFifoQ(size_t size) {
         return NULL;
     }
 
+    q->size = size;
     return clearFifoQ(q);
 }
