@@ -8,6 +8,8 @@ void toieHandler(void) {
     if (timer) {
         timer->hw->disable(timer);
         timer->hw->start(timer);
+        DISABLE_INTERRUPTS();
         timer->timestamp.msecs++;
+        ENABLE_INTERRUPTS();
     }
 }
