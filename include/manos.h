@@ -5,6 +5,14 @@
 #include "manos/api.h"
 #include "arch/mk70f12.h"
 
+#ifdef PLATFORM_K70CW
+#define DISABLE_INTERRUPTS() __asm("cpsid i")
+#define ENABLE_INTERRUPTS() __asm("cpsie i")
+#else
+#define DISABLE_INTERRUPTS() while(0)
+#define ENABLE_INTERRUPTS() while(0)
+#endif
+
 #define MANOS_MAXDEV 8
 extern Dev* deviceTable[MANOS_MAXDEV];
 
