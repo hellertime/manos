@@ -83,7 +83,6 @@ extern long long pendsvInterruptCount;
 
 static struct IntMap {
     const char*      name;
-    const char*      fmt;
     const long long* counter;
 } intMap[] = {
     { "SVC",     &svcInterruptCount     }
