@@ -132,7 +132,7 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
             size_t bytesRead = readInterrupts(fileInfo, INT_MAP_SIZE);
             if (offset < bytesRead) {
                 size_t newSize = bytesRead - offset > size ? size : bytesRead - offset;
-                memcpy(buf, fileInfo[offset], newSize);
+                memcpy(buf, &fileInfo[offset], newSize);
                 p->offset += newSize;
                 bytes = newSize;
             } else bytes = 0;
