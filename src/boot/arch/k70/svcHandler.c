@@ -4,7 +4,7 @@
 
 #ifdef __GNUC__
 
-extern svcInterruptCount;
+extern long long svcInterruptCount;
 
 static int execSyscall(int* args) {
     return sysexecv((const char*)args[0], (char * const *)args[1]);
