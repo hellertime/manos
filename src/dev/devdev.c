@@ -78,8 +78,8 @@ extern long long systickInterruptCount;
 extern long long pendsvInterruptCount;
 
 
-#define INT_MAP_FMT "%s:\t\t%lld\n"
-#define INT_MAP_FMT_OVERHEAD 4     /* 4 overhead bytes in INT_MAP_FMT -- ":\t\t\n" */
+#define INT_MAP_FMT "%s:\t\t\t%lld\n"
+#define INT_MAP_FMT_OVERHEAD 5     /* 4 overhead bytes in INT_MAP_FMT -- ":\t\t\t\n" */
 
 static struct IntMap {
     const char*      name;
