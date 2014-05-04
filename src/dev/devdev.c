@@ -121,7 +121,6 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
         return readStaticNS(p, devdevSNS, buf, size, offset);
     }
 
-    size_t intSize = readInterruptsSize();
     ptrdiff_t bytes = 0;
     DevDevFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb);
     switch(fid) {
@@ -134,9 +133,15 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
         }
         break;
     case FidInterrupts:
-        if (offset < intSize) {
-            bytes = readInterrupts((char*)buf + offset, readInterruptsSize() - offset);
-            p->offset += bytes;
+        {
+            char fileInfo[readInterruptsSize() + 1];
+            size_t bytesRead = readInterrupts(fileInfo, readInterruptsSize());
+            if (offset < bytesRead) {
+                size_t newSize = bytesRead - offset > size ? size : bytesRead - offset;
+                memcpy(buf, fileInfo + offset, newSize);
+                p->offset += newSize;
+                bytes = newSize;
+            } else bytes = 0;
         }
         break;
     default:
