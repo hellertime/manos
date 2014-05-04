@@ -93,7 +93,7 @@ static size_t readInterrupts(char* buf, size_t size) {
     size_t bytes = 0;
 
     for (unsigned i = 0; i < COUNT_OF(intMap); i++) {
-        ptrdiff_t nbytes = fmtSnprintf(c, size - bytes, "%s:\t\t%lls\n", intMap[i].name, *intMap[i].counter);
+        ptrdiff_t nbytes = fmtSnprintf(c, size - bytes, "%s:\t\t%lld\n", intMap[i].name, *intMap[i].counter);
         if (nbytes > 0) {
             bytes += nbytes;
         } else break;
