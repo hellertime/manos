@@ -4,10 +4,10 @@
 #include <stdlib.h>
 
 #define NAMESPACE_MAP   \
-    X(".",          STATICNS_SENTINEL,  Dot,         CRUMB_ISDIR,    0,  0555,   0)  \
-    X("date",       FidDot,             Date,        CRUMB_ISFILE,   0,  0644,   0)  \
-    X("kprint",     FidDot,             KPrint,      CRUMB_ISFILE,   0,  0222,   0)  \
-    X("interrupts", FidDot,             KInterrupts, CRUMB_ISFILE,   0,  0444,   0)
+    X(".",          STATICNS_SENTINEL, Dot,        CRUMB_ISDIR,  0, 0555, 0)  \
+    X("date",       FidDot,            Date,       CRUMB_ISFILE, 0, 0644, 0)  \
+    X("kprint",     FidDot,            KPrint,     CRUMB_ISFILE, 0, 0222, 0)  \
+    X("interrupts", FidDot,            Interrupts, CRUMB_ISFILE, 0, 0444, 0)
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {
@@ -71,11 +71,17 @@ static void readDate(Date* date) {
     secondsToDate(msecs / 1000, date);
 }
 
+extern long long svcInterruptCount;
+extern long long timerInterruptCount;
+extern long long pdbInterrupCount;
+extern long long systickInterruptCount;
+extern long long pendsvInterruptCount;
+
 static struct IntMap {
     const char*      name;
     const long long* counter;
 } intMap[] = {
-    { "SVC",     &svnInterruptCount     }
+    { "SVC",     &svcInterruptCount     }
 ,   { "TIMER",   &timerInterruptCount   }
 ,   { "PDB",     &pdbInterruptCount     }
 ,   { "SYSTICK", &systickInterruptCount }
