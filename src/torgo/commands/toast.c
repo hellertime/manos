@@ -1,10 +1,10 @@
 #include <manos.h>
 
-const char toast[] = "\n\t\t"
-    " _   __\n\t\t"
-    "( `^` ))\n\t\t"
-    "|     ||\n\t\t"
-    "|     ||\n\t\t"
+const char toast[] = "\n\t\t\t\t"
+    " _   __\n\t\t\t\t"
+    "( `^` ))\n\t\t\t\t"
+    "|     ||\n\t\t\t\t"
+    "|     ||\n\t\t\t\t"
     "'-----'`\n\n";
 
 void showToast(void) {
