@@ -80,7 +80,7 @@ static ptrdiff_t fmtVsnprintfInternal(char buf[], size_t n, int useN, const char
     const char* c = fmt;
     char* p = buf;
 
-    while (*c) {
+    while (n && *c) {
         const char* x = c;
 
         /* scan for format delimiter */
