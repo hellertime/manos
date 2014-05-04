@@ -121,4 +121,10 @@ int kopen(const char*, Caps);
 ptrdiff_t kread(int, void*, size_t);
 ptrdiff_t kwrite(int, void*, size_t);
 
+#define ATOMIC(expr) do {   \
+    DISABLE_INTERRUPTS();   \
+    (expr);                 \
+    ENABLE_INTERRUPTS();    \
+} while (0)
+
 #endif /* ! MANOS_API_H */

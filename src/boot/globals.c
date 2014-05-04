@@ -8,6 +8,12 @@ extern Dev devAdc;
 extern Dev devTimer;
 extern Dev devDev;
 
+long long svcInterruptCount     = 0;
+long long timerInterruptCount   = 0;
+long long pdbInterruptCount     = 0;
+long long systickInterruptCount = 0;
+long long pendsvInterruptCount  = 0;
+
 Dev* deviceTable[MANOS_MAXDEV] = {
     &devRoot
 ,   &devLed

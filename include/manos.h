@@ -5,6 +5,8 @@
 #include "manos/api.h"
 #include "arch/mk70f12.h"
 
+#define MANOS_QUANTUM_IN_MILLIS 50
+
 #ifdef PLATFORM_K70CW
 #define DISABLE_INTERRUPTS() __asm("cpsid i")
 #define ENABLE_INTERRUPTS() __asm("cpsie i")

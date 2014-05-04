@@ -135,14 +135,6 @@ static void k70UartPutc(Uart* uart, char c) {
 }
 #endif
 
-#ifdef PLATFORM_K70CW
-#define DISABLE_INTERRUPTS() __asm("cpsid i")
-#define ENABLE_INTERRUPTS() __asm("cpsie i")
-#else
-#define DISABLE_INTERRUPTS() while(0)
-#define ENABLE_INTERRUPTS() while(0)
-#endif
-
 static char k70UartGetc(Uart* uart) {
     char c;
     DISABLE_INTERRUPTS();

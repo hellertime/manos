@@ -4,6 +4,8 @@
 
 #ifdef __GNUC__
 
+extern svcInterruptCount;
+
 static int execSyscall(int* args) {
     return sysexecv((const char*)args[0], (char * const *)args[1]);
 }
@@ -46,6 +48,8 @@ static struct {
 
 #define X(c, f, r) case MANOS_SYSCALL_##c:
 static void __attribute__((used)) svcHandlerDispatch(StackFrame* frame) {
+    ATOMIC(svcInterruptCount++);
+
     SyscallIndex idx = (SyscallIndex)(((uint8_t*)frame->pc)[-2]);
     switch(idx) {
     SYSCALL_MAP

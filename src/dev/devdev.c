@@ -4,9 +4,10 @@
 #include <stdlib.h>
 
 #define NAMESPACE_MAP   \
-    X(".",      STATICNS_SENTINEL,  Dot,    CRUMB_ISDIR,    0,  0555,   0)  \
-    X("date",   FidDot,             Date,   CRUMB_ISFILE,   0,  0644,   0)  \
-    X("kprint", FidDot,             KPrint, CRUMB_ISFILE,   0,  0222,   0)
+    X(".",          STATICNS_SENTINEL,  Dot,         CRUMB_ISDIR,    0,  0555,   0)  \
+    X("date",       FidDot,             Date,        CRUMB_ISFILE,   0,  0644,   0)  \
+    X("kprint",     FidDot,             KPrint,      CRUMB_ISFILE,   0,  0222,   0)  \
+    X("interrupts", FidDot,             KInterrupts, CRUMB_ISFILE,   0,  0444,   0)
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {
@@ -27,6 +28,8 @@ static Portal* attachDevDev(char* path) {
         p->crumb = devdevSNS[FidDate].crumb;
     } else if (strcmp(path, "kprint") == 0) {
         p->crumb = devdevSNS[FidKPrint].crumb;
+    } else if (strcmp(path, "interrupts") == 0) {
+        p->crumb = devdevSNS[FidInterrupts].crumb;
     } else {
         p->crumb = devdevSNS[0].crumb;
     }
@@ -68,6 +71,31 @@ static void readDate(Date* date) {
     secondsToDate(msecs / 1000, date);
 }
 
+static struct IntMap {
+    const char*      name;
+    const long long* counter;
+} intMap[] = {
+    { "SVC",     &svnInterruptCount     }
+,   { "TIMER",   &timerInterruptCount   }
+,   { "PDB",     &pdbInterruptCount     }
+,   { "SYSTICK", &systickInterruptCount }
+,   { "PENDSV",  &pendsvInterruptCount  }
+};
+
+static size_t readInterrupts(char* buf, size_t size) {
+    char* c = buf;
+    size_t bytes = 0;
+
+    for (unsigned i = 0; i < COUNT_OF(intMap); i++) {
+        ptrdiff_t nbytes = fmtSnprintf(c, size - bytes, "%s:\t\t%lls\n", intMap[i].name, *intMap[i].counter);
+        if (nbytes > 0) {
+            bytes += nbytes;
+        } else break;
+    }
+
+    return bytes;
+}
+
 static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
     if (size == 0) return 0;
 
@@ -86,6 +114,8 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
             bytes = 0;
         }
         break;
+    case FidInterrupts:
+        bytes = readInterrupts((char*)buf, size);
     default:
         errno = EPERM;
         bytes = -1;

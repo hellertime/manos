@@ -39,7 +39,8 @@
     X("adc", FidDev, DevAdc, CRUMB_ISMOUNT, DEV_DEVADC, 0444, 0) \
     X("timer", FidDev, DevTimer, CRUMB_ISMOUNT, DEV_DEVTIMER, 0444, 0) \
     X("date", FidDev, DevDevDate, CRUMB_ISMOUNT, DEV_DEVDEV, 0644, "date") \
-    X("kprint", FidDev, DevDevKPrint, CRUMB_ISMOUNT, DEV_DEVDEV, 0222, "kprint")
+    X("kprint", FidDev, DevDevKPrint, CRUMB_ISMOUNT, DEV_DEVDEV, 0222, "kprint") \
+    X("interrupts", FidDec, DecDevInterrupts, CRUMB_ISMOUNT, DEV_DEVDEV, 0444, "interrupts")
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {
