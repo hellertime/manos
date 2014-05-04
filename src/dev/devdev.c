@@ -137,6 +137,7 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
         if (offset < intSize) {
             bytes = readInterrupts((char*)buf + offset, readInterruptsSize() - offset);
             p->offset += bytes;
+        }
         break;
     default:
         errno = EPERM;
