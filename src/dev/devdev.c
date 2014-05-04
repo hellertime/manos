@@ -73,7 +73,7 @@ static void readDate(Date* date) {
 
 extern long long svcInterruptCount;
 extern long long timerInterruptCount;
-extern long long pdbInterrupCount;
+extern long long pdbInterruptCount;
 extern long long systickInterruptCount;
 extern long long pendsvInterruptCount;
 
