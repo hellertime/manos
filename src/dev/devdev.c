@@ -102,9 +102,11 @@ static size_t readInterrupts(char* buf, size_t size) {
         ptrdiff_t nbytes = fmtSnprintf(c, size - bytes, INT_MAP_FMT, intMap[i].name, *intMap[i].counter);
         if (nbytes > 0) {
             bytes += nbytes;
+            c += nbytes;
         } else break;
     }
 
+    *c = 0;
     return bytes;
 }
 
