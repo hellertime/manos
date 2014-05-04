@@ -92,6 +92,8 @@ static struct IntMap {
 ,   { "PENDSV",  &pendsvInterruptCount  }
 };
 
+#define INT_MAP_SIZE (5 * 21 + INT_MAP_FMT_OVERHEAD)
+
 static size_t readInterrupts(char* buf, size_t size) {
     char* c = buf;
     size_t bytes = 0;
@@ -103,14 +105,6 @@ static size_t readInterrupts(char* buf, size_t size) {
         } else break;
     }
 
-    return bytes;
-}
-
-static size_t readInterruptsSize(void) {
-    size_t bytes = COUNT_OF(intMap) * (21 + INT_MAP_FMT_OVERHEAD); /* 21 digits max in a long long */
-    for (unsigned i = 0; i < COUNT_OF(intMap); i++) {
-        bytes += strlen(intMap[i].name);
-    }
     return bytes;
 }
 
@@ -134,8 +128,8 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
         break;
     case FidInterrupts:
         {
-            char fileInfo[readInterruptsSize() + 1];
-            size_t bytesRead = readInterrupts(fileInfo, readInterruptsSize());
+            char fileInfo[INT_MAP_SIZE + 1];
+            size_t bytesRead = readInterrupts(fileInfo, INT_MAP_SIZE);
             if (offset < bytesRead) {
                 size_t newSize = bytesRead - offset > size ? size : bytesRead - offset;
                 memcpy(buf, fileInfo + offset, newSize);
