@@ -77,8 +77,13 @@ extern long long pdbInterruptCount;
 extern long long systickInterruptCount;
 extern long long pendsvInterruptCount;
 
+
+#define INT_MAP_FMT "%s:\t\t%lld\n"
+#define INT_MAP_FMT_OVERHEAD 4     /* 4 overhead bytes in INT_MAP_FMT -- ":\t\t\n" */
+
 static struct IntMap {
     const char*      name;
+    const char*      fmt;
     const long long* counter;
 } intMap[] = {
     { "SVC",     &svcInterruptCount     }
@@ -93,12 +98,20 @@ static size_t readInterrupts(char* buf, size_t size) {
     size_t bytes = 0;
 
     for (unsigned i = 0; i < COUNT_OF(intMap); i++) {
-        ptrdiff_t nbytes = fmtSnprintf(c, size - bytes, "%s:\t\t%lld\n", intMap[i].name, *intMap[i].counter);
+        ptrdiff_t nbytes = fmtSnprintf(c, size - bytes, INT_MAP_FMT, intMap[i].name, *intMap[i].counter);
         if (nbytes > 0) {
             bytes += nbytes;
         } else break;
     }
 
+    return bytes;
+}
+
+static size_t readInterruptsSize(void) {
+    size_t bytes = COUNT_OF(intMap) * (21 + INT_MAP_FMT_OVERHEAD); /* 21 digits max in a long long */
+    for (unsigned i = 0; i < COUNT_OF(intMap); i++) {
+        bytes += strlen(intMap[i].name);
+    }
     return bytes;
 }
 
@@ -109,6 +122,7 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
         return readStaticNS(p, devdevSNS, buf, size, offset);
     }
 
+    size_t intSize = readInterruptsSize();
     ptrdiff_t bytes = 0;
     DevDevFidEnt fid = STATICNS_CRUMB_SELF_IDX(p->crumb);
     switch(fid) {
@@ -121,7 +135,10 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
         }
         break;
     case FidInterrupts:
-        bytes = readInterrupts((char*)buf, size);
+        if (offset < intSize) {
+            bytes = readInterrupts((char*)buf + offset, readInterruptsSize() - offset);
+            p->offset += bytes;
+        break;
     default:
         errno = EPERM;
         bytes = -1;
