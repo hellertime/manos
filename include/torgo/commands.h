@@ -8,6 +8,7 @@ typedef struct CmdTable {
   Cmd cmd;
 } CmdTable;
 
+int torgo_main(int, char * const []);
 int cmdCat__Main(int, char * const []);
 int cmdLs__Main(int, char * const []);
 int cmdPwd__Main(int, char * const []);
