@@ -47,8 +47,8 @@ typedef struct ListHead {
 } ListHead;
 
 typedef struct Lock {
-    int    locked;
-    struct ListHead;
+    int             locked;
+    struct ListHead nextWaitQ;
 } Lock;
 
 typedef struct Ref {
