@@ -7,4 +7,5 @@ CmdTable builtinCmds[] = {
 ,   { "echo", cmdEcho__Main }
 ,   { "date", cmdDate__Main }
 ,   { "toast", cmdToast__Main }
+,   { "sh", torgo_main }
 };

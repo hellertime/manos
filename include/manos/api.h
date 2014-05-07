@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 Pid getpid(void);
+Proc* newProc(void);
 
 void* kmalloc(size_t);
 void* kmallocz(size_t);
@@ -67,6 +68,10 @@ ptrdiff_t syswrite(int, void*, size_t);
 int sysuartctl(Uart*, const char*);
 Portal* syswalk(Portal*, char**, unsigned);
 
+int systrylock(Lock*);
+int syslock(Lock*);
+int sysunlock(Lock*);
+
 int dirread(int fd, NodeInfo**);
 char* getcwd(char*, size_t);
 
@@ -110,6 +115,16 @@ void svcInit(uint8_t);
 void svcHandler(void);
 void hardFaultHandler(void);
 void enableNvicIrq(unsigned, uint8_t);
+
+/*
+ * ipc
+ */
+int trylock(Lock*);
+void lock(Lock*);
+void unlock(Lock*);
+
+int incRef(Ref*);
+int decRef(Ref*);
 
 /*
  * System calls

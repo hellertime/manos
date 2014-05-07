@@ -41,7 +41,14 @@ TimerHW* timerHardwareTable[MANOS_MAXTIMER] = {
 ,   &niceTimerHW
 };
 
-Proc* u = NULL; 
+Lock freelistLock;
+LIST_HEAD(procFreelist);
+
+LIST_HEAD(procRunQ);
+
+Ref nextPid = {0};
+
+Proc* rp = NULL; 
 
 Uart* consoleUart = NULL;
 Uart* hotpluggedUarts = NULL;

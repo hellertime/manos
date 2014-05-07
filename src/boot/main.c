@@ -18,19 +18,8 @@ int main(int argc, char** argv) {
     mcgInit();
     sdramInit();
     svcInit(MANOS_ARCH_K70_SVC_INT_PRIORITY);
+    schedInit(MANOS_ARCH_K70_SCHED_INT_PRIORITY);
 #endif
-
-    /*
-     * This cannot be allocated on the heap since the allocator
-     * needs 'u' to get the pid to stick in the chunk tag.
-     * And wel...
-     */
-    Proc firstProc = {
-        .pid   = 0
-    };
-
-    u = &firstProc;
-
 
     for (unsigned i = 0; i < COUNT_OF(deviceTable); i++) {
         deviceTable[i]->reset();
@@ -44,40 +33,24 @@ int main(int argc, char** argv) {
     niceConsole();
 #endif
 
-    sysprintln("Initializing first user...");
+    sysprintln("Allocating free list...");
 
-    Proc* uptr = kmallocz(sizeof *uptr);
-    if (!uptr) {
-        sysprintln("PANIC! Cannot create first user");
-        return 1;
+    Proc* flist = kmalloc(MANOS_MAX_PROC * sizeof(*flist));
+    Proc* p = flist;
+    for (unsigned i = 0; i < MANOS_MAX_PROC; i++, p++) {
+        INIT_LIST_HEAD(&p->nextFreelist);
+        listAddAfter(&procFreelist, &p->nextFreelist);
     }
-
-    memcpy(u, uptr, sizeof *uptr);
-
-    sysprintln("Creating namespace...");
-
-    u->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
-    u->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
 
     sysprintln("Total System RAM: %" PRIu32 "", totalRAM);
     sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
     sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);
 
 #ifdef PLATFORM_K70CW
-    u->tty = kopen("/dev/uart/k70Uart", CAP_READWRITE);
-#else
-    u->tty = kopen("/dev/uart/stdio", CAP_READWRITE);
-#endif
-
-    if (u->tty == -1) {
-        sysprintln("ERROR: Cannot open tty");
-    }
-
-#ifdef PLATFORM_K70CW
     sysprintln("Entering User Mode...");
     enterUserMode();
 #endif
 
-    fprintln(u->tty, "\nMANOS: Welcome Master...\n");
-    return torgo_main(argc, argv);
+    sysexecv("/bin/sh", 0);
+    return -1; /* never returns */
 }

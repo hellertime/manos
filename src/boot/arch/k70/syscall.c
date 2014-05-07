@@ -131,6 +131,67 @@ ptrdiff_t kwrite(int fd, void* buf, size_t n) {
 }
 #endif
 
+/**
+ * IPC system calls
+ */
+
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+int __attribute__((naked)) __attribute__((noinline)) trylock(Lock* l) {
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_TRYLOCK)
+);
+}
+#pragma GCC diagnostic pop
+#else
+int trylock(Lock* l) {
+    return systrylock(l);
+}
+#endif
+
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+int __attribute__((naked)) __attribute__((noinline)) lock(Lock* l) {
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_LOCK)
+);
+}
+#pragma GCC diagnostic pop
+#else
+int lock(Lock* l) {
+    return syslock(l);
+}
+#endif
+
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+int __attribute__((naked)) __attribute__((noinline)) unlock(Lock* l) {
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_UNLOCK)
+);
+}
+#pragma GCC diagnostic pop
+#else
+int unlock(Lock* l) {
+    return sysunlock(l);
+}
+#endif
+
 #else
 #error "Unsupported Compiler"
 #endif

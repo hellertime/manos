@@ -25,6 +25,8 @@
 #define DWORD_ALIGN_PTR(addr) ((char*)DWORD_PAD((uintptr_t)(addr)))
 #define IS_DWORD_ALIGNED(addr) (!((uintptr_t)(addr) & (DWORD_BYTES - 1)))
 
+static Lock malLock = {0};
+
 /*
  * ChunkTag = Int Int Int
  *
@@ -641,8 +643,14 @@ exit:
  * If size is 0, a chunk of MIN_ALLOC_BYTES is returned.
  */
 void* kmalloc(size_t size) {
+    return __kmalloc(size, getpid());
+}
+
+void* __kmalloc(size_t size, int pid) {
+  void* mem = NULL;
   size_t newSize = size + (2 * sizeof(ChunkTag));
 
+  lock(&malLock);
   initRam();
   
   if (newSize < MIN_ALLOC_BYTES) {
@@ -652,12 +660,12 @@ void* kmalloc(size_t size) {
   ChunkHeader* chunk = allocateChunk(DWORD_PAD(newSize));
 
   if (chunk) {
-    void *mem = getPayload(chunk);
+    mem = getPayload(chunk);
 
     header->lastAllocSize = getSize(chunk);
 
     /* store the PID of the caller in the previously reserved byte just before the footer */
-    getTag(chunk).pid = getFooter(chunk)->pid = getpid();
+    getTag(chunk).pid = getFooter(chunk)->pid = pid;
 
     /* indicate this chunk is allocated */
     getTag(chunk).free = getFooter(chunk)->free = 0;
@@ -673,11 +681,12 @@ void* kmalloc(size_t size) {
     if (allocInUse > allocHWM)
       allocHWM = allocInUse;
     
-    return (void*)mem;
   } else {
     errno = ENOMEM;
-    return NULL;
   }
+
+  unlock(&malLock);
+  return mem;
 }
 
 /*
@@ -689,7 +698,7 @@ void* kmallocz(size_t size) {
   char* mem = kmalloc(size);
 
   if (mem) {
-	char* z = mem;
+    char* z = mem;
     for (size_t i = 0; i < size; i++) {
       *z++ = (char)0;
     }
@@ -714,6 +723,7 @@ void kfree(void* ptr) {
    */
   int isAligned = !((uintptr_t)ptr & (DWORD_BYTES - 1)); /* check the low bits are zero */
   if (isAligned) {
+    lock(&malLock);
     /*
      * Safetey check #2: A valid pointer from malloc will have its address recorded in
      * the bitmap. This is the address that is given to the malloc caller.
@@ -737,6 +747,8 @@ void kfree(void* ptr) {
       clearBitmap(ptr);
       binChunk(chunk, BinRecent);
     }
+
+    unlock(&malLock);
   }
 }
 

@@ -3,12 +3,15 @@
  *
  * Constant, Function, isVoid?
  */
-#define SYSCALL_MAP     \
-    X(EXEC,  exec,  0)  \
-    X(CLOSE, close, 1)  \
-    X(FSTAT, fstat, 0)  \
-    X(OPEN,  open,  0)  \
-    X(READ,  read,  0)  \
-    X(WRITE, write, 0)
+#define SYSCALL_MAP         \
+    X(EXEC,    exec,    0)  \
+    X(CLOSE,   close,   1)  \
+    X(FSTAT,   fstat,   0)  \
+    X(OPEN,    open,    0)  \
+    X(READ,    read,    0)  \
+    X(WRITE,   write,   0)  \
+    X(TRYLOCK, trylock, 0)  \
+    X(LOCK,    lock,    0)  \
+    X(UNLOCK,  unlock,  0)
 
 

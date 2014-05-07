@@ -30,6 +30,18 @@ static int writeSyscall(int* args) {
     return syswrite(args[0], (void*)args[1], (size_t)args[2]);
 }
 
+static int trylockSyscall(int* args) {
+    return systrylock((Lock*)args[0]);
+}
+
+static int lockSyscall(int* args) {
+    return syslock((Lock*)args[0]);
+}
+
+static int unlockSyscall(int* args) {
+    return sysunlock((Lock*)args[0]);
+}
+
 #include <arch/k70/syscall.x>
 
 #include "syscall.h"
@@ -60,6 +72,7 @@ static void __attribute__((used)) svcHandlerDispatch(StackFrame* frame) {
        break;
     default:
         sysprintln("Uknown SVC: %d", idx);
+        __asm("bkpt");
         break;
     }
     return;

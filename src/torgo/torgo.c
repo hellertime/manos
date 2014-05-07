@@ -75,14 +75,14 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
 
   clearCharBuf(shell->readBuf);
 
-  fputstr(u->tty, promptStr);
+  fputstr(rp->tty, promptStr);
 
   if (promptStr[strlen(promptStr) - 1] != ' ')
-    fputchar(u->tty, ' ');
+    fputchar(rp->tty, ' ');
   
   while (keepReading && (readMax == -1 || readMax > 0)) {
     char c;
-    if (kread(u->tty, &c, 1) == 0)
+    if (kread(rp->tty, &c, 1) == 0)
         c = 0; /* EOF */
 
     switch (c) {
@@ -91,20 +91,20 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
         break;
       case 127: /* DEL */
           if (dropLastCharBuf(shell->readBuf) != 0)
-              fputstr(u->tty, "\b \b"); /* backup, erase, backup */
+              fputstr(rp->tty, "\b \b"); /* backup, erase, backup */
           else
-              fputchar(u->tty, '\a'); /* BEEP */
+              fputchar(rp->tty, '\a'); /* BEEP */
           break;
       case '\r':
       case '\n':
         keepReading = 0;
         if (c == '\r') {
-            fputchar(u->tty, c);
+            fputchar(rp->tty, c);
             c = '\n';
         }
         /* fall through */
       default:
-        fputchar(u->tty, c);
+        fputchar(rp->tty, c);
         appendCharBuf(shell->readBuf, c);
         break;
     }
@@ -184,6 +184,8 @@ int torgo_main(int argc, char * const argv[]) {
   const char *ps1 = "torgo > ", *ps2 = "> ";
   Shell *shell = mkShell();
   int shellErrno = 0;
+
+  fputstr(rp->tty, "Welcome, Master!\n");
   
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {
@@ -192,9 +194,9 @@ int torgo_main(int argc, char * const argv[]) {
     if (isEmptyCharBuf(input)) {
       shell->state = ShellStateEOF;
       if (hasUnparsedInputParser(shell->parser)) {
-        fputstr(u->tty, "error: unexpected end-of-file\n");
+        fputstr(rp->tty, "error: unexpected end-of-file\n");
       }
-      fputstr(u->tty, "\n");
+      fputstr(rp->tty, "\n");
       break;
     }
 

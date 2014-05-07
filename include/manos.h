@@ -15,6 +15,14 @@
 #define ENABLE_INTERRUPTS() while(0)
 #endif
 
+#ifdef PLATFORM_K70CW
+#define YIELD() (SCB_ISCR |= SCB_ISR_PENDSVSET_MASK)
+#else
+#define YIELD() while(0)
+#endif
+
+#define MANOS_MAXPROC 127 /* kernel is proc 0 */
+
 #define MANOS_MAXDEV 8
 extern Dev* deviceTable[MANOS_MAXDEV];
 

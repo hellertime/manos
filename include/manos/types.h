@@ -36,6 +36,26 @@ typedef int OnOff;
 #define CRUMB_ISSTATIC   0x02
 #define CRUMB_ISFILE     0x01
 
+/**
+ * struct ListHead - a generic doubly linked list
+ * @prev:            previous node in the list
+ * @next:            ext node in the list
+ */
+typedef struct ListHead {
+    struct ListHead* prev;
+    struct ListHead* next;
+} ListHead;
+
+typedef struct Lock {
+    int    locked;
+    struct ListHead;
+} Lock;
+
+typedef struct Ref {
+    Lock lock;
+    int  count;
+} Ref;
+
 typedef struct FifoQ {
     int    isEmpty;
     size_t readOffset;
@@ -163,12 +183,23 @@ struct UartHW {
 
 #define MANOS_MAXFD 4096
 
+typedef enum {
+    ProcDead,
+    ProcSpawning,
+    ProcReady,
+    ProcRunning,
+    ProcWaiting,
+} ProcState;
+
 typedef struct Proc {
-    Pid     pid;
-    int     tty;
-    Portal* descriptorTable[MANOS_MAXFD];
-    Portal* slash;
-    Portal* dot;
+    Pid       pid;
+    int       tty;
+    ProcState state;
+    Portal*   descriptorTable[MANOS_MAXFD];
+    Portal*   slash;
+    Portal*   dot;
+    ListHead* nextRunQ;
+    ListHead* nextFreelist;
 } Proc;
 
 typedef struct StackFrame {
