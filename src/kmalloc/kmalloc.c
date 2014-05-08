@@ -11,6 +11,7 @@
 #include <manos.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 /*
  * Define some constants for padding and aligning data.
