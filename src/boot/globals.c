@@ -43,6 +43,8 @@ TimerHW* timerHardwareTable[MANOS_MAXTIMER] = {
 ,   &niceTimerHW
 };
 
+Lock malLock;
+
 Lock freelistLock;
 LIST_HEAD(procFreelist);
 
