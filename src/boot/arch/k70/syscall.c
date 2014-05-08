@@ -158,7 +158,7 @@ int trylock(Lock* l) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-int __attribute__((naked)) __attribute__((noinline)) lock(Lock* l) {
+void __attribute__((naked)) __attribute__((noinline)) lock(Lock* l) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -168,16 +168,15 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-int lock(Lock* l) {
+void lock(Lock* l) {
     return syslock(l);
 }
 #endif
 
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-int __attribute__((naked)) __attribute__((noinline)) unlock(Lock* l) {
+void __attribute__((naked)) __attribute__((noinline)) unlock(Lock* l) {
 __asm(
     "svc %[syscall]\n\t"
     "bx lr"
@@ -187,8 +186,8 @@ __asm(
 }
 #pragma GCC diagnostic pop
 #else
-int unlock(Lock* l) {
-    return sysunlock(l);
+void unlock(Lock* l) {
+    sysunlock(l);
 }
 #endif
 

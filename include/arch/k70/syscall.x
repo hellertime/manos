@@ -11,7 +11,7 @@
     X(READ,    read,    0)  \
     X(WRITE,   write,   0)  \
     X(TRYLOCK, trylock, 0)  \
-    X(LOCK,    lock,    0)  \
-    X(UNLOCK,  unlock,  0)
+    X(LOCK,    lock,    1)  \
+    X(UNLOCK,  unlock,  1)
 
 
