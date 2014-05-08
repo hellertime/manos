@@ -40,6 +40,10 @@ static void setupStack(Proc* p, Cmd cmd, int argc, char * const argv[]) {
 
 Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
     Proc* p = newProc();
+
+    if (!rp)
+        rp = p;
+
     p->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
     p->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
 #ifdef PLATFORM_K70CW
