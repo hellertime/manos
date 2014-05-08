@@ -12,6 +12,8 @@ extern void hardFaultHandler(void);
 extern void toieHandler(void);
 extern void k70UartInterrupt(void);
 extern void pdbHandler(void);
+extern void systickHandler(void);
+extern void pendsvHandler(void);
 
 /**
  **===========================================================================
