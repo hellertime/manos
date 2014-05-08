@@ -25,8 +25,11 @@ Proc* nextRunnableProc(void) {
  * Quatum interrupt calls into this, but this call doesn't return
  */
 uint32_t __attribute__((used)) scheduleProc(void) {
+    STOP_SYSTICK();
     Proc* p = nextRunnableProc();
     rp = p;
     rp->state = ProcRunning;
+    RESET_SYSTICK();
+    START_SYSTICK();
     return rp->sp;
 }

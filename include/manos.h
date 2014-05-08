@@ -21,6 +21,16 @@
 #define YIELD() while(0)
 #endif
 
+#ifdef PLATFORM_K70CW
+#define START_SYSTICK() (SYST_CSR |= SysTick_CSR_ENABLE_MASK)
+#define STOP_SYSTICK() (SYST_CSR &= ~(SysTick_CSR_ENABLE_MASK))
+#define RESET_SYSTICK() (SYST_CVR = 0)
+#else
+#define START_SYSTICK() while(0)
+#define STOP_SYSTICK() while(0)
+#define RESET_SYSTICK() while(0)
+#endif
+
 #define MANOS_MAXPROC 127 /* kernel is proc 0 */
 
 #define MANOS_MAXDEV 8
