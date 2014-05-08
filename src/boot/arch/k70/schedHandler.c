@@ -3,8 +3,8 @@
 
 #ifdef PLATFORM_K70CW
 
-extern long long systickInterruptCounter;
-extern long long pendsvInterruptCounter;
+extern long long systickInterruptCount;
+extern long long pendsvInterruptCount;
 
 /** 
  * schedHandler - SysTick and PendSV handler
@@ -36,7 +36,7 @@ __asm(
  * systickHandler - Bookeeping version of systick
  */
 void __attribute__((naked)) systickHandler(void) {
-    ATOMIC(systickInterruptCounter++);
+    ATOMIC(systickInterruptCount++);
     schedHandler();
 }
 
@@ -44,7 +44,7 @@ void __attribute__((naked)) systickHandler(void) {
  * pendsvHandler - Bookeeping version of pendsv
  */
 void __attribute__((naked)) pendsvHandler(void) {
-    ATOMIC(pendsvInterruptCounter++);
+    ATOMIC(pendsvInterruptCount++);
     schedHandler();
 }
 
