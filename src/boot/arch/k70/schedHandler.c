@@ -21,6 +21,7 @@ __asm(
 
     /* Switched to new task stack */
     "msr  msp, r0\n\t"                     /* return to main stack always for now */
+    "cpsie i\n\t"                          /* scheduleProc leaves us with interrupts disabled. enable them again and take interrupts on the new proc stack */
     "pop {r0}\n\t"                         /* unwind the interrupt return state for the new Proc */
     "ldr r1, [%[shcsr]]\n\t"
     "bic r1, r1, %[mask]\n\t"
