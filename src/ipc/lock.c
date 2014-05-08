@@ -29,7 +29,7 @@ void syslock(Lock* l) {
 
     DISABLE_INTERRUPTS();
     while (l->locked) {
-        assert(listIsEmpty(rp->nextWaitQ) && "lock() running process already waiting on something else!");
+        assert(listIsEmpty(&rp->nextWaitQ) && "lock() running process already waiting on something else!");
         listAddBefore(&l->q, &rp->nextWaitQ);
         rp->state = ProcWaiting;
         YIELD();

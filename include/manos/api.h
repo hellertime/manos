@@ -69,8 +69,8 @@ int sysuartctl(Uart*, const char*);
 Portal* syswalk(Portal*, char**, unsigned);
 
 int systrylock(Lock*);
-int syslock(Lock*);
-int sysunlock(Lock*);
+void syslock(Lock*);
+void sysunlock(Lock*);
 
 int dirread(int fd, NodeInfo**);
 char* getcwd(char*, size_t);
