@@ -14,7 +14,7 @@ Proc* nextRunnableProc(void) {
         ;
     DISABLE_INTERRUPTS();
     p = CONTAINER_OF(&procRunQ, Proc, nextRunQ);
-    unlinkList(&procRunQ);
+    listUnlink(&procRunQ);
     p->state = ProcReady;
     return p;
 }
