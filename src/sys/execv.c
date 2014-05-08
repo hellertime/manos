@@ -7,7 +7,7 @@
 #include <manos/list.h>
 #include <arch/k70/derivative.h>
 
-extern __sysopen(Proc*, const char*, Caps);
+extern int __sysopen(Proc*, const char*, Caps);
 
 static void __manos_exit(void) {
 #ifdef PLATFORM_K70CW
