@@ -115,6 +115,7 @@ void svcInit(uint8_t);
 void svcHandler(void);
 void hardFaultHandler(void);
 void enableNvicIrq(unsigned, uint8_t);
+void schedInit(int, uint8_t);
 
 /*
  * ipc
