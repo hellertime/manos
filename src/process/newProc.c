@@ -2,8 +2,6 @@
 #include <manos.h>
 #include <manos/list.h>
 
-extern void* __kmalloc(size_t, int);
-
 Proc* newProc(void) {
     Proc* p;
 
@@ -25,7 +23,7 @@ Proc* newProc(void) {
         p->pid = incRef(&nextPid);
     assert(p->pid != 0 && "newProc() pid has id 0");
     if (!p->stack)
-        p->stack = __kmalloc(MANOS_ARCH_K70_STACK_SIZE, 0); /* kernel owns proc stack memory always -- since it is reused */
+        p->stack = syskmalloc0(MANOS_ARCH_K70_STACK_SIZE, 0); /* kernel owns proc stack memory always -- since it is reused */
 
     return p;
 }
