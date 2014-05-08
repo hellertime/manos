@@ -23,7 +23,7 @@ Proc* newProc(void) {
         p->pid = incRef(&nextPid);
     assert(p->pid != 0 && "newProc() pid has id 0");
     if (!p->stack)
-        p->stack = syskmalloc0(MANOS_ARCH_K70_STACK_SIZE, 0); /* kernel owns proc stack memory always -- since it is reused */
+        p->stack = syskmalloc0(MANOS_ARCH_K70_STACK_SIZE); /* kernel owns proc stack memory always -- since it is reused */
 
     return p;
 }
