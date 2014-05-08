@@ -34,12 +34,12 @@ static int trylockSyscall(int* args) {
     return systrylock((Lock*)args[0]);
 }
 
-static int lockSyscall(int* args) {
-    return syslock((Lock*)args[0]);
+static void lockSyscall(int* args) {
+    syslock((Lock*)args[0]);
 }
 
-static int unlockSyscall(int* args) {
-    return sysunlock((Lock*)args[0]);
+static void unlockSyscall(int* args) {
+    sysunlock((Lock*)args[0]);
 }
 
 #include <arch/k70/syscall.x>
