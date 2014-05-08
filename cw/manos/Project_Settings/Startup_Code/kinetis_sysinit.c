@@ -85,8 +85,8 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     svcHandler, 
     DebugMonitor_Handler, 
     0,
-    PendSV_Handler, 
-    SysTick_Handler,
+    pendsvHandler, 
+    systickHandler,
 
     /* Interrupts */
     Default_Handler,	/* IRQ0 */
