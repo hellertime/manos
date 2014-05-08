@@ -49,7 +49,7 @@ void sysunlock(Lock* l) {
     l->locked = 0;
     if (! listIsEmpty(&l->q)) {
         Proc* p = CONTAINER_OF(&l->q, Proc, nextWaitQ);
-        listUnlink(&l->q);
+        listUnlinkAndInit(&l->q);
         p->state = ProcReady;
     }
     ENABLE_INTERRUPTS();

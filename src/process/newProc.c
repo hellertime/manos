@@ -12,7 +12,7 @@ Proc* newProc(void) {
         lock(&freelistLock);
     }
     p = CONTAINER_OF(&procFreelist, Proc, nextFreelist);
-    listUnlink(&procFreelist);
+    listUnlinkAndInit(&procFreelist);
     unlock(&freelistLock);
 
     p->state = ProcSpawning;
