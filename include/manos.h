@@ -34,6 +34,7 @@ extern TimerHW* timerHardwareTable[MANOS_MAXTIMER];
 
 extern Timer* hotpluggedTimers;
 
+extern Lock malLock;
 extern Lock freelistLock;
 extern ListHead procFreelist;
 extern ListHead procRunQ;

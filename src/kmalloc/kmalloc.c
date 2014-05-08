@@ -26,8 +26,6 @@
 #define DWORD_ALIGN_PTR(addr) ((char*)DWORD_PAD((uintptr_t)(addr)))
 #define IS_DWORD_ALIGNED(addr) (!((uintptr_t)(addr) & (DWORD_BYTES - 1)))
 
-extern Lock malLock;
-
 /*
  * ChunkTag = Int Int Int
  *
