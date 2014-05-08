@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     mcgInit();
     sdramInit();
     svcInit(MANOS_ARCH_K70_SVC_INT_PRIORITY);
-    schedInit(MANOS_ARCH_K70_SCHED_INT_PRIORITY);
+    schedInit(50, MANOS_ARCH_K70_SCHED_INT_PRIORITY);
 #endif
 
     for (unsigned i = 0; i < COUNT_OF(deviceTable); i++) {
