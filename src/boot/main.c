@@ -5,7 +5,7 @@
 
 #include <torgo/commands.h>
 
-extern Proc* schedProc(Proc*, Cmd, int, char * const []);
+extern Proc* schedProc(Cmd, int, char * const []);
 extern void enterUserMode(void);
 
 extern uint32_t totalRAM;
