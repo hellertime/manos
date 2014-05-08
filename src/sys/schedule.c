@@ -29,7 +29,7 @@ Proc* nextRunnableProc(void) {
  */
 uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     STOP_SYSTICK();
-    rp->sp = sp;
+    if (rp) rp->sp = sp;
     Proc* p = nextRunnableProc();
     rp = p;
     rp->state = ProcRunning;
