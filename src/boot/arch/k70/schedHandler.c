@@ -17,6 +17,7 @@ __asm(
     "ldr  r0, [%[shcsr]]\n\t"              /* push interrupt return state (thread or supervisor) */
     "and  r0,r0, %[mask]\n\t"
     "push {r0,lr}\n\t"                     /* push link register, scheduleProc returns here */
+    "mrs r0,msp\n\t"                       /* read the current stack pointer into r0 */
     "bl   scheduleProc\n\t"
 
     /* Switched to new task stack */
