@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 
     Proc* flist = kmalloc(MANOS_MAXPROC * sizeof(*flist));
     Proc* p = flist;
-    for (unsigned i = 0; i < MANOS_MAX_PROC; i++, p++) {
+    for (unsigned i = 0; i < MANOS_MAXPROC; i++, p++) {
         INIT_LIST_HEAD(&p->nextFreelist);
         listAddAfter(&procFreelist, &p->nextFreelist);
     }
