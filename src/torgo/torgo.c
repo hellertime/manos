@@ -122,7 +122,7 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
  */
 void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv) {
   int argc_ = getLengthParseResult(result);
-  char **argv_ = kmallocz((1 + argc_) * sizeof *argv_); /* sysexecv must have a NULL terminated array of pointers */
+  char **argv_ = kmalloc((1 + argc_) * sizeof *argv_); /* sysexecv must have a NULL terminated array of pointers */
 
   ParseTokenIterator *tokens = getParseTokenIteratorParseResult(result);
   CharBuf *tokenBuilder = mkCharBuf(32);
@@ -162,7 +162,7 @@ void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv
     }
     
     const char* arg = fromCharBuf(tokenBuilder);
-    argv_[i] = kmallocz(strlen(arg) + 1);
+    argv_[i] = kmalloc(strlen(arg) + 1);
     memcpy(argv_[i], arg, strlen(arg));
   }
 

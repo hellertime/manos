@@ -9,8 +9,11 @@ Pid getpid(void);
 Proc* newProc(void);
 
 void* kmalloc(size_t);
-void* kmallocz(size_t);
 void kfree(void*);
+
+void* syskmalloc(size_t);
+void* syskmalloc0(size_t);
+void syskfree(void*);
 
 WalkTrail* emptyWalkTrail(unsigned);
 void freeWalkTrail(WalkTrail*);

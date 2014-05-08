@@ -34,7 +34,7 @@ void resetDev(void) {
  */
 Portal* attachDev(int device, char *path) {
   UNUSED(path);
-  Portal *p = kmalloc(sizeof *p);
+  Portal *p = syskmalloc(sizeof *p);
   mkPortal(p, fromDeviceId(device));
   p->crumb.flags = CRUMB_ISDIR;
   p->crumb.fid   = 0;

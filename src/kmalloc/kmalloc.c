@@ -635,7 +635,7 @@ exit:
   return chunk;
 }
 
-void* __kmalloc(size_t size, int pid) {
+static void* __kmalloc(size_t size, int pid) {
   void* mem = NULL;
   size_t newSize = size + (2 * sizeof(ChunkTag));
 
@@ -670,11 +670,10 @@ void* __kmalloc(size_t size, int pid) {
     if (allocInUse > allocHWM)
       allocHWM = allocInUse;
     
+    memset(mem, 0, size);
   } else {
     errno = ENOMEM;
   }
-
-  unlock(&malLock);
   return mem;
 }
 
@@ -686,33 +685,27 @@ void* __kmalloc(size_t size, int pid) {
  * If size is 0, a chunk of MIN_ALLOC_BYTES is returned.
  */
 void* kmalloc(size_t size) {
-    return __kmalloc(size, getpid());
+    lock(&malLock);
+    void* mem = __kmalloc(size, getpid());
+    unlock(&malLock);
+    return mem;
 }
 
-/*
- * kmallocz :: Integer -> Ptr
- *
- * allocate chunk via malloc and zero the memory
- */
-void* kmallocz(size_t size) {
-  char* mem = kmalloc(size);
-
-  if (mem) {
-    char* z = mem;
-    for (size_t i = 0; i < size; i++) {
-      *z++ = (char)0;
-    }
-  }
-
-  return mem;
+void* syskmalloc(size_t size) {
+    syslock(&malLock);
+    void* mem = __kmalloc(size, getpid());
+    sysunlock(&malLock);
+    return mem;
 }
 
-/*
- * kfree :: Ptr -> ()
- *
- * free allocated chunk. If ptr is NULL or not from malloc, this is a noop.
- */
-void kfree(void* ptr) {
+void* syskmalloc0(size_t size) {
+    syslock(&malLock);
+    void* mem = __kmalloc(size, 0);
+    sysunlock(&malLock);
+    return mem;
+}
+
+static void __kfree(void* ptr) {
   /*
    * Safety check #0: NULL has no effect.
    */
@@ -723,7 +716,6 @@ void kfree(void* ptr) {
    */
   int isAligned = !((uintptr_t)ptr & (DWORD_BYTES - 1)); /* check the low bits are zero */
   if (isAligned) {
-    lock(&malLock);
     /*
      * Safetey check #2: A valid pointer from malloc will have its address recorded in
      * the bitmap. This is the address that is given to the malloc caller.
@@ -747,10 +739,32 @@ void kfree(void* ptr) {
       clearBitmap(ptr);
       binChunk(chunk, BinRecent);
     }
-
-    unlock(&malLock);
   }
 }
+
+/*
+ * kfree :: Ptr -> ()
+ *
+ * free allocated chunk. If ptr is NULL or not from malloc, this is a noop.
+ */
+void kfree(void* ptr) {
+    lock(&malLock);
+    __kfree(ptr);
+    unlock(&malLock);
+}
+
+/**
+ * syskfree :: Pre -> ()
+ *
+ * like kfree, but callable from handler
+ */
+void syskfree(void* ptr) {
+    syslock(&malLock);
+    __kfree(ptr);
+    sysunlock(&malLock);
+}
+
+
 
 /*
  * hexdump :: Ptr -> Integer -> FILE* -> ()

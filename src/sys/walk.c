@@ -8,7 +8,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
         return NULL;
     }
 
-    Portal* px = kmallocz(sizeof *px);
+    Portal* px = syskmalloc(sizeof *px);
     if (!px) {
         return NULL;
     }

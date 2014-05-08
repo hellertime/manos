@@ -31,7 +31,7 @@ static void resetTimer(void) {
     }
 
     timerSNSCount = 2 + (2 * hpCount); /* dot, sentinel, timer files */
-    timerSNS = kmallocz(timerSNSCount * sizeof(StaticNS));
+    timerSNS = syskmalloc(timerSNSCount * sizeof(StaticNS));
 
     StaticNS* sns = timerSNS;
     strcpy(sns->name, ".");

@@ -49,7 +49,7 @@ static void resetUart(void) {
     }
 
     uartSNSCount = 2 + (3 * hpCount); /* 3 files per Uart, plus dot, sentinel */
-    uartSNS = kmallocz(uartSNSCount * sizeof(StaticNS));
+    uartSNS = syskmalloc(uartSNSCount * sizeof(StaticNS));
     
     StaticNS* sns = uartSNS;
     strcpy(sns->name, ".");

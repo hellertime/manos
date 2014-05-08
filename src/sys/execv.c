@@ -115,7 +115,7 @@ int sysexecv(const char *path, char * const argv[]) {
         if (deviceTable[p->device]->open(p, CAP_READ) == NULL)
             goto error;
 
-        buf = kmallocz(ni.length + 1);
+        buf = syskmalloc(ni.length + 1);
         if (deviceTable[p->device]->read(p, buf, ni.length, 0) == -1)
             return -1;
 

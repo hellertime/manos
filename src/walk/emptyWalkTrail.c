@@ -10,7 +10,7 @@
  * depth + 1).
  */
 WalkTrail* emptyWalkTrail(unsigned n) {
-    WalkTrail* t = kmallocz(sizeof *t + (sizeof(Crumb) * n));
+    WalkTrail* t = syskmalloc(sizeof *t + (sizeof(Crumb) * n));
     if (!t) {
       errno = ENOMEM;
       return NULL;

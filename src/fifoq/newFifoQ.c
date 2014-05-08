@@ -9,7 +9,7 @@
  *   pointer suitable for freeing with kfree
  */
 FifoQ* newFifoQ(size_t size) {
-    FifoQ* q = kmalloc((sizeof *q) + size);
+    FifoQ* q = syskmalloc((sizeof *q) + size);
     if (!q) {
         errno = ENOMEM;
         return NULL;

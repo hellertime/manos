@@ -2,7 +2,7 @@
 #include <string.h>
 
 Path* mkPath(const char *path) {
-    Path* p = kmallocz(sizeof *p + strlen(path) + 1);
+    Path* p = syskmalloc(sizeof *p + strlen(path) + 1);
     if (!p) return NULL;
 
     char *c = (char*)path;
@@ -29,7 +29,7 @@ Path* mkPath(const char *path) {
         nelems = 1;
 
     /* allocate char* buffer */
-    p->elems = kmalloc(sizeof c * nelems);
+    p->elems = syskmalloc(sizeof c * nelems);
     p->nelems = nelems;
     p->nbuf = nelems;
     
