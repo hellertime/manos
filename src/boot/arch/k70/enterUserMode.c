@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <arch/k70/derivative.h>
 
 void enterUserMode(void) {
 #ifdef PLATFORM_K70CW

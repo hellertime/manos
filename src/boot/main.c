@@ -3,6 +3,8 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include <arch/k70/derivative.h>
+
 extern Proc* schedProc(Cmd, int, char * const []);
 extern void enterUserMode(void);
 
