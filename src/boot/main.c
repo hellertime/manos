@@ -3,9 +3,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include <arch/k70/derivative.h>
-
-extern Proc* schedProc(Cmd, int, char * const []);
+extern Proc* schedProc(Proc*, Cmd, int, char * const []);
 extern void enterUserMode(void);
 
 int torgo_main(int, char**);
