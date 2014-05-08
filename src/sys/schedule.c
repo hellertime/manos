@@ -13,8 +13,8 @@ Proc* nextRunnableProc(void) {
     while (listIsEmpty(&procRunQ))
         ;
     DISABLE_INTERRUPTS();
-    p = CONTAINER_OF(&procRunQ, Proc, nextRunQ);
-    listUnlinkAndInit(&procRunQ);
+    p = CONTAINER_OF(&procRunQ->next, Proc, nextRunQ);
+    listUnlinkAndInit(&procRunQ->next);
     p->state = ProcReady;
     return p;
 }
