@@ -3,10 +3,10 @@
 
 int cmdCat__Main(int argc, char * const argv[]) {
     if (argc < 2) {
-        fprintln(u->tty, "usage: cat [OPTIONS] PATH");
-        fprintln(u->tty, "\nOPTIONS:\n");
-        fprintln(u->tty, "  -x                Read in 4 byte chunks and print as hex");
-        fprintln(u->tty, "  -n                Emit newlines after each read");
+        fprintln(rp->tty, "usage: cat [OPTIONS] PATH");
+        fprintln(rp->tty, "\nOPTIONS:\n");
+        fprintln(rp->tty, "  -x                Read in 4 byte chunks and print as hex");
+        fprintln(rp->tty, "  -n                Emit newlines after each read");
         return -1;
     }
 
@@ -40,11 +40,11 @@ int cmdCat__Main(int argc, char * const argv[]) {
     char c;
     while (kread(fd, &x, inHex ? sizeof x : 1)) {
         if (inHex)
-            fprint(u->tty, "0x%" PRIx32 "", x);
+            fprint(rp->tty, "0x%" PRIx32 "", x);
         else
-            fputchar(u->tty, x);
+            fputchar(rp->tty, x);
 
-        if (withNewlines) fputchar(u->tty, '\n');
+        if (withNewlines) fputchar(rp->tty, '\n');
 
         c = 0;
         kread(sw1, &c, 1);

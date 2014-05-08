@@ -20,17 +20,17 @@ int cmdEcho__Main(int argc, char * const argv[]) {
                     break;
                 }
 
-                fprintln(u->tty, "Bad Redirection");
+                fprintln(rp->tty, "Bad Redirection");
                 return -1;
             }
         }
     }
 
-    int fd = u->tty;
+    int fd = rp->tty;
     if (out) {
         int fd2 = kopen(out, CAP_WRITE);
         if (fd2 < 0) {
-            fprintln(u->tty, "Cannot write to %s", out);
+            fprintln(rp->tty, "Cannot write to %s", out);
             return -1;
         }
         fd = fd2;

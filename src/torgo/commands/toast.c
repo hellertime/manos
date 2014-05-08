@@ -23,9 +23,9 @@ int cmdToast__Main(int argc, char * const argv[]) {
     kclose(fd);
 
     if (status == -1)
-        fprintln(u->tty, "Someone's making toast...");
+        fprintln(rp->tty, "Someone's making toast...");
     else
-        fprintln(u->tty, "Get ready for toast...");
+        fprintln(rp->tty, "Get ready for toast...");
 #else
     showToast();
 #endif

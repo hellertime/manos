@@ -764,13 +764,13 @@ static void hexdump(void* buf, size_t length) {
   for (i = 0; i < length; i++) {
     if (!(i % 32)) {
       if (i != 0) {
-        fprintln(u->tty, "  %s", ascii);
+        fprintln(rp->tty, "  %s", ascii);
       }
 
-      fprint(u->tty, " %.8" PRIxPTR " ", (uintptr_t)heap + i);
+      fprint(rp->tty, " %.8" PRIxPTR " ", (uintptr_t)heap + i);
     }
 
-    fprint(u->tty, " %.2x", (uint8_t)p[i]);
+    fprint(rp->tty, " %.2x", (uint8_t)p[i]);
 
     if ((p[i] >= 0x20) && (p[i] <= 0x7e)) {
       ascii[i % 32] = p[i];
@@ -781,10 +781,10 @@ static void hexdump(void* buf, size_t length) {
   }
 
   while ((i++ % 32) != 0) {
-    fputstr(u->tty, "  ");
+    fputstr(rp->tty, "  ");
   }
 
-  fprintln(u->tty, " %s", ascii);
+  fprintln(rp->tty, " %s", ascii);
 }
 
 /*
@@ -793,41 +793,41 @@ static void hexdump(void* buf, size_t length) {
  * Dumps a chunk to out
  */
 void dumpChunk(ChunkHeader* chunk, int doHexdump) {
-  fputstr(u->tty, "**** YAMalloc Chunk Dump ****\n\n");
-  fputstr(u->tty, "General Info:\n\n");
-  fprintln(u->tty, "    Chunk addr: 0x%08" PRIxPTR "\n", (uintptr_t)chunk);
+  fputstr(rp->tty, "**** YAMalloc Chunk Dump ****\n\n");
+  fputstr(rp->tty, "General Info:\n\n");
+  fprintln(rp->tty, "    Chunk addr: 0x%08" PRIxPTR "\n", (uintptr_t)chunk);
   
   uintptr_t mem = (uintptr_t)getPayload(chunk);
-  fprintln(u->tty, "    Chunk user addr: 0x%08" PRIxPTR "", mem);
-  fprintln(u->tty, "    Chunk bitmap addreds (off: %d,byte: %d,bit: %d)", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
-  fprintln(u->tty, "    Chunk user addr DWORD aligned?: %s", IS_DWORD_ALIGNED(getPayload(chunk)) ? "yes" : "no");
+  fprintln(rp->tty, "    Chunk user addr: 0x%08" PRIxPTR "", mem);
+  fprintln(rp->tty, "    Chunk bitmap addreds (off: %d,byte: %d,bit: %d)", getAddrBitmapOffset(mem), getAddrByte(mem), getAddrBit(mem));
+  fprintln(rp->tty, "    Chunk user addr DWORD aligned?: %s", IS_DWORD_ALIGNED(getPayload(chunk)) ? "yes" : "no");
   
   uint32_t st = readSize(getTag(chunk)), sf = readSizePtr(getFooter(chunk));
-  fprintln(u->tty, "    Chunk size: %" PRIu32 " (%" PRIu32 ")%s", st, sf, st == sf ? "" : " MISMATCH!");
+  fprintln(rp->tty, "    Chunk size: %" PRIu32 " (%" PRIu32 ")%s", st, sf, st == sf ? "" : " MISMATCH!");
   
   int ft = getTag(chunk).free, ff = getFooter(chunk)->free;
-  fprintln(u->tty, "    Chunk isFree: %d (%d)%s", ft, ff, ft == ff ? "" : " MISMATCH!");
+  fprintln(rp->tty, "    Chunk isFree: %d (%d)%s", ft, ff, ft == ff ? "" : " MISMATCH!");
   
-  fprintln(u->tty, "    Sanity Checks. Pred Size: %" PRIu32 ", Free: %d", readSizePtr(getTagPred(chunk)), getTagPred(chunk)->free);
-  fprintln(u->tty, "                   Succ Size: %" PRIu32 ", Free: %d", readSizePtr(getTagSucc(chunk)), getTagSucc(chunk)->free);
+  fprintln(rp->tty, "    Sanity Checks. Pred Size: %" PRIu32 ", Free: %d", readSizePtr(getTagPred(chunk)), getTagPred(chunk)->free);
+  fprintln(rp->tty, "                   Succ Size: %" PRIu32 ", Free: %d", readSizePtr(getTagSucc(chunk)), getTagSucc(chunk)->free);
 
   int isFree = getTag(chunk).free;
 
   if (!isFree) {
 	if (!checkBitmap(mem)) {
-	  fputstr(u->tty, "    WARNING: Allocated chunk NOT recorded in BITMAP!\n");
+	  fputstr(rp->tty, "    WARNING: Allocated chunk NOT recorded in BITMAP!\n");
 	}
-    fprintln(u->tty, "    Chunk PID: %d (%d)", getTag(chunk).pid, getFooter(chunk)->pid);
+    fprintln(rp->tty, "    Chunk PID: %d (%d)", getTag(chunk).pid, getFooter(chunk)->pid);
   } else {
 	if (checkBitmap(mem)){
-	  fputstr(u->tty, "    WARNING: Free chunk HAS record in BITMAP!\n");
+	  fputstr(rp->tty, "    WARNING: Free chunk HAS record in BITMAP!\n");
 	}
-    fprintln(u->tty, "    Chunk Prev Ptr: 0x%08" PRIxPTR "", (uintptr_t)chunk->prev);
-    fprintln(u->tty, "    Chunk Next Ptr: 0x%08" PRIxPTR "", (uintptr_t)chunk->next);
+    fprintln(rp->tty, "    Chunk Prev Ptr: 0x%08" PRIxPTR "", (uintptr_t)chunk->prev);
+    fprintln(rp->tty, "    Chunk Next Ptr: 0x%08" PRIxPTR "", (uintptr_t)chunk->next);
   }
   
   if (doHexdump) {
-    fputstr(u->tty, "Memory Dump:\n\n");
+    fputstr(rp->tty, "Memory Dump:\n\n");
     hexdump((void*)chunk, getSize(chunk));
   }
 }
@@ -840,58 +840,58 @@ void dumpChunk(ChunkHeader* chunk, int doHexdump) {
 void kmallocDump(void) {
   initRam(); /* incase we haven't initialized the memory already */
 
-  fputstr(u->tty, "**** YAMalloc Memory Dump ****\n\n");
-  fputstr(u->tty, "General Info:\n\n");
-  fprintln(u->tty, "    Addr ram0:    0x%08" PRIxPTR "", (uintptr_t)ram0);
-  fprintln(u->tty, "    Addr ramHigh: 0x%08" PRIxPTR "", (uintptr_t)ramHighAddress);
-  fprintln(u->tty, "    Min. Allocation size (B): %d", MIN_ALLOC_BYTES);
-  fputstr(u->tty, "\n");
-  fputstr(u->tty, "Allocator Header Info:\n\n");
-  fprintln(u->tty, "    # Chunk Offsets In Bitmap: %d", numChunkOffsets);
-  fprintln(u->tty, "    Size of bin area (B) : %d", sizeof(header->bins[0]) * MAX_BINS);
-  fprintln(u->tty, "    Size of Bitmap (B)   : %d", ALLOCATION_BITMAP_SIZE);
-  fprintln(u->tty, "    Size of Header (B)   : %d", sizeof(struct AllocHeader));
-  fprintln(u->tty, "    Addr of header (should be ram0): 0x%08" PRIxPTR "", (uintptr_t)header);
-  fprintln(u->tty, "    Addr of bin 0                  : 0x%08" PRIxPTR "", (uintptr_t)header->bins);
-  fprintln(u->tty, "    Addr of bin 127                : 0x%08" PRIxPTR "", (uintptr_t)header->bins + MAX_BINS);
-  fprintln(u->tty, "    Addr of bitmap start           : 0x%08" PRIxPTR "", (uintptr_t)header->bitmap);
-  fprintln(u->tty, "    Addr of bitmap end             : 0x%08" PRIxPTR "", (uintptr_t)header->bitmap + ALLOCATION_BITMAP_SIZE);
-  fprintln(u->tty, "    Addr of header end             : 0x%08" PRIxPTR "", (uintptr_t)((char*)header + sizeof(struct AllocHeader)));
-  fprintln(u->tty, "    Addr of heap start : 0x%08" PRIxPTR "", (uintptr_t)heap);
-  fprintln(u->tty, "    Size of heap (B)   : %" PRIuPTR "", (uintptr_t)(totalRAM));
-  fprintln(u->tty, "    Last address is DWORD aligned : %s", (IS_DWORD_ALIGNED(ramHighAddress) ? "yes" : "no"));
-  fputstr(u->tty, "\n");
-  fputstr(u->tty, "Bitmap Info:\n\n");
+  fputstr(rp->tty, "**** YAMalloc Memory Dump ****\n\n");
+  fputstr(rp->tty, "General Info:\n\n");
+  fprintln(rp->tty, "    Addr ram0:    0x%08" PRIxPTR "", (uintptr_t)ram0);
+  fprintln(rp->tty, "    Addr ramHigh: 0x%08" PRIxPTR "", (uintptr_t)ramHighAddress);
+  fprintln(rp->tty, "    Min. Allocation size (B): %d", MIN_ALLOC_BYTES);
+  fputstr(rp->tty, "\n");
+  fputstr(rp->tty, "Allocator Header Info:\n\n");
+  fprintln(rp->tty, "    # Chunk Offsets In Bitmap: %d", numChunkOffsets);
+  fprintln(rp->tty, "    Size of bin area (B) : %d", sizeof(header->bins[0]) * MAX_BINS);
+  fprintln(rp->tty, "    Size of Bitmap (B)   : %d", ALLOCATION_BITMAP_SIZE);
+  fprintln(rp->tty, "    Size of Header (B)   : %d", sizeof(struct AllocHeader));
+  fprintln(rp->tty, "    Addr of header (should be ram0): 0x%08" PRIxPTR "", (uintptr_t)header);
+  fprintln(rp->tty, "    Addr of bin 0                  : 0x%08" PRIxPTR "", (uintptr_t)header->bins);
+  fprintln(rp->tty, "    Addr of bin 127                : 0x%08" PRIxPTR "", (uintptr_t)header->bins + MAX_BINS);
+  fprintln(rp->tty, "    Addr of bitmap start           : 0x%08" PRIxPTR "", (uintptr_t)header->bitmap);
+  fprintln(rp->tty, "    Addr of bitmap end             : 0x%08" PRIxPTR "", (uintptr_t)header->bitmap + ALLOCATION_BITMAP_SIZE);
+  fprintln(rp->tty, "    Addr of header end             : 0x%08" PRIxPTR "", (uintptr_t)((char*)header + sizeof(struct AllocHeader)));
+  fprintln(rp->tty, "    Addr of heap start : 0x%08" PRIxPTR "", (uintptr_t)heap);
+  fprintln(rp->tty, "    Size of heap (B)   : %" PRIuPTR "", (uintptr_t)(totalRAM));
+  fprintln(rp->tty, "    Last address is DWORD aligned : %s", (IS_DWORD_ALIGNED(ramHighAddress) ? "yes" : "no"));
+  fputstr(rp->tty, "\n");
+  fputstr(rp->tty, "Bitmap Info:\n\n");
 
   for (int i = 0; i < ALLOCATION_BITMAP_SIZE; i++) {
     if (!(i % 10)) {
       if (i != 0) {
-        fputstr(u->tty, "\n");
+        fputstr(rp->tty, "\n");
       }
 
-      fprint(u->tty, " %.8" PRIxPTR " ", (uintptr_t)header->bitmap + i);
+      fprint(rp->tty, " %.8" PRIxPTR " ", (uintptr_t)header->bitmap + i);
     } else if (i != 0) {
-      fputstr(u->tty, " ");
+      fputstr(rp->tty, " ");
     }
 
     char c = header->bitmap[i];
     for (int j = 8; j > 0; j--) {
-      fputchar(u->tty, '.' + (3 * ((c >> (j - 1)) & 1))); /* unset print '.', set print '1' (hence the multiple of 3) */
+      fputchar(rp->tty, '.' + (3 * ((c >> (j - 1)) & 1))); /* unset print '.', set print '1' (hence the multiple of 3) */
     }
   }
-  fputstr(u->tty, "\n");
+  fputstr(rp->tty, "\n");
 
-  fputstr(u->tty, "Heap Info:\n\n");
+  fputstr(rp->tty, "Heap Info:\n\n");
 
   for (uintptr_t i = (uintptr_t)heap; i < (uintptr_t)ramHighAddress; ) {
-    fprintln(u->tty, "** Chunk Offset 0x%08" PRIxPTR "", i);
+    fprintln(rp->tty, "** Chunk Offset 0x%08" PRIxPTR "", i);
     struct ChunkHeader *chunk = (struct ChunkHeader*)i;
 
     if (getSize(chunk) == 0)
       break;
 
     if ((i + getSize(chunk)) > (uintptr_t)ramHighAddress) {
-      fprintln(u->tty, "** Chunk has potentially corrupt size of %" PRIu32 "", getSize(chunk));
+      fprintln(rp->tty, "** Chunk has potentially corrupt size of %" PRIu32 "", getSize(chunk));
       break;
     }
 
@@ -899,17 +899,17 @@ void kmallocDump(void) {
     i += getSize(chunk);
   }
 
-  fputstr(u->tty, "\n");
-  fputstr(u->tty, "Bin Info:\n\n");
+  fputstr(rp->tty, "\n");
+  fputstr(rp->tty, "Bin Info:\n\n");
 
   for (int i = 0; i < MAX_BINS; i++) {
     if (i == 0) {
       struct ChunkHeader *chunks = RECENT_CHUNK_BIN;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          fputstr(u->tty, "** SPECIAL BIN: Recent Chunks\n\n");
+          fputstr(rp->tty, "** SPECIAL BIN: Recent Chunks\n\n");
         }
-        fprint(u->tty, "**** Recent Chunks [%d] ****\n\n", j);
+        fprint(rp->tty, "**** Recent Chunks [%d] ****\n\n", j);
         dumpChunk(chunks, 0);
         chunks = chunks->next;
       }
@@ -917,9 +917,9 @@ void kmallocDump(void) {
       chunks = REMAINDER_CHUNK_BIN;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          fputstr(u->tty, "** SPECIAL BIN: Last Split Remainders\n\n");
+          fputstr(rp->tty, "** SPECIAL BIN: Last Split Remainders\n\n");
         }
-        fprint(u->tty, "**** Last Split Remainder Chunk [%d] ****\n\n", j);
+        fprint(rp->tty, "**** Last Split Remainder Chunk [%d] ****\n\n", j);
         dumpChunk(chunks, 0);
         chunks = chunks->next; 
       }
@@ -927,9 +927,9 @@ void kmallocDump(void) {
       struct ChunkHeader *chunks = getBinByIndex(i).dirty;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          fprint(u->tty, "** DIRTY BIN %d\n\n", i);
+          fprint(rp->tty, "** DIRTY BIN %d\n\n", i);
         }
-        fprint(u->tty, "**** Bin %d Chunk [%d] ****\n\n", i, j);
+        fprint(rp->tty, "**** Bin %d Chunk [%d] ****\n\n", i, j);
         dumpChunk(chunks, 0);
         chunks = chunks->next;
       }
@@ -937,9 +937,9 @@ void kmallocDump(void) {
       chunks = getBinByIndex(i).clean;
       for (int j = 0; chunks; j++) {
         if (j == 0) {
-          fprint(u->tty, "** CLEAN BIN %d\n\n", i);
+          fprint(rp->tty, "** CLEAN BIN %d\n\n", i);
         }
-        fprint(u->tty, "**** Bin %d Chunk [%d] ****\n\n", i, j);
+        fprint(rp->tty, "**** Bin %d Chunk [%d] ****\n\n", i, j);
         dumpChunk(chunks, 0);
         chunks = chunks->next;
       }
@@ -968,9 +968,9 @@ void kmallocBitmapFunctionIntegrityCheck(void) {
 
         int isSet = bitmap[byte] & (1 << bit);
         if (isSet)
-            fprintln(u->tty, "**** 0x%.8" PRIx32 " **** (%" PRIu32 ", %d, %d)", addr, offset, byte, bit);
+            fprintln(rp->tty, "**** 0x%.8" PRIx32 " **** (%" PRIu32 ", %d, %d)", addr, offset, byte, bit);
         else
-            fprintln(u->tty, "     0x%.8" PRIx32 "      (%" PRIu32 ", %d, %d)", addr, offset, byte, bit);
+            fprintln(rp->tty, "     0x%.8" PRIx32 "      (%" PRIu32 ", %d, %d)", addr, offset, byte, bit);
 
         bitmap[byte] |= (1 << bit);
     }

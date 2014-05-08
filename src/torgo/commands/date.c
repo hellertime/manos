@@ -6,7 +6,7 @@ char* months[] = { "January", "February", "March", "April", "May", "June", "July
 int cmdDate__Main(int argc, char * const argv[]) {
     if (argc > 1) {
         if (argc == 2 || strcmp(argv[1], "--set") != 0) {
-            fprint(u->tty, "usage: %s [--set \"YYYY [MM [DD [HH [MM [SS]]]]]\"]\n", argv[0]);
+            fprint(rp->tty, "usage: %s [--set \"YYYY [MM [DD [HH [MM [SS]]]]]\"]\n", argv[0]);
             return 1;
         }
 
@@ -15,7 +15,7 @@ int cmdDate__Main(int argc, char * const argv[]) {
         kwrite(fd, argv[2], strlen(argv[2]));
         kclose(fd);
 #elif PLATFORM_NICE
-        fprint(u->tty, "Cannot set date on this platform.\n");
+        fprint(rp->tty, "Cannot set date on this platform.\n");
 #else
 #error "cmdDate__Main() unsupported platform"
 #endif
@@ -26,6 +26,6 @@ int cmdDate__Main(int argc, char * const argv[]) {
     kread(fd, &date, sizeof date);
     kclose(fd);
 
-    fprint(u->tty, "%s %d, %d %02d:%02d:%02d\n", months[date.month], date.day, date.year, date.hours, date.minutes, date.seconds);
+    fprint(rp->tty, "%s %d, %d %02d:%02d:%02d\n", months[date.month], date.day, date.year, date.hours, date.minutes, date.seconds);
     return 0;
 }
