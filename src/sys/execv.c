@@ -123,7 +123,7 @@ int sysexecv(const char *path, char * const argv[]) {
 #endif
                 setupStack(p, builtinCmds[i].cmd, argc, argv);
                 DISABLE_INTERRUPTS();
-                listAddBefore(p->nextRunQ, &procRunQ);
+                listAddBefore(&p->nextRunQ, &procRunQ);
                 p->state = ProcReady;
                 ret = 0;
                 ENABLE_INTERRUPTS();
