@@ -640,7 +640,6 @@ static void* __kmalloc(size_t size, int pid) {
   void* mem = NULL;
   size_t newSize = size + (2 * sizeof(ChunkTag));
 
-  lock(&malLock);
   initRam();
   
   if (newSize < MIN_ALLOC_BYTES) {
