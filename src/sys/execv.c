@@ -7,6 +7,8 @@
 #include <manos/list.h>
 #include <arch/k70/derivative.h>
 
+extern __sysopen(Proc*, const char*, Caps);
+
 static void __manos_exit(void) {
 #ifdef PLATFORM_K70CW
     rp->state = ProcDead;
@@ -42,15 +44,12 @@ static void setupStack(Proc* p, Cmd cmd, int argc, char * const argv[]) {
 Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
     Proc* p = newProc();
 
-    if (!rp)
-        rp = p;
-
     p->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
     p->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
 #ifdef PLATFORM_K70CW
-    p->tty   = kopen("/dev/uart/k70Uart", CAP_READWRITE);
+    p->tty   = __sysopen(p, "/dev/uart/k70Uart", CAP_READWRITE);
 #else
-    p->tty   = kopen("/dev/uart/stdio", CAP_READWRITE);
+    p->tty   = __sysopen(p, "/dev/uart/stdio", CAP_READWRITE);
 #endif
 
     setupStack(p, cmd, argc, argv);

@@ -1,7 +1,7 @@
 #include <errno.h>
 #include <manos.h>
 
-int sysopen(const char* path, Caps caps) {
+int __sysopen(Proc* rp, const char* path, Caps caps) {
     Portal* p = NULL;
     int isRel = *path != '/';
 
@@ -30,4 +30,8 @@ error:
     if (pth) syskfree(pth);
     if (p) syskfree(p);
     return -1;
+}
+
+int sysopen(const char* path, Caps caps) {
+    return __sysopen(rp, path, caps);
 }

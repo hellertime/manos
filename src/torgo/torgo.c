@@ -211,7 +211,7 @@ int torgo_main(int argc, char * const argv[]) {
         populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
 
         shellErrno = 0;
-        shellErrno = sysexecv(cmdArgv[0], cmdArgv);
+        shellErrno = kexec(cmdArgv[0], cmdArgv);
         UNUSED(shellErrno);
 
         /*
