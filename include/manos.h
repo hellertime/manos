@@ -16,7 +16,7 @@
 #endif
 
 #ifdef PLATFORM_K70CW
-#define YIELD() (SCB_ISCR |= SCB_ISR_PENDSVSET_MASK)
+#define YIELD() (SCB_ICSR |= SCB_ISR_PENDSVSET_MASK)
 #else
 #define YIELD() while(0)
 #endif
@@ -34,7 +34,7 @@ extern TimerHW* timerHardwareTable[MANOS_MAXTIMER];
 
 extern Timer* hotpluggedTimers;
 
-extern Proc* u; /* always the current user pointer */
+extern Proc* rp; /* always the current running process */
 
 extern Uart* consoleUart; /* UART connected to the console */
 extern Uart* hotpluggedUarts; /* populated with the installed UARTS */

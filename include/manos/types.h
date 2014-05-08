@@ -200,6 +200,8 @@ typedef struct Proc {
     Portal*   dot;
     ListHead* nextRunQ;
     ListHead* nextFreelist;
+    uint32_t* stack;
+    uint32_t  sp;
 } Proc;
 
 typedef struct StackFrame {
