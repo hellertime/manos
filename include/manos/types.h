@@ -48,7 +48,7 @@ typedef struct ListHead {
 
 typedef struct Lock {
     int             locked;
-    struct ListHead nextWaitQ;
+    struct ListHead q;
 } Lock;
 
 typedef struct Ref {
@@ -198,6 +198,7 @@ typedef struct Proc {
     Portal*   descriptorTable[MANOS_MAXFD];
     Portal*   slash;
     Portal*   dot;
+    ListHead* nextWaitQ;
     ListHead* nextRunQ;
     ListHead* nextFreelist;
     uint32_t* stack;

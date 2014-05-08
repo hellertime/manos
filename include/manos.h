@@ -37,6 +37,7 @@ extern Timer* hotpluggedTimers;
 extern Lock freelistLock;
 extern ListHead procFreelist;
 extern ListHead procRunQ;
+extern Ref nextPid;
 extern Proc* rp; /* always the current running process */
 
 extern Uart* consoleUart; /* UART connected to the console */

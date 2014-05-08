@@ -11,7 +11,7 @@ int systrylock(Lock* l) {
     int haveLock = 0;
 
     if (!rp)
-        return;
+        return 1;
 
     DISABLE_INTERRUPTS();
     if (! l->locked) {
@@ -49,7 +49,7 @@ void sysunlock(Lock* l) {
     l->locked = 0;
     if (! listIsEmpty(&l->q)) {
         Proc* p = CONTAINER_OF(&l->q, Proc, nextWaitQ);
-        unlinkList(&l->q);
+        listUnlink(&l->q);
         p->state = ProcReady;
     }
     ENABLE_INTERRUPTS();

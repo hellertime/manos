@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <manos.h>
 #include <manos/list.h>
 
@@ -13,7 +14,7 @@ Proc* newProc(void) {
         lock(&freelistLock);
     }
     p = CONTAINER_OF(&procFreelist, Proc, nextFreelist);
-    unlinkList(&procFreelist);
+    listUnlink(&procFreelist);
     unlock(&freelistLock);
 
     p->state = ProcSpawning;
