@@ -3,10 +3,10 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include <torog/commands.h>
+
 extern Proc* schedProc(Proc*, Cmd, int, char * const []);
 extern void enterUserMode(void);
-
-int torgo_main(int, char**);
 
 extern uint32_t totalRAM;
 extern size_t numChunkOffsets;
