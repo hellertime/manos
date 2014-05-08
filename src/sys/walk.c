@@ -14,7 +14,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
     }
 
     if (clonePortal(p, px) == NULL) {
-        kfree(px);
+        syskfree(px);
         errno = errno ? errno : ENOTRECOVERABLE;
         return NULL;
     }
@@ -34,7 +34,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
             deviceTable[px->device]->getInfo(px, &ni);
             DeviceIndex idx = fromDeviceId(ni.length); /* HACK! */
             closePortal(px);
-            kfree(px);
+            syskfree(px);
             assert(idx != -1 && "Crumb has an unknown device id");
             px = deviceTable[idx]->attach(ni.contents ? ni.contents : "");
             freeWalkTrail(t);
@@ -46,7 +46,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
     }
 
     if (n)
-        kfree(px);
+        syskfree(px);
 
     return n ? NULL : px;
 }

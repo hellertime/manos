@@ -27,7 +27,7 @@ int sysopen(const char* path, Caps caps) {
     }
 
 error:
-    if (pth) kfree(pth);
-    if (p) kfree(p);
+    if (pth) syskfree(pth);
+    if (p) syskfree(p);
     return -1;
 }

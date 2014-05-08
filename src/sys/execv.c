@@ -104,7 +104,7 @@ int sysexecv(const char *path, char * const argv[]) {
             goto error;
         }
         p = syswalk(pbin, pth->elems + pth->nelems - 1, 1);
-        kfree(pbin);
+        syskfree(pbin);
     }
     if (p && (p->crumb.flags & CRUMB_ISFILE)) {
         NodeInfo ni;
@@ -143,8 +143,8 @@ int sysexecv(const char *path, char * const argv[]) {
     }
 
 error:
-    if (pth) kfree(pth);
-    if (p)   kfree(p);
-    if (buf) kfree(buf);
+    if (pth) syskfree(pth);
+    if (p)   syskfree(p);
+    if (buf) syskfree(buf);
     return ret;
 }
