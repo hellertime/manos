@@ -3,6 +3,7 @@
 #include <string.h>
 #include <inttypes.h>
 
+extern Proc* schedProc(Cmd, int, char * const []);
 extern void enterUserMode(void);
 
 int torgo_main(int, char**);
@@ -19,7 +20,6 @@ int main(int argc, char** argv) {
     mcgInit();
     sdramInit();
     svcInit(MANOS_ARCH_K70_SVC_INT_PRIORITY);
-    schedInit(50, MANOS_ARCH_K70_SCHED_INT_PRIORITY);
 #endif
 
     for (unsigned i = 0; i < COUNT_OF(deviceTable); i++) {
@@ -47,14 +47,19 @@ int main(int argc, char** argv) {
     sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
     sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);
 
+    /* OK. Still in supervisor mode */
+    schedProc(torgo_main, 1, "/bin/sh");
+    /* schedProc disables interrupts before it returns */
+    ENABLE_INTERRUPTS();
 #ifdef PLATFORM_K70CW
+    schedInit(50, MANOS_ARCH_K70_SCHED_INT_PRIORITY);
     sysprintln("Entering User Mode...");
     enterUserMode();
 #endif
-
-    sysexecv("/bin/sh", 0);
 
     UNUSED(argc);
     UNUSED(argv);
     return -1; /* never returns */
 }
+
+

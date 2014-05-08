@@ -8,6 +8,7 @@ __asm(
     "msr    CONTROL, r0\n\t"
     "isb    sy"
 );
+    YIELD();
 #else
     return;
 #endif

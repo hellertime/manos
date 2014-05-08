@@ -17,25 +17,42 @@ static void __manos_exit(void) {
 static void setupStack(Proc* p, Cmd cmd, int argc, char * const argv[]) {
     uint32_t* sp = p->stack + MANOS_ARCH_K70_STACK_SIZE;
 
-    *(--sp) = 0x1000000;               /* XPSR */
-    *(--sp) = (uint32_t)cmd;           /* PC   */
-    *(--sp) = (uint32_t)__manos_exit;  /* LR   */
-    *(--sp) = 0x0c0c0c0c;              /* r12  */
-    *(--sp) = 0x03030303;              /* r3   */
-    *(--sp) = 0x02020202;              /* r2   */
-    *(--sp) = (uint32_t)argv;          /* r1   */
-    *(--sp) = (uint32_t)argc;          /* r0   */
-    *(--sp) = 0xfffffff9;              /* interrupt LR */
-    *(--sp) = 0x0b0b0b0b;              /* r11  */
-    *(--sp) = 0x0a0a0a0a;              /* r10  */
-    *(--sp) = 0x09090909;              /* r9   */
-    *(--sp) = 0x08080808;              /* r8   */
-    *(--sp) = 0x07070707;              /* r7   */
-    *(--sp) = 0x06060606;              /* r6   */
-    *(--sp) = 0x05050505;              /* r5   */
-    *(--sp) = 0x04040404;              /* r4   */
+    *(--sp) = 0x1000000;              /* XPSR */
+    *(--sp) = (uint32_t)cmd;          /* PC   */
+    *(--sp) = (uint32_t)__manos_exit; /* LR   */
+    *(--sp) = 0x0c0c0c0c;             /* r12  */
+    *(--sp) = 0x03030303;             /* r3   */
+    *(--sp) = 0x02020202;             /* r2   */
+    *(--sp) = (uint32_t)argv;         /* r1   */
+    *(--sp) = (uint32_t)argc;         /* r0   */
+    *(--sp) = 0xfffffff9;             /* interrupt LR */
+    *(--sp) = 0x0b0b0b0b;             /* r11  */
+    *(--sp) = 0x0a0a0a0a;             /* r10  */
+    *(--sp) = 0x09090909;             /* r9   */
+    *(--sp) = 0x08080808;             /* r8   */
+    *(--sp) = 0x07070707;             /* r7   */
+    *(--sp) = 0x06060606;             /* r6   */
+    *(--sp) = 0x05050505;             /* r5   */
+    *(--sp) = 0x04040404;             /* r4   */
 
     p->sp = (uintptr_t)sp;
+}
+
+Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
+    Proc* p = newProc();
+    p->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
+    p->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
+#ifdef PLATFORM_K70CW
+    p->tty   = kopen("/dev/uart/k70Uart", CAP_READWRITE);
+#else
+    p->tty   = kopen("/dev/uart/stdio", CAP_READWRITE);
+#endif
+
+    setupStack(p, cmd, argc, argv);
+    DISABLE_INTERRUPTS();
+    listAddBefore(&p->nextRunQ, &procRunQ);
+    p->state = ProcReady;
+    return p;
 }
 
 /*
@@ -113,18 +130,7 @@ int sysexecv(const char *path, char * const argv[]) {
         c += 2;
         for (unsigned i = 0; i < COUNT_OF(builtinCmds); i++) {
             if (strcmp(builtinCmds[i].cmdName, c) == 0) {
-                Proc* p = newProc();
-                p->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
-                p->dot   = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
-#ifdef PLATFORM_K70CW
-                p->tty   = kopen("/dev/uart/k70Uart", CAP_READWRITE);
-#else
-                p->tty   = kopen("/dev/uart/stdio", CAP_READWRITE);
-#endif
-                setupStack(p, builtinCmds[i].cmd, argc, argv);
-                DISABLE_INTERRUPTS();
-                listAddBefore(&p->nextRunQ, &procRunQ);
-                p->state = ProcReady;
+                schedProc(builtinCmds[i].cmd, argc, argv);
                 ret = 0;
                 ENABLE_INTERRUPTS();
                 break;
