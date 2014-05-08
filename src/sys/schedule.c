@@ -11,8 +11,11 @@ Proc* nextRunnableProc(void) {
     Proc* p;
 
     ENABLE_INTERRUPTS();
-    while (listIsEmpty(&procRunQ))
-        ;
+    while (listIsEmpty(&procRunQ)) {
+#ifdef PLATFORM_K70CW
+        __asm("yield"); /* TODO: Need to add sleep timer */
+#endif
+    }
     DISABLE_INTERRUPTS();
     p = CONTAINER_OF((&procRunQ)->next, Proc, nextRunQ);
     listUnlinkAndInit((&procRunQ)->next);
