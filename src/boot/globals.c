@@ -48,7 +48,7 @@ LIST_HEAD(procFreelist);
 
 LIST_HEAD(procRunQ);
 
-Ref nextPid = {0};
+Ref nextPid;
 
 Proc* rp = NULL; 
 
