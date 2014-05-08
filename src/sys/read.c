@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 ptrdiff_t sysread(int fd, void* buf, size_t n) {
-    Portal* p = u->descriptorTable[fd];
+    Portal* p = rp->descriptorTable[fd];
     if (!p) {
         errno = EBADF;
         return -1;

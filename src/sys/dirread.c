@@ -15,7 +15,7 @@
  * the seconds is an array of NodeInfo
  */
 int dirread(int fd, NodeInfo** buf) {
-    Portal* p = u->descriptorTable[fd];
+    Portal* p = rp->descriptorTable[fd];
     if (!p) {
         errno = EBADF;
         return -1;
