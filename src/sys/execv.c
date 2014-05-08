@@ -34,6 +34,7 @@ static void setupStack(Proc* p, Cmd cmd, int argc, char * const argv[]) {
     *(--sp) = 0x06060606;             /* r6   */
     *(--sp) = 0x05050505;             /* r5   */
     *(--sp) = 0x04040404;             /* r4   */
+    *(--sp) = 0x00000000;             /* SVCALLACT bit 0 */
 
     p->sp = (uintptr_t)sp;
 }
