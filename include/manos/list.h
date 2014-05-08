@@ -70,8 +70,8 @@ static inline void __listUnlink(ListHead* prev, ListHead* next) {
  */
 static inline void listUnlink(ListHead* node) {
     __listUnlink(node->prev, node->next);
-    head->prev = 0;
-    head->next = 0;
+    node->prev = 0;
+    node->next = 0;
 }
 
 /**
@@ -80,7 +80,7 @@ static inline void listUnlink(ListHead* node) {
  */
 static inline void listUnlinkAndInit(ListHead* node) {
     __listUnlink(node->prev, node->next);
-    LIST_HEAD_INIT(node);
+    INIT_LIST_HEAD(node);
 }
 
 /**
