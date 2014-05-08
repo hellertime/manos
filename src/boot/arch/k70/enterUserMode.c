@@ -2,6 +2,7 @@
 #include <arch/k70/derivative.h>
 
 void enterUserMode(void) {
+    START_SYSTICK();
 #ifdef PLATFORM_K70CW
 __asm(
     "mrs    r0, CONTROL\n\t"
