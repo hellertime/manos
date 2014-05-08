@@ -1,4 +1,6 @@
 #include <manos.h> 
+#include <manos/list.h>
+
 extern Dev devRoot;
 extern Dev devLed;
 extern Dev devSwpb;

@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <manos/list.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -35,7 +36,7 @@ int main(int argc, char** argv) {
 
     sysprintln("Allocating free list...");
 
-    Proc* flist = kmalloc(MANOS_MAX_PROC * sizeof(*flist));
+    Proc* flist = kmalloc(MANOS_MAXPROC * sizeof(*flist));
     Proc* p = flist;
     for (unsigned i = 0; i < MANOS_MAX_PROC; i++, p++) {
         INIT_LIST_HEAD(&p->nextFreelist);
@@ -52,5 +53,8 @@ int main(int argc, char** argv) {
 #endif
 
     sysexecv("/bin/sh", 0);
+
+    UNUSED(argc);
+    UNUSED(argv);
     return -1; /* never returns */
 }
