@@ -198,9 +198,9 @@ typedef struct Proc {
     Portal*   descriptorTable[MANOS_MAXFD];
     Portal*   slash;
     Portal*   dot;
-    ListHead* nextWaitQ;
-    ListHead* nextRunQ;
-    ListHead* nextFreelist;
+    ListHead  nextWaitQ;
+    ListHead  nextRunQ;
+    ListHead  nextFreelist;
     uint32_t* stack;
     uint32_t  sp;
 } Proc;

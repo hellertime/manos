@@ -635,17 +635,6 @@ exit:
   return chunk;
 }
 
-/*
- * kmalloc :: Integer -> Ptr
- *
- * allocate chunk of at least 'size' size.
- * Returned pointer will be double word aligned.
- * If size is 0, a chunk of MIN_ALLOC_BYTES is returned.
- */
-void* kmalloc(size_t size) {
-    return __kmalloc(size, getpid());
-}
-
 void* __kmalloc(size_t size, int pid) {
   void* mem = NULL;
   size_t newSize = size + (2 * sizeof(ChunkTag));
@@ -687,6 +676,17 @@ void* __kmalloc(size_t size, int pid) {
 
   unlock(&malLock);
   return mem;
+}
+
+/*
+ * kmalloc :: Integer -> Ptr
+ *
+ * allocate chunk of at least 'size' size.
+ * Returned pointer will be double word aligned.
+ * If size is 0, a chunk of MIN_ALLOC_BYTES is returned.
+ */
+void* kmalloc(size_t size) {
+    return __kmalloc(size, getpid());
 }
 
 /*

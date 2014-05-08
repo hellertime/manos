@@ -18,6 +18,7 @@ Proc* newProc(void) {
     unlock(&freelistLock);
 
     p->state = ProcSpawning;
+    INIT_LIST_HEAD(&p->nextWaitQ);
     INIT_LIST_HEAD(&p->nextRunQ);
     INIT_LIST_HEAD(&p->nextFreelist);
     if (!p->pid) /* reuse existing pids -- only 127 available */
