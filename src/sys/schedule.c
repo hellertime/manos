@@ -10,16 +10,15 @@
 Proc* nextRunnableProc(void) {
     Proc* p;
 
-    ENABLE_INTERRUPTS();
-    while (listIsEmpty(&procRunQ)) {
-#ifdef PLATFORM_K70CW
-        __asm("yield"); /* TODO: Need to add sleep timer */
-#endif
-    }
     DISABLE_INTERRUPTS();
-    p = CONTAINER_OF((&procRunQ)->next, Proc, nextRunQ);
-    listUnlinkAndInit((&procRunQ)->next);
-    p->state = ProcReady;
+    if (listIsEmpty(&procRunQ)) {
+        p = rp; /* give that man another quantum */
+    } else {
+        p = CONTAINER_OF((&procRunQ)->next, Proc, nextRunQ);
+        listUnlinkAndInit((&procRunQ)->next);
+        p->state = ProcReady;
+    }
+    ENABLE_INTERRUPTS();
     return p;
 }
 
