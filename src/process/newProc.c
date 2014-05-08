@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <manos/list.h>
 
 extern void* __kmalloc(size_t, int);
 

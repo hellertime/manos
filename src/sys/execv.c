@@ -18,13 +18,13 @@ static void setupStack(Proc* p, Cmd cmd, int argc, char * const argv[]) {
     uint32_t* sp = p->stack + MANOS_ARCH_K70_STACK_SIZE;
 
     *(--sp) = 0x1000000;               /* XPSR */
-    *(--sp) = (uint32_t*)cmd;          /* PC   */
-    *(--sp) = (uint32_t*)__manos_exit; /* LR   */
+    *(--sp) = (uint32_t)cmd;           /* PC   */
+    *(--sp) = (uint32_t)__manos_exit;  /* LR   */
     *(--sp) = 0x0c0c0c0c;              /* r12  */
     *(--sp) = 0x03030303;              /* r3   */
     *(--sp) = 0x02020202;              /* r2   */
-    *(--sp) = (uint32_t*)argv;         /* r1   */
-    *(--sp) = (uint32_t*)argc;         /* r0   */
+    *(--sp) = (uint32_t)argv;          /* r1   */
+    *(--sp) = (uint32_t)argc;          /* r0   */
     *(--sp) = 0xfffffff9;              /* interrupt LR */
     *(--sp) = 0x0b0b0b0b;              /* r11  */
     *(--sp) = 0x0a0a0a0a;              /* r10  */
