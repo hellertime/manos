@@ -1,11 +1,12 @@
 #include <manos.h>
+#include <manos/list.h>
 
 /**
  * nextRunnableProc() - return a proc to run to the caller
  *
  * This does not return until a process is ready to run
  */
-void nextRunnableProc(void) {
+Proc* nextRunnableProc(void) {
     Proc* p;
 
     ENABLE_INTERRUPTS();
@@ -26,6 +27,6 @@ void nextRunnableProc(void) {
 uint32_t __attribute__((used)) scheduleProc(void) {
     Proc* p = nextRunnableProc();
     rp = p;
-    rp->state = PROC_RUNNING;
+    rp->state = ProcRunning;
     return rp->sp;
 }

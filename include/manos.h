@@ -16,7 +16,7 @@
 #endif
 
 #ifdef PLATFORM_K70CW
-#define YIELD() (SCB_ICSR |= SCB_ISR_PENDSVSET_MASK)
+#define YIELD() (SCB_ICSR |= SCB_ICSR_PENDSVSET_MASK)
 #else
 #define YIELD() while(0)
 #endif
