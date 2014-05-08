@@ -1,5 +1,6 @@
 #include <manos.h>
 #include <manos/list.h>
+#include <arch/k70/derivative.h>
 
 /**
  * nextRunnableProc() - return a proc to run to the caller
