@@ -45,14 +45,14 @@ extern Uart* hotpluggedUarts; /* populated with the installed UARTS */
 
 extern LcdHw* lcdHw;     /* attached LCD hardware */
 
-#define INIT_LOCK(lock) do {    \
-    lock->locked = 0;           \
-    INIT_LIST_HEAD(&(lock->q)); \
+#define INIT_LOCK(lock) do {      \
+    (lock)->locked = 0;           \
+    INIT_LIST_HEAD(&((lock)->q)); \
 }while(0)
 
-#define INIT_REF(ref) do {  \
-    ref->count = 0;         \
-    INIT_LOCK(&(ref->lock));\
+#define INIT_REF(ref) do {      \
+    (ref)->count = 0;           \
+    INIT_LOCK(&((ref)->lock));  \
 }while(0)
 
 #endif /* ! MANOS_H */
