@@ -58,8 +58,9 @@ int main(int argc, char** argv) {
     ENABLE_INTERRUPTS();
 #ifdef PLATFORM_K70CW
     schedInit(50, MANOS_ARCH_K70_SCHED_INT_PRIORITY);
-    sysprintln("Entering User Mode...");
+    sysprint("Entering User Mode");
     enterUserMode();
+    sysprintln("...");
     while(1);
 #endif
 
