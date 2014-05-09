@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
         deviceTable[i]->init();
     }
   
-#if PLATFORM_K70CW
+#ifdef PLATFORM_K70CW
     k70Console();
 #elif PLATFORM_NICE
     niceConsole();
