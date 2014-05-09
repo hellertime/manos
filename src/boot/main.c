@@ -15,6 +15,8 @@ extern char* heap;
  * Kernel entry point. For now it just launches the shell.
  */
 int main(int argc, char** argv) {
+    INIT_LIST_HEAD(&procRunQ);
+    INIT_LIST_HEAD(&procFreelist);
     INIT_LOCK(&freelistLock);
     INIT_REF(&nextPid);
     INIT_LOCK(&malLock);
