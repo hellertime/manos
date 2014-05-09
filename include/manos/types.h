@@ -181,7 +181,7 @@ struct UartHW {
     void (*putc)(Uart*, char);
 };
 
-#define MANOS_MAXFD 4096
+#define MANOS_MAXFD 1024
 
 typedef enum {
     ProcDead,
