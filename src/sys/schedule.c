@@ -11,7 +11,7 @@ Proc* nextRunnableProc(void) {
     Proc* p;
 
     DISABLE_INTERRUPTS();
-    if (listIsEmpty(&procRunQ)) {
+    if (listIsEmpty(&procRunQ.nextRunQ)) {
         p = rp; /* give that man another quantum */
     } else {
         p = CONTAINER_OF(&procRunQ.nextRunQ, Proc, nextRunQ);

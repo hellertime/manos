@@ -6,7 +6,7 @@ Proc* newProc(void) {
     Proc* p;
 
     lock(&freelistLock);
-    while (listIsEmpty(&procFreelist)) {
+    while (listIsEmpty(&procFreelist.nextFreelist)) {
         unlock(&freelistLock);
         /* TODO: sleep() */
         lock(&freelistLock);
