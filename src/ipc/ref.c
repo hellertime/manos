@@ -1,15 +1,15 @@
 #include <manos.h>
 
 int incRef(Ref* ref) {
-    lock(&ref->lock);
+    syslock(&ref->lock);
     int x = ++ref->count;
-    unlock(&ref->lock);
+    sysunlock(&ref->lock);
     return x;
 }
 
 int decRef(Ref* ref) {
-    lock(&ref->lock);
+    syslock(&ref->lock);
     int x = -- ref->count;
-    unlock(&ref->lock);
+    sysunlock(&ref->lock);
     return x;
 }

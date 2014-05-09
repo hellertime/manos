@@ -5,15 +5,15 @@
 Proc* newProc(void) {
     Proc* p;
 
-    lock(&freelistLock);
+    syslock(&freelistLock);
     while (listIsEmpty(&procFreelist)) {
-        unlock(&freelistLock);
+        sysunlock(&freelistLock);
         /* TODO: sleep() */
-        lock(&freelistLock);
+        syslock(&freelistLock);
     }
     p = CONTAINER_OF((&procFreelist)->next, Proc, nextFreelist);
     listUnlink(&p->nextFreelist);
-    unlock(&freelistLock);
+    sysunlock(&freelistLock);
 
     p->state = ProcSpawning;
     INIT_LIST_HEAD(&p->nextWaitQ);
