@@ -46,8 +46,8 @@ TimerHW* timerHardwareTable[MANOS_MAXTIMER] = {
 Lock malLock;
 
 Lock freelistLock;
-Proc procFreelist;
-Proc procRunQ;
+LIST_HEAD(procFreelist);
+LIST_HEAD(procRunQ);
 
 Ref nextPid;
 

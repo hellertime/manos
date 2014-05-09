@@ -11,11 +11,11 @@ Proc* nextRunnableProc(void) {
     Proc* p;
 
     DISABLE_INTERRUPTS();
-    if (listIsEmpty(&procRunQ.nextRunQ)) {
+    if (listIsEmpty(&procRunQ)) {
         p = rp; /* give that man another quantum */
     } else {
-        p = CONTAINER_OF(&procRunQ.nextRunQ, Proc, nextRunQ);
-        listUnlinkAndInit(&procRunQ.nextRunQ);
+        p = CONTAINER_OF((&procRunQ)->next, Proc, nextRunQ);
+        listUnlinkAndInit(&p->nextRunQ);
         p->state = ProcReady;
     }
     ENABLE_INTERRUPTS();

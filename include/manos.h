@@ -46,8 +46,8 @@ extern Timer* hotpluggedTimers;
 
 extern Lock malLock;
 extern Lock freelistLock;
-extern Proc procFreelist;
-extern Proc procRunQ;
+extern ListHead procFreelist;
+extern ListHead procRunQ;
 extern Ref nextPid;
 extern Proc* rp; /* always the current running process */
 
