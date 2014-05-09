@@ -134,8 +134,8 @@ int sysexecv(const char *path, char * const argv[]) {
         c += 2;
         for (unsigned i = 0; i < COUNT_OF(builtinCmds); i++) {
             if (strcmp(builtinCmds[i].cmdName, c) == 0) {
-                schedProc(builtinCmds[i].cmd, argc, argv);
-                ret = 0;
+                Proc* p = schedProc(builtinCmds[i].cmd, argc, argv);
+                ret = p->pid;
                 ENABLE_INTERRUPTS();
                 break;
             }
