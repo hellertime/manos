@@ -13,12 +13,12 @@ void __attribute__((naked, used)) schedHandler(void) {
 __asm(
     /* On current running task stack */
 
+    "push {lr}\n\t"
     "push {r4,r5,r6,r7,r8,r9,r10,r11}\n\t" /* push current Proc stack (hardware already pushed a stack frame) */
     "ldr  r0, [%[shcsr]]\n\t"              /* push interrupt return state (thread or supervisor) */
     "and  r0,r0, %[mask]\n\t"
     "push {r0}\n\t"                        /* push the SVCALLACT value */
     "mrs r0,msp\n\t"                       /* save off SP for passing to scheduleProc */
-    "push {lr}\n\t"                        /* push link register, scheduleProc returns here */
     "bl   scheduleProc\n\t"
 
     /* Switched to new task stack */
@@ -28,7 +28,8 @@ __asm(
     "bic r1, r1, %[mask]\n\t"
     "orr r0, r0, r1\n\t"
     "str r0, [%[shcsr]]\n\t"
-    "pop {r4,r5,r6,r7,r8,r9,r10,r11,pc}"   /* unwind Proc stack, and return out of the interrupt, but on the switch Procs stack! */
+    "pop {r4,r5,r6,r7,r8,r9,r10,r11}"      /* unwind Proc stack */
+    "pop {pc}"                             /* return out of the interrupt, but on the switch Procs stack! */
     :
     : [shcsr] "r" (&SCB_SHCSR), [mask] "I" (SCB_SHCSR_SVCALLACT_MASK)
      );
