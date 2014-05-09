@@ -15,8 +15,8 @@ extern char* heap;
  * Kernel entry point. For now it just launches the shell.
  */
 int main(int argc, char** argv) {
-    INIT_LIST_HEAD(&procFreelist);
-    INIT_LIST_HEAD(&procRunQ);
+    INIT_LIST_HEAD(&procFreelist.nextFreelist);
+    INIT_LIST_HEAD(&procRunQ.nextRunQ);
     INIT_LOCK(&freelistLock);
     INIT_REF(&nextPid);
     INIT_LOCK(&malLock);
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     Proc* p = flist;
     for (unsigned i = 0; i < MANOS_MAXPROC; i++, p++) {
         INIT_LIST_HEAD(&p->nextFreelist);
-        listAddAfter(&procFreelist, &p->nextFreelist);
+        listAddAfter(&p->nextFreelist, &procFreelist.nextFreelist);
     }
 
     sysprintln("Total System RAM: %" PRIu32 "", totalRAM);

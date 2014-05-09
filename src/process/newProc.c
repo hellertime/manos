@@ -11,8 +11,8 @@ Proc* newProc(void) {
         /* TODO: sleep() */
         lock(&freelistLock);
     }
-    p = CONTAINER_OF((&procFreelist)->next, Proc, nextFreelist);
-    listUnlinkAndInit((&procFreelist)->next);
+    p = CONTAINER_OF(&procFreelist.nextFreelist, Proc, nextFreelist);
+    listUnlinkAndInit(&procFreelist.nextFreelist);
     unlock(&freelistLock);
 
     p->state = ProcSpawning;

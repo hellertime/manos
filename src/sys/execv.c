@@ -54,7 +54,7 @@ Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
 
     setupStack(p, cmd, argc, argv);
     DISABLE_INTERRUPTS();
-    listAddBefore(&p->nextRunQ, &procRunQ);
+    listAddBefore(&p->nextRunQ, &procRunQ.nextRunQ);
     p->state = ProcReady;
     return p;
 }
