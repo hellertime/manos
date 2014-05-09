@@ -38,7 +38,7 @@ __asm(
 /** 
  * systickHandler - Bookeeping version of systick
  */
-void __attribute__((naked)) systickHandler(void) {
+void systickHandler(void) {
     ATOMIC(systickInterruptCount++);
     schedHandler();
 }
@@ -46,7 +46,7 @@ void __attribute__((naked)) systickHandler(void) {
 /**
  * pendsvHandler - Bookeeping version of pendsv
  */
-void __attribute__((naked)) pendsvHandler(void) {
+void pendsvHandler(void) {
     ATOMIC(pendsvInterruptCount++);
     schedHandler();
 }
