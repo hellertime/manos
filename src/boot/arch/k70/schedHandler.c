@@ -16,8 +16,9 @@ __asm(
     "push {r4,r5,r6,r7,r8,r9,r10,r11}\n\t" /* push current Proc stack (hardware already pushed a stack frame) */
     "ldr  r0, [%[shcsr]]\n\t"              /* push interrupt return state (thread or supervisor) */
     "and  r0,r0, %[mask]\n\t"
-    "push {r0,lr}\n\t"                     /* push link register, scheduleProc returns here */
-    "mrs r0,msp\n\t"                       /* read the current stack pointer into r0 */
+    "push {r0}\n\t"                        /* push the SVCALLACT value */
+    "mrs r0,msp\n\t"                       /* save off SP for passing to scheduleProc */
+    "push {lr}\n\t"                        /* push link register, scheduleProc returns here */
     "bl   scheduleProc\n\t"
 
     /* Switched to new task stack */
