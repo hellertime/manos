@@ -28,7 +28,7 @@ __asm(
     "bic r1, r1, %[mask]\n\t"
     "orr r0, r0, r1\n\t"
     "str r0, [%[shcsr]]\n\t"
-    "pop {r4,r5,r6,r7,r8,r9,r10,r11}"      /* unwind Proc stack */
+    "pop {r4,r5,r6,r7,r8,r9,r10,r11}\n\t"  /* unwind Proc stack */
     "pop {pc}"                             /* return out of the interrupt, but on the switch Procs stack! */
     :
     : [shcsr] "r" (&SCB_SHCSR), [mask] "I" (SCB_SHCSR_SVCALLACT_MASK)
