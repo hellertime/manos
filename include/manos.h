@@ -7,7 +7,15 @@
 
 #define MANOS_QUANTUM_IN_MILLIS 50
 
-extern criticalRegionCount;
+extern int criticalRegionCount;
+
+#ifdef PLATFORM_K70CW
+#define DISABLE_INTERRUPTS() __asm("cpsid i")
+#define ENABLE_INTERRUPTS() __asm("cpsie i")
+#else
+#define DISABLE_INTERRUPTS() while(0)
+#define ENABLE_INTERRUPTS() while(0)
+#endif
 
 static inline __attribute__((always_inline)) void enterCriticalRegion(void) {
     if (criticalRegionCount == 0)
@@ -20,14 +28,6 @@ static inline __attribute__((always_inline)) void leaveCriticalRegion(void) {
     if (criticalRegionCount == 0)
         ENABLE_INTERRUPTS();
 }
-
-#ifdef PLATFORM_K70CW
-#define DISABLE_INTERRUPTS() __asm("cpsid i")
-#define ENABLE_INTERRUPTS() __asm("cpsie i")
-#else
-#define DISABLE_INTERRUPTS() while(0)
-#define ENABLE_INTERRUPTS() while(0)
-#endif
 
 #ifdef PLATFORM_K70CW
 #define YIELD() (SCB_ICSR |= SCB_ICSR_PENDSVSET_MASK)
