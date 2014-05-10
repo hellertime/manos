@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <arch/k70/derivative.h>
 
 #ifdef PLATFORM_K70CW
 
@@ -46,9 +47,11 @@ static void waitpidSyscall(int* args) {
     syswaitpid(args[0]);
 }
 
-static void exitsSyscall(int* args) {
+static void _exitsSyscall(int* args) {
     UNUSED(args);
-    _exits();
+    enterCriticalRegion();
+    YIELD();
+    leaveCriticalRegion();
 }
 
 #include <arch/k70/syscall.x>

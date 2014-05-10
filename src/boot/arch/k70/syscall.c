@@ -5,7 +5,6 @@
  */
 
 #include <manos.h>
-#include <arch/k70/derivative.h>
 
 #include "syscall.h"
 
@@ -213,9 +212,12 @@ void waitpid(int pid) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 void __attribute__((naked, noinline)) _exits(void) {
-    enterCriticalRegion();
-    YIELD();
-    leaveCriticalRegion();
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_EXITS)
+    );
 }
 #pragma GCC diagnostic pop
 #else
