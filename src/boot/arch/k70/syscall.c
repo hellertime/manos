@@ -213,7 +213,9 @@ void waitpid(int pid) {
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
 void __attribute__((naked, noinline)) _exits(void) {
+    enterCriticalRegion();
     YIELD();
+    leaveCriticalRegion();
 }
 #pragma GCC diagnostic pop
 #else
