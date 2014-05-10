@@ -22,7 +22,6 @@ Proc* nextRunnableProc(void) {
     }
 
     if (listIsEmpty(&procRunQ)) {
-        assert(rp && "nextRunnableProc() queue empty, nothing running");
         p = rp; /* give that man another quantum */
     } else {
         p = CONTAINER_OF((&procRunQ)->next, Proc, nextRunQ);
