@@ -17,17 +17,17 @@ extern int criticalRegionCount;
 #define ENABLE_INTERRUPTS() while(0)
 #endif
 
-static inline __attribute__((always_inline)) void enterCriticalRegion(void) {
-    if (criticalRegionCount == 0)
-        DISABLE_INTERRUPTS();
-    criticalRegionCount++;
-}
+#define enterCriticalRegion() do {  \
+    if (criticalRegionCount == 0)   \
+        DISABLE_INTERRUPTS();       \
+    cirticalRegionCount++;          \
+}while(0)
 
-static inline __attribute__((always_inline)) void leaveCriticalRegion(void) {
-    criticalRegionCount--;
-    if (criticalRegionCount == 0)
-        ENABLE_INTERRUPTS();
-}
+#define leaveCriticalRegion() do {  \
+    criticalRegionCount--;          \
+    if (criticalRegionCount == 0)   \
+        ENABLE_INTERRUPTS();        \
+}while(0)
 
 #ifdef PLATFORM_K70CW
 #define YIELD() (SCB_ICSR |= SCB_ICSR_PENDSVSET_MASK)
