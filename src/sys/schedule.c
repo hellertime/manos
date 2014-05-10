@@ -27,7 +27,6 @@ Proc* nextRunnableProc(void) {
     if (p->state != ProcReady) {
         p = rp; /* nothing ready, cycle another quantum */
     } else if (rp != NULL) {
-        rp->state = ProcReady;
         listAddBefore(&rp->nextRunQ, &procRunQ);
     }
 
@@ -42,7 +41,12 @@ Proc* nextRunnableProc(void) {
  */
 uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     STOP_SYSTICK();
-    if (rp) rp->sp = sp;
+    if (rp) {
+        if (rp->state == ProcRunning) {
+            rp->state = ProcReady;
+        }
+        rp->sp = sp;
+    }
     Proc* p = nextRunnableProc();
     rp = p;
     rp->state = ProcRunning;
