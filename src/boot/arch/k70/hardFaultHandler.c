@@ -8,15 +8,15 @@
 
 /* routines based on http://blog.feabhas.com/2013/02/developing-a-generic-hard-fault-handler-for-arm-cortex-m3cortex-m4/ */
 
-static void __attribute__((used)) hardFaultHandlerMain(StackFrame* frame) {
-    volatile uint32_t faulted_r0  = frame->a[0];
-    volatile uint32_t faulted_r1  = frame->a[1];
-    volatile uint32_t faulted_r2  = frame->a[2];
-    volatile uint32_t faulted_r3  = frame->a[3];
-    volatile uint32_t faulted_ip  = frame->ip;  /* r12 */
-    volatile uint32_t faulted_lr  = frame->lr;
-    volatile uint32_t faulted_pc  = frame->pc;
-    volatile uint32_t faulted_psr = frame->xpsr;
+static void __attribute__((used)) hardFaultHandlerMain(uint32_t* frame) {
+    volatile uint32_t faulted_r0  = frame[0];
+    volatile uint32_t faulted_r1  = frame[1];
+    volatile uint32_t faulted_r2  = frame[2];
+    volatile uint32_t faulted_r3  = frame[3];
+    volatile uint32_t faulted_ip  = frame[4];
+    volatile uint32_t faulted_lr  = frame[5];
+    volatile uint32_t faulted_pc  = frame[6];
+    volatile uint32_t faulted_psr = frame[7];
 
     volatile uint32_t _CFSR = SCB_CFSR;
     volatile uint32_t _HFSR = SCB_HFSR;
