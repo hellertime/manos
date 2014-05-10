@@ -20,7 +20,7 @@ extern int criticalRegionCount;
 #define enterCriticalRegion() do {  \
     if (criticalRegionCount == 0)   \
         DISABLE_INTERRUPTS();       \
-    cirticalRegionCount++;          \
+    criticalRegionCount++;          \
 }while(0)
 
 #define leaveCriticalRegion() do {  \
