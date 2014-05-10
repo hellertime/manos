@@ -23,7 +23,7 @@ static void __attribute__((used)) hardFaultHandlerMain(StackFrame* frame) {
     volatile uint32_t _DFSR = SCB_DFSR;
     volatile uint32_t _AFSR = SCB_AFSR;
 
-    volatile uint32_t _MMAR = SCB_MMAR;
+    volatile uint32_t _MMFAR = SCB_MMFAR;
     volatile uint32_t _BFAR = SCB_BFAR;
 
     __asm("bkpt #0\t\n");
