@@ -5,6 +5,7 @@
  */
 
 #include <manos.h>
+#include <arch/k70/derivative.h>
 
 #include "syscall.h"
 
