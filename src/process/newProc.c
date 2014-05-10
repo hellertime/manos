@@ -16,6 +16,7 @@ Proc* newProc(void) {
     sysunlock(&freelistLock);
 
     p->state = ProcSpawning;
+    INIT_LIST_HEAD(&p->waitQ);
     INIT_LIST_HEAD(&p->nextWaitQ);
     INIT_LIST_HEAD(&p->nextRunQ);
     INIT_LIST_HEAD(&p->nextFreelist);
