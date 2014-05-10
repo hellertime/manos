@@ -180,6 +180,7 @@ void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv
  */
 
 #include "harvard.h"
+#include "manos_ansi.h"
 
 int torgo_main(int argc, char * const argv[]) {
   UNUSED(argc);
@@ -189,7 +190,7 @@ int torgo_main(int argc, char * const argv[]) {
 
   fputstr(rp->tty, "[2J[f");
   fputstr(rp->tty, harvard_ansi);
-  fputstr(rp->tty, "\n\nWelcome, Master!\n");
+  fputstr(rp->tty, manos_ansi);
   
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {
