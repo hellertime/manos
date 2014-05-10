@@ -31,7 +31,7 @@ __asm(
     "pop {r4,r5,r6,r7,r8,r9,r10,r11}\n\t"  /* unwind Proc stack */
     "pop {pc}"                             /* return out of the interrupt, but on the switch Procs stack! */
     :
-    : [shcsr] "r" (&SCB_SHCSR), [mask] "I" (SCB_SHCSR_SVCALLACT_MASK)
+    : [shcsr] "&r" (&SCB_SHCSR), [mask] "I" (SCB_SHCSR_SVCALLACT_MASK)
     : "r0", "r1", "sp", "memory" );
 }
 
