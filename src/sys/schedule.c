@@ -26,7 +26,7 @@ Proc* nextRunnableProc(void) {
 
     if (p->state != ProcReady) {
         p = rp; /* nothing ready, cycle another quantum */
-    } else {
+    } else if (rp != NULL) {
         rp->state = ProcReady;
         listAddBefore(&rp->nextRunQ, &procRunQ);
     }
