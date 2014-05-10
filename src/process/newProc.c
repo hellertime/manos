@@ -2,6 +2,17 @@
 #include <manos.h>
 #include <manos/list.h>
 
+void recycleProc(Proc* p) {
+    p->state = ProcDead;
+    INIT_LIST_HEAD(&p->waitQ);
+    INIT_LIST_HEAD(&p->nextWaitQ);
+    INIT_LIST_HEAD(&p->nextRunQ);
+    p->sp = 0;
+    syslock(&freelistLock);
+    listAddBefore(&p->nextFreelist, &procFreelist);
+    sysunlock(&freelistLock);
+}
+
 Proc* newProc(void) {
     Proc* p;
 

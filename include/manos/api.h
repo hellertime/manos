@@ -7,6 +7,7 @@
 
 Pid getpid(void);
 Proc* newProc(void);
+void recycleProc(Proc*);
 
 void* kmalloc(size_t);
 void kfree(void*);

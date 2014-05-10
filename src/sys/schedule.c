@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <manos.h>
 #include <manos/list.h>
 #include <arch/k70/derivative.h>
@@ -9,9 +10,19 @@
  */
 Proc* nextRunnableProc(void) {
     Proc* p;
+    Proc* save;
 
     DISABLE_INTERRUPTS();
+
+    LIST_FOR_EACH_ENTRY_SAFE(p, save, &procRunQ, nextRunQ) {
+        if (p->state == ProcDead) {
+            listUnlink(&p->nextRunQ);
+            recycleProc(p);
+        }
+    }
+
     if (listIsEmpty(&procRunQ)) {
+        assert(rp && "nextRunnableProc() queue empty, nothing running");
         p = rp; /* give that man another quantum */
     } else {
         p = CONTAINER_OF((&procRunQ)->next, Proc, nextRunQ);
