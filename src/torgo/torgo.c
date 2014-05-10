@@ -178,6 +178,9 @@ void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv
  * drives the parse. Certain builtins that need to effect
  * the environment are defined here.
  */
+
+#include "harvard.h"
+
 int torgo_main(int argc, char * const argv[]) {
   UNUSED(argc);
   UNUSED(argv);
@@ -185,7 +188,8 @@ int torgo_main(int argc, char * const argv[]) {
   Shell *shell = mkShell();
 
   fputstr(rp->tty, "[2J[f");
-  fputstr(rp->tty, "Welcome, Master!\n");
+  fputstr(rp->tty, harvard_ansi);
+  fputstr(rp->tty, "\n\nWelcome, Master!\n");
   
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {
