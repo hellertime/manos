@@ -19,7 +19,10 @@ __asm(
     "and  r0,r0, %[mask]\n\t"
     "push {r0}\n\t"                        /* push the SVCALLACT value */
     "mrs r0,msp\n\t"                       /* save off SP for passing to scheduleProc */
+
+    "push {r3}\n\t"
     "bl   scheduleProc\n\t"
+    "pop {r3}\n\t"
 
     /* Switched to new task stack */
     "msr  msp, r0\n\t"                     /* return to main stack always for now */
@@ -31,7 +34,7 @@ __asm(
     "pop {r4,r5,r6,r7,r8,r9,r10,r11}\n\t"  /* unwind Proc stack */
     "pop {pc}"                             /* return out of the interrupt, but on the switch Procs stack! */
     :
-    : [shcsr] "&r" (&SCB_SHCSR), [mask] "I" (SCB_SHCSR_SVCALLACT_MASK)
+    : [shcsr] "r" (&SCB_SHCSR), [mask] "I" (SCB_SHCSR_SVCALLACT_MASK)
     : "r0", "r1", "sp", "memory" );
 }
 
