@@ -47,8 +47,7 @@ __asm(
 		"    bx   lr"
                 :
                 :
-                : "r0"
-	);
+                : "r0");
 #else
 void nanosleep(unsigned long int nanos) {
     while(nanos-->0)
