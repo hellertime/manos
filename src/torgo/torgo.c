@@ -184,6 +184,7 @@ int torgo_main(int argc, char * const argv[]) {
   const char *ps1 = "torgo > ", *ps2 = "> ";
   Shell *shell = mkShell();
 
+  fputstr(rp->tty, "[2J");
   fputstr(rp->tty, "Welcome, Master!\n");
   
   const char *ps = ps1;
