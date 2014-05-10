@@ -146,9 +146,9 @@ ptrdiff_t kread(int, void*, size_t);
 ptrdiff_t kwrite(int, void*, size_t);
 
 #define ATOMIC(expr) do {   \
-    enterCriticalRegion()   \
+    enterCriticalRegion();  \
     (expr);                 \
-    leaveCriticalRegion()   \
+    leaveCriticalRegion();  \
 } while (0)
 
 #endif /* ! MANOS_API_H */
