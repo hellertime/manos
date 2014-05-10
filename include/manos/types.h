@@ -191,6 +191,21 @@ typedef enum {
     ProcWaiting,
 } ProcState;
 
+/**
+ * struct Proc - a process thread
+ *
+ * @pid:             process id
+ * @tty:             process console
+ * @descriptorTable: open file descriptors
+ * @slash:           /
+ * @dot:             ./
+ * @waitQ:           queue of Procs waiting on this 
+ * @nextWaitQ:       list head to add to other wait queues
+ * @nextRunQ:        list head to add to procRunQ
+ * @nextFreelist:    list head to add to procFreelist (TODO: consolidate these)
+ * @stack:           process stack
+ * @sp:              stack pointer
+ */
 typedef struct Proc {
     Pid       pid;
     int       tty;
@@ -198,6 +213,7 @@ typedef struct Proc {
     Portal*   descriptorTable[MANOS_MAXFD];
     Portal*   slash;
     Portal*   dot;
+    ListHead  waitQ;
     ListHead  nextWaitQ;
     ListHead  nextRunQ;
     ListHead  nextFreelist;

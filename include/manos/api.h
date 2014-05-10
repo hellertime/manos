@@ -15,6 +15,8 @@ void* syskmalloc(size_t);
 void* syskmalloc0(size_t);
 void syskfree(void*);
 
+void syswaitpid(int);
+
 WalkTrail* emptyWalkTrail(unsigned);
 void freeWalkTrail(WalkTrail*);
 WalkTrail* topCrumb(WalkTrail*, Crumb*);
@@ -129,6 +131,8 @@ void unlock(Lock*);
 
 int incRef(Ref*);
 int decRef(Ref*);
+
+void waitpid(int);
 
 /*
  * System calls

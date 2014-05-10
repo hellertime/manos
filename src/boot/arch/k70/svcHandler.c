@@ -42,6 +42,10 @@ static void unlockSyscall(int* args) {
     sysunlock((Lock*)args[0]);
 }
 
+static void waitpidSyscall(int* args) {
+    syswaitpid(args[0]);
+}
+
 #include <arch/k70/syscall.x>
 
 #include "syscall.h"

@@ -191,6 +191,24 @@ void unlock(Lock* l) {
 }
 #endif
 
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+void __attribute__((naked, noinline)) waitpid(int pid) {
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_WAITPID)
+    );
+}
+#pragma GCC diagnostic pop
+#else
+void waitpid(int pid) {
+    syswaitpid(pid);
+}
+#endif
+
 #else
 #error "Unsupported Compiler"
 #endif
