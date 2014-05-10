@@ -37,6 +37,7 @@ static void __attribute__((used)) hardFaultHandlerMain(StackFrame* frame) {
     UNUSED(faulted_psr);
     UNUSED(_CFSR);
     UNUSED(_HFSR);
+    UNUSED(_DFSR);
     UNUSED(_AFSR);
     UNUSED(_MMFAR);
     UNUSED(_BFAR);
