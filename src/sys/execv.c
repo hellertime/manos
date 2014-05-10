@@ -12,10 +12,12 @@ extern int __sysopen(Proc*, const char*, Caps);
 static void __manos_exit(void) {
 #ifdef PLATFORM_K70CW
     Proc* p;
-    LIST_FOR_EACH_ENTRY(p, &rp->waitQ, nextWaitQ) {
+    Proc* save;
+    LIST_FOR_EACH_ENTRY_SAFE(p, save, &rp->waitQ, nextWaitQ) {
         listUnlinkAndInit(&p->nextWaitQ);
         p->state = ProcReady;
     }
+    INIT_LIST_HEAD(&rp->waitQ);
     rp->state = ProcDead;
     YIELD();
 #endif
