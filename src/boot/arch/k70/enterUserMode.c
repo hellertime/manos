@@ -9,6 +9,9 @@ __asm(
     "orr    r0, r0, #1\n\t"
     "msr    CONTROL, r0\n\t"
     "isb    sy"
+    :
+    :
+    : "r0"
 );
 #else
     return;

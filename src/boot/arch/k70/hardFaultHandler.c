@@ -34,6 +34,9 @@ __asm(
     "mrseq r0, msp\n\t"
     "mrsne r0, psp\n\t"
     "bl    hardFaultHandlerMain" /* never returns */
+    :
+    :
+    : "r0"
 );
 }
 

@@ -92,6 +92,9 @@ __asm(
    "push  {lr}\n\t"
    "bl    svcHandlerDispatch\n\t"
    "pop   {pc}"
+   :
+   :
+   : "r0", "memory"
 );
 }
 #else

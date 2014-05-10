@@ -45,6 +45,9 @@ __asm(
 		"    adds r0,r0,#-1\n"
 		"    bne  nanosleep\n"
 		"    bx   lr\n"
+                :
+                :
+                : "r0"
 	);
 #else
 void nanosleep(unsigned long int nanos) {
