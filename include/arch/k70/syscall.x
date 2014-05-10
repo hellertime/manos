@@ -13,6 +13,7 @@
     X(TRYLOCK, trylock, 0)  \
     X(LOCK,    lock,    1)  \
     X(UNLOCK,  unlock,  1)  \
-    X(WAITPID, waitpid, 1)
+    X(WAITPID, waitpid, 1)  \
+    X(EXITS, exits, 1)
 
 

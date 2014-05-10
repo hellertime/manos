@@ -209,6 +209,18 @@ void waitpid(int pid) {
 }
 #endif
 
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+void __attribute__((naked, noinline)) _exits(void) {
+    YIELD();
+}
+#pragma GCC diagnostic pop
+#else
+void _exits(void) {
+    exit(1);
+}
+#endif
+
 #else
 #error "Unsupported Compiler"
 #endif

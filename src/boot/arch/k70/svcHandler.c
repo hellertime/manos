@@ -46,6 +46,10 @@ static void waitpidSyscall(int* args) {
     syswaitpid(args[0]);
 }
 
+static void exitsSyscall(int* args) {
+    _exits();
+}
+
 #include <arch/k70/syscall.x>
 
 #include "syscall.h"

@@ -19,7 +19,7 @@ static void __manos_exit(void) {
     }
     INIT_LIST_HEAD(&rp->waitQ);
     rp->state = ProcDead;
-    YIELD();
+    exits();
 #endif
 }
 
