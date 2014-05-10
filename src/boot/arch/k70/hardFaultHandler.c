@@ -27,6 +27,19 @@ static void __attribute__((used)) hardFaultHandlerMain(StackFrame* frame) {
     volatile uint32_t _BFAR = SCB_BFAR;
 
     __asm("bkpt #0\t\n");
+    UNUSED(faulted_r0);
+    UNUSED(faulted_r1);
+    UNUSED(faulted_r2);
+    UNUSED(faulted_r3);
+    UNUSED(faulted_ip);
+    UNUSED(faulted_lr);
+    UNUSED(faulted_pc);
+    UNUSED(faulted_psr);
+    UNUSED(_CFSR);
+    UNUSED(_HFSR);
+    UNUSED(_AFSR);
+    UNUSED(_MMAR);
+    UNUSED(_BFAR);
 }
 
 void __attribute__((naked)) hardFaultHandler(void) {
