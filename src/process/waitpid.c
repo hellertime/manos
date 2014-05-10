@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <manos/list.h>
 
 void syswaitpid(int pid) {
     Proc* p;
