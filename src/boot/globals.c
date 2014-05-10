@@ -48,7 +48,6 @@ Lock malLock;
 Lock freelistLock;
 LIST_HEAD(procFreelist);
 
-Lock runQLock;
 LIST_HEAD(procRunQ);
 
 Ref nextPid;

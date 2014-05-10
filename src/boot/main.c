@@ -18,7 +18,6 @@ int main(int argc, char** argv) {
     INIT_LIST_HEAD(&procRunQ);
     INIT_LIST_HEAD(&procFreelist);
     INIT_LOCK(&freelistLock);
-    INIT_LOCK(&runQLock);
     INIT_REF(&nextPid);
     INIT_LOCK(&malLock);
 
