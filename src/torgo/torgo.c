@@ -183,7 +183,6 @@ int torgo_main(int argc, char * const argv[]) {
   UNUSED(argv);
   const char *ps1 = "torgo > ", *ps2 = "> ";
   Shell *shell = mkShell();
-  int shellErrno = 0;
 
   fputstr(rp->tty, "Welcome, Master!\n");
   
@@ -210,9 +209,8 @@ int torgo_main(int argc, char * const argv[]) {
         char **cmdArgv;
         populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
 
-        shellErrno = 0;
-        shellErrno = kexec(cmdArgv[0], cmdArgv);
-        UNUSED(shellErrno);
+        int pid = kexec(cmdArgv[0], cmdArgv);
+        waitpid(pid);
 
         /*
          * Some commands need shell environment access and so cannot be passed of to 'exec' at the moment
