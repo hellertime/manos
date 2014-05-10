@@ -47,7 +47,7 @@ void sysnputs(const char* s, size_t n) {
 
 int sysprintln(const char* fmt, ...) {
     va_list ap;
-    static char buf[4096];
+    static char buf[1024];
     va_start(ap, fmt);
     int ret = fmtVsnprintf(buf, sizeof buf, fmt, ap);
     va_end(ap);
@@ -58,7 +58,7 @@ int sysprintln(const char* fmt, ...) {
 
 int sysprint(const char* fmt, ...) {
     va_list ap;
-    static char buf[4096];
+    static char buf[1024];
     va_start(ap, fmt);
     int ret = fmtVsnprintf(buf, sizeof buf, fmt, ap);
     va_end(ap);
