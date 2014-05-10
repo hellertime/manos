@@ -47,6 +47,7 @@ static void waitpidSyscall(int* args) {
 }
 
 static void exitsSyscall(int* args) {
+    UNUSED(args);
     _exits();
 }
 
