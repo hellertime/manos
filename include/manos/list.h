@@ -192,7 +192,7 @@ static inline void listSpliceAndInit(ListHead* list, ListHead* head) {
 #define LIST_FOR_EACH_ENTRY(pos, head, member)                      \
     for (pos = CONTAINER_OF((head)->next, typeof(*pos), member);    \
             &pos->member != (head);                                 \
-            pos = CONTIANER_OF(pos->member.next, typeof(*pos), member))
+            pos = CONTAINER_OF(pos->member.next, typeof(*pos), member))
 
 /**
  * LIST_FOR_EACH_ENTRY_SAFE() - safe iterator over list by container
