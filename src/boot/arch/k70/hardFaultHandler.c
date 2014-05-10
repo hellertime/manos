@@ -9,22 +9,24 @@
 /* routines based on http://blog.feabhas.com/2013/02/developing-a-generic-hard-fault-handler-for-arm-cortex-m3cortex-m4/ */
 
 static void __attribute__((used)) hardFaultHandlerMain(StackFrame* frame) {
-    sysprintln("Oops! 0x%08" PRIx32 "", SCB_HFSR);
-    if (SCB_HFSR & SCB_HFSR_FORCED_MASK) {
-        sysprintln("*Forced* 0x%08" PRIx32 "", SCB_CFSR);
-    }
+    volatile uint32_t faulted_r0  = frame->a[0];
+    volatile uint32_t faulted_r1  = frame->a[1];
+    volatile uint32_t faulted_r2  = frame->a[2];
+    volatile uint32_t faulted_r3  = frame->a[3];
+    volatile uint32_t faulted_ip  = frame->ip;  /* r12 */
+    volatile uint32_t faulted_lr  = frame->lr;
+    volatile uint32_t faulted_pc  = frame->pc;
+    volatile uint32_t faulted_psr = frame->xpsr;
 
-    sysprintln("r0   = 0x%08" PRIx32 "", frame->a[0]);
-    sysprintln("r1   = 0x%08" PRIx32 "", frame->a[1]);
-    sysprintln("r2   = 0x%08" PRIx32 "", frame->a[2]);
-    sysprintln("r3   = 0x%08" PRIx32 "", frame->a[3]);
-    sysprintln("ip   = 0x%08" PRIx32 "", frame->ip);
-    sysprintln("lr   = 0x%08" PRIx32 "", frame->lr);
-    sysprintln("pc   = 0x%08" PRIx32 "", frame->pc);
-    sysprintln("xpsr = 0x%08" PRIx32 "", frame->xpsr);
+    volatile uint32_t _CFSR = SCB_CFSR;
+    volatile uint32_t _HFSR = SCB_HFSR;
+    volatile uint32_t _DFSR = SCB_DFSR;
+    volatile uint32_t _AFSR = SCB_AFSR;
 
-    __asm volatile("bkpt #01");
-    while(1);
+    volatile uint32_t _MMAR = SCB_MMAR;
+    volatile uint32_t _BFAR = SCB_BFAR;
+
+    __asm("bkpt #0\t\n");
 }
 
 void __attribute__((naked)) hardFaultHandler(void) {
@@ -33,10 +35,12 @@ __asm(
     "ite   eq\n\t"
     "mrseq r0, msp\n\t"
     "mrsne r0, psp\n\t"
-    "bl    hardFaultHandlerMain" /* never returns */
+    "ldr   r1,[r0,#20]\n\t"
+    "bl    hardFaultHandlerMain\n\t" 
+    "bkpt #0"
     :
     :
-    : "r0"
+    : "r0", "r1"
 );
 }
 
