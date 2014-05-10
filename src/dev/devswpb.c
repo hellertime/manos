@@ -40,11 +40,11 @@ static uint32_t __FAKE_REG = 0;
 #if defined PLATFORM_K70CW
 void nanosleep(unsigned long int nanos);
 __asm(
-		"    .global nanosleep\n"
-		"nanosleep:\n"
-		"    adds r0,r0,#-1\n"
-		"    bne  nanosleep\n"
-		"    bx   lr\n"
+		"    .global nanosleep\n\t"
+		"nanosleep:\n\t"
+		"    adds r0,r0,#-1\n\t"
+		"    bne  nanosleep\n\t"
+		"    bx   lr"
                 :
                 :
                 : "r0"

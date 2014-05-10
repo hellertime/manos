@@ -94,7 +94,7 @@ __asm(
    "pop   {pc}"
    :
    :
-   : "r0", "memory"
+   : "r0", "sp"
 );
 }
 #else
