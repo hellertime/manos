@@ -13,12 +13,12 @@ int systrylock(Lock* l) {
     if (!rp)
         return 1;
 
-    DISABLE_INTERRUPTS();
+    enterCriticalRegion();
     if (! l->locked) {
         l->locked = 1;
         haveLock = 1;
     }
-    ENABLE_INTERRUPTS();
+    leaveCriticalRegion();
     return haveLock;
 }
 
@@ -27,17 +27,17 @@ void syslock(Lock* l) {
     if (!rp)
         return;
 
-    DISABLE_INTERRUPTS();
+    enterCriticalRegion();
     while (l->locked) {
         assert(listIsEmpty(&rp->nextWaitQ) && "lock() running process already waiting on something else!");
         listAddBefore(&rp->nextWaitQ, &l->q);
         rp->state = ProcWaiting;
         YIELD();
-        ENABLE_INTERRUPTS();
-        DISABLE_INTERRUPTS();
+        leaveCriticalRegion();
+        enterCriticalRegion();
     }
     l->locked = 1;
-    ENABLE_INTERRUPTS();
+    leaveCriticalRegion();
 #endif
 }
 
@@ -45,12 +45,12 @@ void sysunlock(Lock* l) {
     if (!rp)
         return;
 
-    DISABLE_INTERRUPTS();
+    enterCriticalRegion();
     l->locked = 0;
     if (! listIsEmpty(&l->q)) {
         Proc* p = CONTAINER_OF(&l->q, Proc, nextWaitQ);
         listUnlinkAndInit(&l->q);
         p->state = ProcReady;
     }
-    ENABLE_INTERRUPTS();
+    leaveCriticalRegion();
 }

@@ -12,23 +12,23 @@ Proc* nextRunnableProc(void) {
     Proc* p;
     Proc* save;
 
-    DISABLE_INTERRUPTS();
+    enterCriticalRegion();
 
     LIST_FOR_EACH_ENTRY_SAFE(p, save, &procRunQ, nextRunQ) {
         if (p->state == ProcDead) {
             listUnlink(&p->nextRunQ);
             recycleProc(p);
+        } else if (p->state == ProcReady) {
+            listUnlinkAndInit(&p->nextRunQ);
+            break;
         }
     }
 
-    if (listIsEmpty(&procRunQ)) {
-        p = rp; /* give that man another quantum */
-    } else {
-        p = CONTAINER_OF((&procRunQ)->next, Proc, nextRunQ);
-        listUnlinkAndInit(&p->nextRunQ);
-        p->state = ProcReady;
+    if (p->state != ProcReady) {
+        p = rp; /* nothing ready, cycle another quantum */
     }
-    ENABLE_INTERRUPTS();
+
+    leaveCriticalRegion();
     return p;
 }
 

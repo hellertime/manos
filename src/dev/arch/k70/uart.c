@@ -137,25 +137,25 @@ static void k70UartPutc(Uart* uart, char c) {
 
 static char k70UartGetc(Uart* uart) {
     char c;
-    DISABLE_INTERRUPTS();
+    enterCriticalRegion();
     while (! dequeueFifoQ(uart->inQ, &c)) {
-        ENABLE_INTERRUPTS();
-        DISABLE_INTERRUPTS();
+        leaveCriticalRegion();
+        enterCriticalRegion();
     }
-    ENABLE_INTERRUPTS();
+    leaveCriticalRegion();
     return c;
 }
 
 static void k70UartPutc(Uart* uart, char c) {
     Control* ctrl = uart->regs;
 
-    DISABLE_INTERRUPTS();
+    enterCriticalRegion();
     while (! enqueueFifoQ(uart->outQ, c)) {
-        ENABLE_INTERRUPTS();
-        DISABLE_INTERRUPTS();
+        leaveCriticalRegion();
+        enterCriticalRegion();
     }
     UART_C2_REG(ctrl->mmap) |= UART_C2_TIE_MASK;
-    ENABLE_INTERRUPTS();
+    leaveCriticalRegion();
 }
 
 UartHW k70UartHW = {

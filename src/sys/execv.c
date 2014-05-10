@@ -60,9 +60,10 @@ Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
 #endif
 
     setupStack(p, cmd, argc, argv);
-    DISABLE_INTERRUPTS();
+    enterCriticalRegion();
     listAddBefore(&p->nextRunQ, &procRunQ);
     p->state = ProcReady;
+    leaveCriticalRegion();
     return p;
 }
 
@@ -143,7 +144,6 @@ int sysexecv(const char *path, char * const argv[]) {
             if (strcmp(builtinCmds[i].cmdName, c) == 0) {
                 Proc* p = schedProc(builtinCmds[i].cmd, argc, argv);
                 ret = p->pid;
-                ENABLE_INTERRUPTS();
                 break;
             }
         }

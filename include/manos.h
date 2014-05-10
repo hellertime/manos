@@ -7,6 +7,20 @@
 
 #define MANOS_QUANTUM_IN_MILLIS 50
 
+extern criticalRegionCount;
+
+static inline __attribute__((always_inline)) void enterCriticalRegion(void) {
+    if (criticalRegionCount == 0)
+        DISABLE_INTERRUPTS();
+    criticalRegionCount++;
+}
+
+static inline __attribute__((always_inline)) void leaveCriticalRegion(void) {
+    criticalRegionCount--;
+    if (criticalRegionCount == 0)
+        ENABLE_INTERRUPTS();
+}
+
 #ifdef PLATFORM_K70CW
 #define DISABLE_INTERRUPTS() __asm("cpsid i")
 #define ENABLE_INTERRUPTS() __asm("cpsie i")

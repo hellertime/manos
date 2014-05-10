@@ -54,8 +54,6 @@ int main(int argc, char** argv) {
 
     /* OK. Still in supervisor mode */
     schedProc(torgo_main, 0, NULL);
-    /* schedProc disables interrupts before it returns */
-    ENABLE_INTERRUPTS();
 #ifdef PLATFORM_K70CW
     schedInit(50, MANOS_ARCH_K70_SCHED_INT_PRIORITY);
     sysprint("Entering User Mode");
