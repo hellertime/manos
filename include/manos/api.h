@@ -16,6 +16,8 @@ void* syskmalloc(size_t);
 void* syskmalloc0(size_t);
 void syskfree(void*);
 
+void* kmemset(void*,int,size_t);
+
 void syswaitpid(int);
 
 WalkTrail* emptyWalkTrail(unsigned);
