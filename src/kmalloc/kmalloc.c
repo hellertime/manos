@@ -242,6 +242,8 @@ ChunkHeader* initChunk(void* mem, size_t size) {
  * Inserts 'this' before 'that'
  */
 void insertChunkBefore(ChunkHeader* that, ChunkHeader* this) {
+  ASSERT(that != BAD_PTR && "insertChunkBefore() that is BAD_PTR");
+  ASSERT(this != BAD_PTR && "insertChunkBefore() this is BAD_PTR");
   ASSERT((that->prev != BAD_PPTR) && "Cannot insert when 'that' node isn't in a list");
   this->prev = that->prev;
   *(this->prev) = this;
@@ -255,6 +257,8 @@ void insertChunkBefore(ChunkHeader* that, ChunkHeader* this) {
  * Inserts 'this' after 'that'
  */
 static void insertChunkAfter(ChunkHeader* that, ChunkHeader* this) {
+  ASSERT(that != BAD_PTR && "insertChunkAfter() that is BAD_PTR");
+  ASSERT(this != BAD_PTR && "insertChunkAfter() this is BAD_PTR");
   this->next = that->next;
   if (this->next != BAD_PTR)
     this->next->prev = &this->next;
