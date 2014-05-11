@@ -110,9 +110,9 @@ typedef struct ChunkBin {
 #define getTagSucc(chk) ((ChunkTag*)((char*)(chk) + getSize((chk))))
 #define getTagPred(chk) ((ChunkTag*)((char*)(chk) - sizeof(ChunkTag)))
 #define isUnlinked(chk) ((chk)->prev == BAD_PPTR && (chk)->next == BAD_PTR)
-#define hasCleanChunks(bin) ((bin).clean != NULL)
-#define hasDirtyChunks(bin) ((bin).dirty != NULL)
-#define isExactMatch(chk, sz) ((chk) && (((getSize((chk))) == (sz)) || (((getSize((chk))) - (sz)) <= MIN_ALLOC_BYTES)))
+#define hasCleanChunks(bin) ((bin).clean != BAD_PTR)
+#define hasDirtyChunks(bin) ((bin).dirty != BAD_PTR)
+#define isExactMatch(chk, sz) ((chk != BAD_PTR) && (((getSize((chk))) == (sz)) || (((getSize((chk))) - (sz)) <= MIN_ALLOC_BYTES)))
 
 /*
  * Set up some needed values about the address space.
