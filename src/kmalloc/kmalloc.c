@@ -668,7 +668,7 @@ static void* __kmalloc(size_t size, int pid) {
     if (allocInUse > allocHWM)
       allocHWM = allocInUse;
     
-    kmemset(mem, 0xfb, size);
+    kmemset(mem, 0, size);
   } else {
     errno = ENOMEM;
   }
