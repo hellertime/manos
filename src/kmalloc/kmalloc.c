@@ -592,7 +592,7 @@ static ChunkHeader* allocateChunk(size_t size) {
   }
 
   /* Step 5: Does the bin have a chunk in its clean list */
-  if ((chunk = firstFitSearch(getBin(size).clean, size))) {
+  if ((chunk = firstFitSearch(getBin(size).clean, size)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto split;
   }
