@@ -1,7 +1,6 @@
 #ifndef MANOS_H
 #define MANOS_H
 
-#include <assert.h>
 #include "manos/types.h"
 #include "manos/api.h"
 #include "arch/mk70f12.h"
@@ -9,10 +8,12 @@
 #define MANOS_QUANTUM_IN_MILLIS 50
 
 #ifdef NDEBUG
+#include <assert.h>
 #define ASSERT assert
 #else
 
 #ifdef PLATFORM_K70CW
+#include <stdlib.h>
 #define ASSERT(x) do {                                                                      \
     if (!(x)) {                                                                             \
         sysprintln("Assertion failed: %s (%s: %s: %d)", #x, __FILE__, __func__, __LINE__);  \
@@ -21,6 +22,7 @@
     }                                                                                       \
 }while(0)
 #else
+#include <assert.h>
 #define ASSERT assert
 #endif
 
