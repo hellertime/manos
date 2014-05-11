@@ -12,6 +12,8 @@ void recycleProc(Proc*);
 void* kmalloc(size_t);
 void kfree(void*);
 
+void kmallocDump(void);
+
 void* syskmalloc(size_t);
 void* syskmalloc0(size_t);
 void syskfree(void*);

@@ -8,4 +8,5 @@ CmdTable builtinCmds[] = {
 ,   { "date", cmdDate__Main }
 ,   { "toast", cmdToast__Main }
 ,   { "sh", torgo_main }
+,   { "lsmem", cmdLsmem__Main }
 };

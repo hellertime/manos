@@ -32,6 +32,7 @@
     X("echo", FidBin, BinEcho, CRUMB_ISFILE, 6, 0555, "#!echo") \
     X("date", FidBin, BinDate, CRUMB_ISFILE, 6, 0555, "#!date") \
     X("toast", FidBin, BinToast, CRUMB_ISFILE, 7, 0555, "#!toast") \
+    X("lsmem", FidBin, BinLsmem, CRUMB_ISFILE, 7, 0555, "#!lsmem") \
     X("swpb", FidDev, DevSwpb, CRUMB_ISMOUNT, DEV_DEVSWPB, 0444, 0) \
     X("led", FidDev, DevLed, CRUMB_ISMOUNT, DEV_DEVLED, 0444, 0) \
     X("uart", FidDev, DevUart, CRUMB_ISMOUNT, DEV_DEVUART, 0444, 0) \
