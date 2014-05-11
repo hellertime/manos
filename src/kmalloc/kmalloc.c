@@ -731,8 +731,10 @@ static void __kfree(void* ptr) {
     assert(((char*)ptr >= heap) && ((char*)ptr <= ramHighAddress) && "Memory error. Address out of allocator zone");
     if (checkBitmap(ptr)) {
       ChunkHeader* chunk = (ChunkHeader*)((uintptr_t)ptr - sizeof(ChunkTag));
-      allocInUse -= getSize(chunk);
-      allocFree += getSize(chunk);
+      size_t chunkSize = getSize(chunk);
+      memset(ptr, 0xfb, chunkSize);
+      allocInUse -= chunkSize;
+      allocFree += chunkSize;
       freeCount++;
       allocPM--;
       getTag(chunk).free = 1;
