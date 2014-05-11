@@ -52,7 +52,7 @@ typedef struct ChunkHeader {
 } ChunkHeader;
 
 #define BAD_PTR ((ChunkHeader*)0xbcbcbcbc)
-#define BAD_PPTR ((ChunkHeader**)0xdededede)
+#define BAD_PPTR ((ChunkHeader**)0xbcbcbcbc)
 
 /*
  * ChunkBin = (ChunkHeader, ChunkHeader)
