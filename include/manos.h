@@ -16,7 +16,8 @@
 #define ASSERT(x) do {                                                                      \
     if (!(x)) {                                                                             \
         sysprintln("Assertion failed: %s (%s: %s: %d)", #x, __FILE__, __func__, __LINE__);  \
-        __asm volatile ("bkpt #1");                                                         \
+        __asm volatile ("bkpt");                                                            \
+        abort();
     }                                                                                       \
 }while(0)
 #else
