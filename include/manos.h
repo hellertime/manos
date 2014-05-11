@@ -1,6 +1,7 @@
 #ifndef MANOS_H
 #define MANOS_H
 
+#include <assert.h>
 #include "manos/types.h"
 #include "manos/api.h"
 #include "arch/mk70f12.h"
