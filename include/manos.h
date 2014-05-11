@@ -17,7 +17,7 @@
     if (!(x)) {                                                                             \
         sysprintln("Assertion failed: %s (%s: %s: %d)", #x, __FILE__, __func__, __LINE__);  \
         __asm volatile ("bkpt");                                                            \
-        abort();
+        abort();                                                                            \
     }                                                                                       \
 }while(0)
 #else
