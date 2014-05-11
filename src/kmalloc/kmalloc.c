@@ -301,6 +301,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   ChunkHeader* chunks = BAD_PTR;
 
   ASSERT(isUnlinked(chunk) && "Chunk has not been unlinked prior to bining");
+  sysprintln("[binChunk] size: %d", getSize(chunk));
 
   bin = &getBin(getSize(chunk));
   switch(mode) {
