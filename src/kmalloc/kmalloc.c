@@ -109,7 +109,7 @@ typedef struct ChunkBin {
 #define getPred(chk) ((ChunkHeader*)((char*)(chk) - readSizePtr(getTagPred((chk)))))
 #define getTagSucc(chk) ((ChunkTag*)((char*)(chk) + getSize((chk))))
 #define getTagPred(chk) ((ChunkTag*)((char*)(chk) - sizeof(ChunkTag)))
-#define isUnlinked(chk) ((chk)->prev == BAD_PPTR && (chk)->next == BAD_PTR)
+#define isUnlinked(chk) ((chk) != BAD_PTR && (chk)->prev == BAD_PPTR && (chk)->next == BAD_PTR)
 #define hasCleanChunks(bin) ((bin).clean != BAD_PTR)
 #define hasDirtyChunks(bin) ((bin).dirty != BAD_PTR)
 #define isExactMatch(chk, sz) ((chk != BAD_PTR) && (((getSize((chk))) == (sz)) || (((getSize((chk))) - (sz)) <= MIN_ALLOC_BYTES)))
@@ -569,7 +569,7 @@ static ChunkHeader* allocateChunk(size_t size) {
   }
 
   /* Only coalesce if there are dirty chunks, but no match */
-  if (getBin(size).dirty) {
+  if (getBin(size).dirty != BAD_PTR) {
     coalesce(getBin(size).dirty);
     struct ChunkHeader *rb = RECENT_CHUNK_BIN;
     coalesce(rb);
@@ -599,7 +599,7 @@ static ChunkHeader* allocateChunk(size_t size) {
 
   /* Step 6: Scan all larger bins for a chunk ... */
   for (int i = getBinIndex(size) + 1; i < MAX_BINS; i++) {
-    if ((chunk = firstFitSearch(getBinByIndex(i).clean, size))) {
+    if ((chunk = firstFitSearch(getBinByIndex(i).clean, size)) != BAD_PTR) {
       chunk = unlinkChunk(chunk);
       goto split;
     }
@@ -608,7 +608,7 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Step 7: Coalesce space until a fit is found */
   for (int i = getBinIndex(size) + 1; i < MAX_BINS; i++) {
 	coalesce(getBinByIndex(i).dirty);
-    if ((chunk = firstFitSearch(getBinByIndex(i).clean, size))) {
+    if ((chunk = firstFitSearch(getBinByIndex(i).clean, size)) != BAD_PTR) {
       chunk = unlinkChunk(chunk);
       goto split;
     }
