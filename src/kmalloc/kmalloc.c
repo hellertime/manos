@@ -875,6 +875,7 @@ void kmallocDump(void) {
   fputstr(rp->tty, "\n");
   fputstr(rp->tty, "Bitmap Info:\n\n");
 
+#if 0
   for (int i = 0; i < ALLOCATION_BITMAP_SIZE; i++) {
     if (!(i % 10)) {
       if (i != 0) {
@@ -892,6 +893,7 @@ void kmallocDump(void) {
     }
   }
   fputstr(rp->tty, "\n");
+#endif
 
   fputstr(rp->tty, "Heap Info:\n\n");
 
