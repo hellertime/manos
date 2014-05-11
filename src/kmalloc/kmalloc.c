@@ -5,7 +5,6 @@
  * Uses bitmap to protect memory space.
  * Coalesces only when needed for performance.
  */
-#include <assert.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <manos.h>
@@ -220,10 +219,10 @@ static AllocHeader* header = NULL;
  * Initializes a pointer of size into a ChunkHeader
  */
 ChunkHeader* initChunk(void* mem, size_t size) {
-  assert(IS_WORD_ALIGNED(mem) && "Attempt to initialize chunk which does not align to WORD bound");
-  assert(IS_WORD_ALIGNED(size) && "Attempt to initialize chunk whose size will misalign successive chunks");
-  assert((size >= MIN_ALLOC_BYTES) && "Attempt to initialize chunk of diminutive size");
-  assert(!((char*)mem + size > ramHighAddress) && "Attempt to initialize chunk larger than RAM");
+  ASSERT(IS_WORD_ALIGNED(mem) && "Attempt to initialize chunk which does not align to WORD bound");
+  ASSERT(IS_WORD_ALIGNED(size) && "Attempt to initialize chunk whose size will misalign successive chunks");
+  ASSERT((size >= MIN_ALLOC_BYTES) && "Attempt to initialize chunk of diminutive size");
+  ASSERT(!((char*)mem + size > ramHighAddress) && "Attempt to initialize chunk larger than RAM");
   ChunkHeader *chunk = (ChunkHeader*)mem;
   writeSize(getTag(chunk), size);
   writeSizePtr(getFooter(chunk), size);
@@ -240,7 +239,7 @@ ChunkHeader* initChunk(void* mem, size_t size) {
  * Inserts 'this' before 'that'
  */
 void insertChunkBefore(ChunkHeader* that, ChunkHeader* this) {
-  assert(that->prev && "Cannot insert when 'that' node isn't in a list");
+  ASSERT(that->prev && "Cannot insert when 'that' node isn't in a list");
   this->prev = that->prev;
   *(this->prev) = this;
   this->next = that;
@@ -293,7 +292,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   ChunkBin* bin;
   ChunkHeader* chunks = NULL;
 
-  assert(isUnlinked(chunk) && "Chunk has not been unlinked prior to bining");
+  ASSERT(isUnlinked(chunk) && "Chunk has not been unlinked prior to bining");
 
   bin = &getBin(getSize(chunk));
   switch(mode) {
@@ -417,16 +416,16 @@ static void coalesce(ChunkHeader* chunks) {
 
   while (chunk) {
     ChunkHeader* next = chunk->next;
-    assert(!checkBitmap(getPayload(chunk)) && "kmalloc() coalescing chunk exists in bitmap");
+    ASSERT(!checkBitmap(getPayload(chunk)) && "kmalloc() coalescing chunk exists in bitmap");
 
     /* Case 1: both pred and succ are free */
     if (getTagPred(chunk)->free && getTagSucc(chunk)->free) {
       ChunkHeader* pred = getPred(chunk);
       ChunkHeader* succ = getSucc(chunk);
-      assert(!checkBitmap(getPayload(pred)) && "kmalloc() coalescing(1) pred exits in bitmap");
-      assert(!checkBitmap(getPayload(succ)) && "kmalloc() coalescing(1) succ exits in bitmap");
-      assert(getTag(pred).free && "Tag ismatch in pred coalesce(1)");
-      assert(getTag(succ).free && "Tag mismatch in succ coalesce(1)");
+      ASSERT(!checkBitmap(getPayload(pred)) && "kmalloc() coalescing(1) pred exits in bitmap");
+      ASSERT(!checkBitmap(getPayload(succ)) && "kmalloc() coalescing(1) succ exits in bitmap");
+      ASSERT(getTag(pred).free && "Tag ismatch in pred coalesce(1)");
+      ASSERT(getTag(succ).free && "Tag mismatch in succ coalesce(1)");
       writeSize(getTag(pred), getSize(pred) + getSize(chunk) + getSize(succ));
       writeSizePtr(getFooter(chunk), getSize(pred));
       unlinkChunk(chunk);
@@ -438,8 +437,8 @@ static void coalesce(ChunkHeader* chunks) {
       binChunk(unlinkChunk(pred), BinClean);
     } else if (getTagPred(chunk)->free) { /* Case 2: only pred is free */
       ChunkHeader* pred = getPred(chunk);
-      assert(!checkBitmap(getPayload(pred)) && "kmalloc() coalescing(1) pred exits in bitmap");
-      assert(getTag(pred).free && "Tag mismatch in pred coalesce(2)");
+      ASSERT(!checkBitmap(getPayload(pred)) && "kmalloc() coalescing(1) pred exits in bitmap");
+      ASSERT(getTag(pred).free && "Tag mismatch in pred coalesce(2)");
       writeSize(getTag(pred), getSize(pred) + getSize(chunk));
       writeSizePtr(getFooter(chunk), getSize(pred));
       unlinkChunk(chunk);
@@ -448,8 +447,8 @@ static void coalesce(ChunkHeader* chunks) {
       binChunk(unlinkChunk(pred), BinClean);
     } else if (getTagSucc(chunk)->free) { /* Case 3: only succ is feee */
       ChunkHeader* succ = getSucc(chunk);
-      assert(!checkBitmap(getPayload(succ)) && "kmalloc() coalescing(1) succ exits in bitmap");
-      assert(getTag(succ).free && "Tag mismatch in succ coalesce(3)");
+      ASSERT(!checkBitmap(getPayload(succ)) && "kmalloc() coalescing(1) succ exits in bitmap");
+      ASSERT(getTag(succ).free && "Tag mismatch in succ coalesce(3)");
       writeSize(getTag(chunk), getSize(chunk) + getSize(succ));
       writeSizePtr(getFooter(succ), getSize(chunk));
       unlinkChunk(succ);
@@ -518,20 +517,20 @@ static ChunkHeader* firstFitSearch(ChunkHeader* chunks, size_t size) {
  * the new chunk is returned.
  */
 ChunkHeader* splitChunk(ChunkHeader* chunk, size_t size, ChunkHeader** rest) {
-  assert((getSize(chunk) > size) && "Something is wrong. Splitting from too small a chunk");
-  assert(IS_WORD_ALIGNED(size) && "Something is wrong. Size is not WORD aligned");
-  assert(IS_WORD_ALIGNED(getSize(chunk)) && "Something is wrong. Chunk is not WORD aligned");
+  ASSERT((getSize(chunk) > size) && "Something is wrong. Splitting from too small a chunk");
+  ASSERT(IS_WORD_ALIGNED(size) && "Something is wrong. Size is not WORD aligned");
+  ASSERT(IS_WORD_ALIGNED(getSize(chunk)) && "Something is wrong. Chunk is not WORD aligned");
 
   size_t oldSize = getSize(chunk);
   ChunkHeader* chunkA = initChunk(chunk, size);
   ChunkHeader* chunkB = initChunk((char*)chunk + size, oldSize - size);
 
-  assert(IS_WORD_ALIGNED(chunkA) && "Split chunk A is not on a WORD boundary");
-  assert(IS_WORD_ALIGNED(chunkB) && "Split chunk B is not on a WORD boundary");
-  assert((getSize(chunkA) == size) && "Something is wrong. Split chunk A size incorrect");
-  assert((readSizePtr(getFooter(chunkA)) == size) && "Something is wrong. Split chunk A footer size incorrect");
-  assert((getSize(chunkB) == (oldSize - size)) &&"Something is wrong. Split chunk B size incorrect");
-  assert((readSizePtr(getFooter(chunkB)) == (oldSize - size)) && "Something is wrong. Split chunk B size incorrect");
+  ASSERT(IS_WORD_ALIGNED(chunkA) && "Split chunk A is not on a WORD boundary");
+  ASSERT(IS_WORD_ALIGNED(chunkB) && "Split chunk B is not on a WORD boundary");
+  ASSERT((getSize(chunkA) == size) && "Something is wrong. Split chunk A size incorrect");
+  ASSERT((readSizePtr(getFooter(chunkA)) == size) && "Something is wrong. Split chunk A footer size incorrect");
+  ASSERT((getSize(chunkB) == (oldSize - size)) &&"Something is wrong. Split chunk B size incorrect");
+  ASSERT((readSizePtr(getFooter(chunkB)) == (oldSize - size)) && "Something is wrong. Split chunk B size incorrect");
   *rest = chunkB;
   return chunkA;
 }
@@ -663,7 +662,7 @@ static void* __kmalloc(size_t size, int pid) {
     getTag(chunk).free = getFooter(chunk)->free = 0;
 
     /* tag this address as allocated in the bitmap */
-    assert(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
+    ASSERT(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
     setBitmap(mem);
     
     allocInUse += getSize(chunk);
@@ -723,12 +722,12 @@ static void __kfree(void* ptr) {
      * Safetey check #2: A valid pointer from malloc will have its address recorded in
      * the bitmap. This is the address that is given to the malloc caller.
      */
-    assert(checkBitmap(ptr) && "Memory error. Cannot free address not allocated by malloc");
+    ASSERT(checkBitmap(ptr) && "Memory error. Cannot free address not allocated by malloc");
    
     /*
      * Safetey check #3: We only allocate addresses between heap and ramHighAddress
      */
-    assert(((char*)ptr >= heap) && ((char*)ptr <= ramHighAddress) && "Memory error. Address out of allocator zone");
+    ASSERT(((char*)ptr >= heap) && ((char*)ptr <= ramHighAddress) && "Memory error. Address out of allocator zone");
     if (checkBitmap(ptr)) {
       ChunkHeader* chunk = (ChunkHeader*)((uintptr_t)ptr - sizeof(ChunkTag));
       size_t chunkSize = getSize(chunk);

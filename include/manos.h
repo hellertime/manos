@@ -9,12 +9,12 @@
 #define MANOS_QUANTUM_IN_MILLIS 50
 
 #ifdef PLATFORM_K70CW
-#define assert(x) do {      \
+#define ASSERT(x) do {      \
     __asm("bkpt #1\n\t");   \
     assert((x));            \
 }while(0)
 #else
-#define assert assert
+#define ASSERT assert
 #endif
 
 extern int criticalRegionCount;

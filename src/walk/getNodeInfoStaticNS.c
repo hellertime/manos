@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <errno.h>
 #include <manos.h>
 
@@ -19,7 +18,7 @@
  * and parent index values be 2^16, this acts as a sentinel value
  */
 NodeInfo* getNodeInfoStaticNS(const Portal* p, const StaticNS* ns, WalkDirection d, NodeInfo *ni) {
-    assert(PORTAL_ISSTATICNS(p) && "Portal is not focuse on a StaticNS path");
+    ASSERT(PORTAL_ISSTATICNS(p) && "Portal is not focuse on a StaticNS path");
 
     const StaticNS* sns = NULL;
 

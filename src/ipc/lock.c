@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <manos.h>
 #include <manos/list.h>
 #include <arch/k70/derivative.h>
@@ -29,7 +28,7 @@ void syslock(Lock* l) {
 
     enterCriticalRegion();
     while (l->locked) {
-        assert(listIsEmpty(&rp->nextWaitQ) && "lock() running process already waiting on something else!");
+        ASSERT(listIsEmpty(&rp->nextWaitQ) && "lock() running process already waiting on something else!");
         listAddBefore(&rp->nextWaitQ, &l->q);
         rp->state = ProcWaiting;
         YIELD();

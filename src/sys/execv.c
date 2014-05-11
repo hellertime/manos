@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <errno.h>
 #include <manos.h>
 #include <torgo/commands.h>

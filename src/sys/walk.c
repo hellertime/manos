@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <errno.h>
 #include <manos.h>
 
@@ -35,7 +34,7 @@ Portal* syswalk(Portal* p, char **path, unsigned n) {
             DeviceIndex idx = fromDeviceId(ni.length); /* HACK! */
             closePortal(px);
             syskfree(px);
-            assert(idx != -1 && "Crumb has an unknown device id");
+            ASSERT(idx != -1 && "Crumb has an unknown device id");
             px = deviceTable[idx]->attach(ni.contents ? ni.contents : "");
             freeWalkTrail(t);
             continue;
