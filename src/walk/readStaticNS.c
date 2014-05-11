@@ -44,7 +44,7 @@ ptrdiff_t readStaticNS(Portal* p, const StaticNS* sns, void* buf, size_t size, O
         if (snsEnt->length == 0) return 0;
         
         size_t bytes = size > snsEnt->length ? snsEnt->length : size;
-        memcpy(buf, snsEnt->contents, snsEnt->length);
+        memcpy(buf, snsEnt->contents, bytes);
         p->offset += bytes;
         return bytes;
     }
