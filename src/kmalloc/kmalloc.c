@@ -400,7 +400,7 @@ static void initRam(void) {
  */
 static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
   if (chunk->prev != BAD_PPTR || chunk->next != BAD_PTR) {
-    assert(chunk != NULL && "unlinkChunk() NULL");
+    ASSERT(chunk != NULL && "unlinkChunk() NULL");
     chunk = removeChunk(chunk);
     chunk->prev = BAD_PPTR;
     chunk->next = BAD_PTR;
