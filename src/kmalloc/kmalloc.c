@@ -51,6 +51,8 @@ typedef struct ChunkHeader {
   struct ChunkHeader*  next;
 } ChunkHeader;
 
+#define BAD_PTR ((ChunkHeader*)0xbcbcbcbc)
+
 /*
  * ChunkBin = (ChunkHeader, ChunkHeader)
  *
@@ -106,7 +108,7 @@ typedef struct ChunkBin {
 #define getPred(chk) ((ChunkHeader*)((char*)(chk) - readSizePtr(getTagPred((chk)))))
 #define getTagSucc(chk) ((ChunkTag*)((char*)(chk) + getSize((chk))))
 #define getTagPred(chk) ((ChunkTag*)((char*)(chk) - sizeof(ChunkTag)))
-#define isUnlinked(chk) (!((chk)->prev || (chk)->next))
+#define isUnlinked(chk) ((chk)->prev == BAD_PTR && (chk)->next == BAD_PTR)
 #define hasCleanChunks(bin) ((bin).clean != NULL)
 #define hasDirtyChunks(bin) ((bin).dirty != NULL)
 #define isExactMatch(chk, sz) ((chk) && (((getSize((chk))) == (sz)) || (((getSize((chk))) - (sz)) <= MIN_ALLOC_BYTES)))
@@ -228,8 +230,8 @@ ChunkHeader* initChunk(void* mem, size_t size) {
   writeSizePtr(getFooter(chunk), size);
   getTag(chunk).free = 1;
   getFooter(chunk)->free = 1;
-  chunk->prev = 0;
-  chunk->next = 0;
+  chunk->prev = BAD_PTR;
+  chunk->next = BAD_PTR;
   return chunk;
 }
 
@@ -239,7 +241,7 @@ ChunkHeader* initChunk(void* mem, size_t size) {
  * Inserts 'this' before 'that'
  */
 void insertChunkBefore(ChunkHeader* that, ChunkHeader* this) {
-  ASSERT(that->prev && "Cannot insert when 'that' node isn't in a list");
+  ASSERT((that->prev != BAD_PTR) && "Cannot insert when 'that' node isn't in a list");
   this->prev = that->prev;
   *(this->prev) = this;
   this->next = that;
@@ -373,11 +375,8 @@ static void initRam(void) {
     
     totalRAM = (uint32_t)(ramHighAddress - heap);
     
-    /* invalidate the heap -- since heap is word aligned use that to our advantage */
-    for (char* x = heap; x < ramHighAddress; ) {
-      *(uint32_t*)x = 0xfafafafa;
-      x += sizeof(uint32_t);
-    }
+    /* invalidate the heap */
+    memset(heap, 0xfa, totalRAM);
     numChunkOffsets = totalRAM / MIN_ALLOC_BYTES;
 
     ChunkHeader* firstChunk = initChunk(heap, totalRAM);
@@ -398,8 +397,8 @@ static void initRam(void) {
 static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
   if (chunk->prev || chunk->next) {
     chunk = removeChunk(chunk);
-    chunk->prev = NULL;
-    chunk->next = NULL;
+    chunk->prev = BAD_PTR;
+    chunk->next = BAD_PTR;
   }
   return chunk;
 }
@@ -740,8 +739,8 @@ static void __kfree(void* ptr) {
       getTag(chunk).free = 1;
       getFooter(chunk)->pid = 0;
       getFooter(chunk)->free = 1;
-      chunk->next = NULL;
-      chunk->prev = NULL;
+      chunk->next = BAD_PTR;
+      chunk->prev = BAD_PTR;
       clearBitmap(ptr);
       binChunk(chunk, BinRecent);
     }
