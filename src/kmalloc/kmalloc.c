@@ -366,8 +366,8 @@ static void initRam(void) {
 
     /* invalidate bins */
     for (unsigned i = 0; i < MAX_BINS; i++) {
-        header.bins[i].dirty = BAD_PTR;
-        header.bins[i].clean = BAD_PTR;
+        header->bins[i].dirty = BAD_PTR;
+        header->bins[i].clean = BAD_PTR;
     }
 
     /* align things for the heap. Since a chunk has a WORD sized tag at boths ends
