@@ -256,7 +256,7 @@ void insertChunkBefore(ChunkHeader* that, ChunkHeader* this) {
  */
 static void insertChunkAfter(ChunkHeader* that, ChunkHeader* this) {
   this->next = that->next;
-  if (this->next)
+  if (this->next != BAD_PTR)
     this->next->prev = &this->next;
   that->next = this;
   this->prev = &that->next;
@@ -269,7 +269,7 @@ static void insertChunkAfter(ChunkHeader* that, ChunkHeader* this) {
  */
 ChunkHeader* removeChunk(ChunkHeader* this) {
   *(this->prev) = this->next;
-  if (this->next)
+  if (this->next != BAD_PTR)
     this->next->prev = this->prev;
   return this;
 }
@@ -335,7 +335,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
     if ((intptr_t)chunk < (intptr_t)chunks) {
       insertChunkBefore(chunks, chunk);
       break;
-    } else if (!chunks->next) {
+    } else if (chunks->next == BAD_PTR) {
       insertChunkAfter(chunks, chunk);
       break;
     } else {
@@ -396,7 +396,7 @@ static void initRam(void) {
  * Patches up the prev and next chunks.
  */
 static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
-  if (chunk->prev || chunk->next) {
+  if (chunk->prev != BAD_PPTR || chunk->next != BAD_PTR) {
     chunk = removeChunk(chunk);
     chunk->prev = BAD_PPTR;
     chunk->next = BAD_PTR;
