@@ -60,7 +60,7 @@ void *kmemset(void *dest, int c, size_t n)
     typedef uint32_t __attribute__((__may_alias__)) u32;
     typedef uint64_t __attribute__((__may_alias__)) u64;
 
-    uint32_t c32 = ((u32)-1)/255 * (unsigned char)c;
+    u32 c32 = ((u32)-1)/255 * (unsigned char)c;
 
     /* In preparation to copy 32 bytes at a time, aligned on
      * an 8-byte bounary, fill head/tail up to 28 bytes each.
@@ -68,22 +68,22 @@ void *kmemset(void *dest, int c, size_t n)
      * conditional below ensures that the subsequent offsets
      * are valid (e.g. !(n<=24) implies n>=28). */
 
-    *(uint32_t *)(s+0) = c32;
-    *(uint32_t *)(s+n-4) = c32;
+    *(u32 *)(s+0) = c32;
+    *(u32 *)(s+n-4) = c32;
     if (n <= 8) return dest;
-    *(uint32_t *)(s+4) = c32;
-    *(uint32_t *)(s+8) = c32;
-    *(uint32_t *)(s+n-12) = c32;
-    *(uint32_t *)(s+n-8) = c32;
+    *(u32 *)(s+4) = c32;
+    *(u32 *)(s+8) = c32;
+    *(u32 *)(s+n-12) = c32;
+    *(u32 *)(s+n-8) = c32;
     if (n <= 24) return dest;
-    *(uint32_t *)(s+12) = c32;
-    *(uint32_t *)(s+16) = c32;
-    *(uint32_t *)(s+20) = c32;
-    *(uint32_t *)(s+24) = c32;
-    *(uint32_t *)(s+n-28) = c32;
-    *(uint32_t *)(s+n-24) = c32;
-    *(uint32_t *)(s+n-20) = c32;
-    *(uint32_t *)(s+n-16) = c32;
+    *(u32 *)(s+12) = c32;
+    *(u32 *)(s+16) = c32;
+    *(u32 *)(s+20) = c32;
+    *(u32 *)(s+24) = c32;
+    *(u32 *)(s+n-28) = c32;
+    *(u32 *)(s+n-24) = c32;
+    *(u32 *)(s+n-20) = c32;
+    *(u32 *)(s+n-16) = c32;
 
     /* Align to a multiple of 8 so we can fill 64 bits at a time,
      * and avoid writing the same bytes twice as much as is
@@ -97,12 +97,12 @@ void *kmemset(void *dest, int c, size_t n)
      * filled, so any remainder when n drops below 32 can be
      * safely ignored. */
 
-    uint64_t c64 = c32 | ((u64)c32 << 32);
+    u64 c64 = c32 | ((u64)c32 << 32);
     for (; n >= 32; n-=32, s+=32) {
-        *(uint64_t *)(s+0) = c64;
-        *(uint64_t *)(s+8) = c64;
-        *(uint64_t *)(s+16) = c64;
-        *(uint64_t *)(s+24) = c64;
+        *(u64 *)(s+0) = c64;
+        *(u64 *)(s+8) = c64;
+        *(u64 *)(s+16) = c64;
+        *(u64 *)(s+24) = c64;
     }
 #else
     /* Pure C fallback with no aliasing violations. */
