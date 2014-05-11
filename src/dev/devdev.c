@@ -54,7 +54,7 @@ static void closeDevDev(Portal* p) {
 }
 
 static void readDate(Date* date) {
-    memset(date, 0, sizeof *date);
+    kmemset(date, 0, sizeof *date);
 
 #ifdef PLATFORM_K70CW
     int timer = sysopen("/dev/timer/k70Timer", CAP_READ);
@@ -150,7 +150,7 @@ static ptrdiff_t readDevDev(Portal* p, void* buf, size_t size, Offset offset) {
 
 static ptrdiff_t writeDate(const char* buf, size_t size) {
     Date d;
-    memset(&d, 0, sizeof d);
+    kmemset(&d, 0, sizeof d);
     int* parts[6] = {&d.year, &d.month, &d.day, &d.hours, &d.minutes, &d.seconds};
 
     const char* c = buf;

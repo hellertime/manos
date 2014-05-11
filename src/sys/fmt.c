@@ -103,7 +103,7 @@ static ptrdiff_t fmtVsnprintfInternal(char buf[], size_t n, int useN, const char
             /* 1: handle flags */
            switch (*x) {
            case '0':
-               memset(intBuf, '0', INTBUF_SIZE);
+               kmemset(intBuf, '0', INTBUF_SIZE);
                x++;
                break;
            }

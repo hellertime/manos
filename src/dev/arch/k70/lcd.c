@@ -151,7 +151,7 @@ static void k70LcdClear(Lcd* lcd) {
     uint8_t b = LCD_PIXEL(ctrl, lcd->colors.bg, B);
 
     if (r == g && r == b) { /* monochromatic case */
-        memset(ctrl->mmap, r, lcd->fbSize);
+        kmemset(ctrl->mmap, r, lcd->fbSize);
     } else {
         for (uint32_t* pixel = (uint32_t*)ctrl->mmap; pixel < (uint32_t*)ctrl->mmap + (ctrl->xsize * ctrl->ysize); pixel++) {
             *pixel = lcd->colors.bg;
@@ -182,7 +182,7 @@ static void k70LcdScroll(Lcd* lcd) {
 
     /* clear last row */
     if (r == g && r == b) {
-        memset(buf + (lcd->consY * ctrl->xsize), r, ctrl->bpp * (ctrl->ysize - lcd->consY) * ctrl->xsize);
+        kmemset(buf + (lcd->consY * ctrl->xsize), r, ctrl->bpp * (ctrl->ysize - lcd->consY) * ctrl->xsize);
     } else {
         for (uint32_t* pixel = buf + (lcd->consY + ctrl->xsize); pixel < (buf + ctrl->ysize * ctrl->xsize); pixel++) {
             *pixel = lcd->colors.bg;
