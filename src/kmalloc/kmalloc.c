@@ -305,21 +305,21 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   bin = &getBin(getSize(chunk));
   switch(mode) {
   case BinDirty:
-    if ((chunks = bin->dirty) != BAD_PTR) {
+    if ((chunks = bin->dirty) == BAD_PTR) {
       bin->dirty = chunk;
       chunk->prev = &bin->dirty;
       return;
     }
     break;
   case BinClean:
-    if ((chunks = bin->clean) != BAD_PTR) {
+    if ((chunks = bin->clean) == BAD_PTR) {
       bin->clean = chunk;
       chunk->prev = &bin->clean;
       return;
     }
     break;
   case BinRecent:
-    if ((chunks = RECENT_CHUNK_BIN) != BAD_PTR) {
+    if ((chunks = RECENT_CHUNK_BIN) == BAD_PTR) {
       RECENT_CHUNK_BIN = chunk;
       chunk->prev = &RECENT_CHUNK_BIN;
     } else {
@@ -327,7 +327,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
     }
     return;
   case BinLastSplitRem:
-    if ((chunks = REMAINDER_CHUNK_BIN) != BAD_PTR) {
+    if ((chunks = REMAINDER_CHUNK_BIN) == BAD_PTR) {
       REMAINDER_CHUNK_BIN = chunk;
       chunk->prev = &REMAINDER_CHUNK_BIN;
     } else {
