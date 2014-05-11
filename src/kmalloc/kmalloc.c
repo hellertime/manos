@@ -635,7 +635,7 @@ split:
   chunk = splitChunk(chunk, size, &rest);
 
 
-  size_t sizeRest = getSize(rest);
+  volatile size_t sizeRest = getSize(rest);
   if (header->lastAllocSize == size) {
     sysprintln("[allocateChunk] Preallocating for size: %d from size: %d", size, sizeRest);
     for (int i = 0; i < MAX_PRE_ALLOCATIONS && sizeRest > size && (sizeRest - size) >= MIN_ALLOC_BYTES; i++) {
