@@ -417,11 +417,14 @@ static void coalesce(ChunkHeader* chunks) {
 
   while (chunk) {
     ChunkHeader* next = chunk->next;
+    assert(!checkBitmap(getPayload(chunk)) && "kmalloc() coalescing chunk exists in bitmap");
 
     /* Case 1: both pred and succ are free */
     if (getTagPred(chunk)->free && getTagSucc(chunk)->free) {
       ChunkHeader* pred = getPred(chunk);
       ChunkHeader* succ = getSucc(chunk);
+      assert(!checkBitmap(getPayload(pred)) && "kmalloc() coalescing(1) pred exits in bitmap");
+      assert(!checkBitmap(getPayload(succ)) && "kmalloc() coalescing(1) succ exits in bitmap");
       assert(getTag(pred).free && "Tag ismatch in pred coalesce(1)");
       assert(getTag(succ).free && "Tag mismatch in succ coalesce(1)");
       writeSize(getTag(pred), getSize(pred) + getSize(chunk) + getSize(succ));
@@ -435,6 +438,7 @@ static void coalesce(ChunkHeader* chunks) {
       binChunk(unlinkChunk(pred), BinClean);
     } else if (getTagPred(chunk)->free) { /* Case 2: only pred is free */
       ChunkHeader* pred = getPred(chunk);
+      assert(!checkBitmap(getPayload(pred)) && "kmalloc() coalescing(1) pred exits in bitmap");
       assert(getTag(pred).free && "Tag mismatch in pred coalesce(2)");
       writeSize(getTag(pred), getSize(pred) + getSize(chunk));
       writeSizePtr(getFooter(chunk), getSize(pred));
@@ -444,6 +448,7 @@ static void coalesce(ChunkHeader* chunks) {
       binChunk(unlinkChunk(pred), BinClean);
     } else if (getTagSucc(chunk)->free) { /* Case 3: only succ is feee */
       ChunkHeader* succ = getSucc(chunk);
+      assert(!checkBitmap(getPayload(succ)) && "kmalloc() coalescing(1) succ exits in bitmap");
       assert(getTag(succ).free && "Tag mismatch in succ coalesce(3)");
       writeSize(getTag(chunk), getSize(chunk) + getSize(succ));
       writeSizePtr(getFooter(succ), getSize(chunk));
