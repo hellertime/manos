@@ -293,28 +293,28 @@ typedef enum {
  */
 static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   ChunkBin* bin;
-  ChunkHeader* chunks = NULL;
+  ChunkHeader* chunks = BAD_PTR;
 
   ASSERT(isUnlinked(chunk) && "Chunk has not been unlinked prior to bining");
 
   bin = &getBin(getSize(chunk));
   switch(mode) {
   case BinDirty:
-    if (!(chunks = bin->dirty)) {
+    if ((chunks = bin->dirty) != BAD_PTR) {
       bin->dirty = chunk;
       chunk->prev = &bin->dirty;
       return;
     }
     break;
   case BinClean:
-    if (!(chunks = bin->clean)) {
+    if ((chunks = bin->clean) != BAD_PTR) {
       bin->clean = chunk;
       chunk->prev = &bin->clean;
       return;
     }
     break;
   case BinRecent:
-    if (!(chunks = RECENT_CHUNK_BIN)) {
+    if ((chunks = RECENT_CHUNK_BIN) != BAD_PTR) {
       RECENT_CHUNK_BIN = chunk;
       chunk->prev = &RECENT_CHUNK_BIN;
     } else {
@@ -322,7 +322,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
     }
     return;
   case BinLastSplitRem:
-    if (!(chunks = REMAINDER_CHUNK_BIN)) {
+    if ((chunks = REMAINDER_CHUNK_BIN) != BAD_PTR) {
       REMAINDER_CHUNK_BIN = chunk;
       chunk->prev = &REMAINDER_CHUNK_BIN;
     } else {
@@ -331,7 +331,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
     return;
   }
 
-  while (chunks) {
+  while (chunks != BAD_PTR) {
     if ((intptr_t)chunk < (intptr_t)chunks) {
       insertChunkBefore(chunks, chunk);
       break;
@@ -359,13 +359,16 @@ static void initRam(void) {
     ramHighAddress = (char*)SDRAM_END;
 
     /* Zero out the header RAM */
-    char* z = ram0;
-    for (size_t i = 0; i < sizeof *header; i++) {
-      *z++ = 0;
-    }
+    memset(ram0, 0, sizeof *header);
     
     /* Overlay the header at the base of ram */
     header = (struct AllocHeader*)ram0;
+
+    /* invalidate bins */
+    for (unsigned i = 0; i < MAX_BINS; i++) {
+        header.bins[i].dirty = BAD_PTR;
+        header.bins[i].clean = BAD_PTR;
+    }
 
     /* align things for the heap. Since a chunk has a WORD sized tag at boths ends
      * and our allocator is required to return pointers which align on DOUBLE WORD
@@ -414,7 +417,7 @@ static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
 static void coalesce(ChunkHeader* chunks) {
   ChunkHeader* chunk = chunks;
 
-  while (chunk) {
+  while (chunk != BAD_PTR) {
     ChunkHeader* next = chunk->next;
     ASSERT(!checkBitmap(getPayload(chunk)) && "kmalloc() coalescing chunk exists in bitmap");
 
@@ -476,7 +479,7 @@ typedef enum {
 static ChunkHeader* exactFitSearch(ChunkHeader* chunks, size_t size, ExactFitRebinFlag rebinMismatch) {
   ChunkHeader* chunk = chunks;
 
-  while (chunk) {
+  while (chunk != BAD_PTR) {
     if (isExactMatch(chunk, size)) {
       return chunk;
     }
@@ -500,7 +503,7 @@ static ChunkHeader* exactFitSearch(ChunkHeader* chunks, size_t size, ExactFitReb
 static ChunkHeader* firstFitSearch(ChunkHeader* chunks, size_t size) {
   ChunkHeader* chunk = chunks;
 
-  while (chunk) {
+  while (chunk != BAD_PTR) {
     if (getSize(chunk) >= size) {
       return chunk;
     }
@@ -543,8 +546,8 @@ ChunkHeader* splitChunk(ChunkHeader* chunk, size_t size, ChunkHeader** rest) {
  * once it has been free'd
  */
 static ChunkHeader* allocateChunk(size_t size) {
-  ChunkHeader* chunk = NULL;
-  ChunkHeader* rest = NULL;
+  ChunkHeader* chunk = BAD_PTR;
+  ChunkHeader* rest = BAD_PTR;
 
   /* Step 1: First check if the last free'd block is suitable
    *         does not exceed the requested size by no more than
@@ -559,7 +562,7 @@ static ChunkHeader* allocateChunk(size_t size) {
    *
    * Use this time to coalesce too.
    */
-  if ((chunk = exactFitSearch(getBin(size).dirty, size, ExactFitDontRebin))) {
+  if ((chunk = exactFitSearch(getBin(size).dirty, size, ExactFitDontRebin)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto exit;
   }
@@ -574,7 +577,7 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Step 3: See if there is an exact chunk anywhere in the recent bin.
    *         Failed matches get pushed onto a dirty bin list of the correct size
    */
-  if ((chunk = exactFitSearch(RECENT_CHUNK_BIN, size, ExactFitDoRebin))) {
+  if ((chunk = exactFitSearch(RECENT_CHUNK_BIN, size, ExactFitDoRebin)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto exit;
   }
@@ -582,7 +585,7 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Step 4: Check if the last split produced a remainder which can be used
    *         to satisfy this allocation
    */
-  if ((chunk = firstFitSearch(REMAINDER_CHUNK_BIN, size))) {
+  if ((chunk = firstFitSearch(REMAINDER_CHUNK_BIN, size)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto split;
   }
@@ -650,7 +653,7 @@ static void* __kmalloc(size_t size, int pid) {
 
   ChunkHeader* chunk = allocateChunk(DWORD_PAD(newSize));
 
-  if (chunk) {
+  if (chunk != BAD_PTR) {
     mem = getPayload(chunk);
 
     header->lastAllocSize = getSize(chunk);
@@ -927,7 +930,7 @@ void kmallocDump(void) {
   for (int i = 0; i < MAX_BINS; i++) {
     if (i == 0) {
       struct ChunkHeader *chunks = RECENT_CHUNK_BIN;
-      for (int j = 0; chunks; j++) {
+      for (int j = 0; chunks != BAD_PTR; j++) {
         if (j == 0) {
           fputstr(rp->tty, "** SPECIAL BIN: Recent Chunks\n\n");
         }
@@ -937,7 +940,7 @@ void kmallocDump(void) {
       }
 
       chunks = REMAINDER_CHUNK_BIN;
-      for (int j = 0; chunks; j++) {
+      for (int j = 0; chunks != BAD_PTR; j++) {
         if (j == 0) {
           fputstr(rp->tty, "** SPECIAL BIN: Last Split Remainders\n\n");
         }
@@ -947,7 +950,7 @@ void kmallocDump(void) {
       }
     } else {
       struct ChunkHeader *chunks = getBinByIndex(i).dirty;
-      for (int j = 0; chunks; j++) {
+      for (int j = 0; chunks != BAD_PTR; j++) {
         if (j == 0) {
           fprint(rp->tty, "** DIRTY BIN %d\n\n", i);
         }
@@ -957,7 +960,7 @@ void kmallocDump(void) {
       }
 
       chunks = getBinByIndex(i).clean;
-      for (int j = 0; chunks; j++) {
+      for (int j = 0; chunks != BAD_PTR; j++) {
         if (j == 0) {
           fprint(rp->tty, "** CLEAN BIN %d\n\n", i);
         }
