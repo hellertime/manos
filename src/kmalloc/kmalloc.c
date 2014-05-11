@@ -737,7 +737,9 @@ static void __kfree(void* ptr) {
       allocFree += chunkSize;
       freeCount++;
       allocPM--;
+      getTag(chunk).pid = 0;
       getTag(chunk).free = 1;
+      getFooter(chunk)->pid = 0;
       getFooter(chunk)->free = 1;
       chunk->next = NULL;
       chunk->prev = NULL;
