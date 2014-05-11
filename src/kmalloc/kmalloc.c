@@ -52,6 +52,7 @@ typedef struct ChunkHeader {
 } ChunkHeader;
 
 #define BAD_PTR ((ChunkHeader*)0xbcbcbcbc)
+#define BAD_PPTR ((ChunkHeader**)0xdededede)
 
 /*
  * ChunkBin = (ChunkHeader, ChunkHeader)
@@ -108,7 +109,7 @@ typedef struct ChunkBin {
 #define getPred(chk) ((ChunkHeader*)((char*)(chk) - readSizePtr(getTagPred((chk)))))
 #define getTagSucc(chk) ((ChunkTag*)((char*)(chk) + getSize((chk))))
 #define getTagPred(chk) ((ChunkTag*)((char*)(chk) - sizeof(ChunkTag)))
-#define isUnlinked(chk) ((chk)->prev == BAD_PTR && (chk)->next == BAD_PTR)
+#define isUnlinked(chk) ((chk)->prev == BAD_PPTR && (chk)->next == BAD_PTR)
 #define hasCleanChunks(bin) ((bin).clean != NULL)
 #define hasDirtyChunks(bin) ((bin).dirty != NULL)
 #define isExactMatch(chk, sz) ((chk) && (((getSize((chk))) == (sz)) || (((getSize((chk))) - (sz)) <= MIN_ALLOC_BYTES)))
@@ -230,7 +231,7 @@ ChunkHeader* initChunk(void* mem, size_t size) {
   writeSizePtr(getFooter(chunk), size);
   getTag(chunk).free = 1;
   getFooter(chunk)->free = 1;
-  chunk->prev = BAD_PTR;
+  chunk->prev = BAD_PPTR;
   chunk->next = BAD_PTR;
   return chunk;
 }
@@ -241,7 +242,7 @@ ChunkHeader* initChunk(void* mem, size_t size) {
  * Inserts 'this' before 'that'
  */
 void insertChunkBefore(ChunkHeader* that, ChunkHeader* this) {
-  ASSERT((that->prev != BAD_PTR) && "Cannot insert when 'that' node isn't in a list");
+  ASSERT((that->prev != BAD_PPTR) && "Cannot insert when 'that' node isn't in a list");
   this->prev = that->prev;
   *(this->prev) = this;
   this->next = that;
@@ -397,7 +398,7 @@ static void initRam(void) {
 static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
   if (chunk->prev || chunk->next) {
     chunk = removeChunk(chunk);
-    chunk->prev = BAD_PTR;
+    chunk->prev = BAD_PPTR;
     chunk->next = BAD_PTR;
   }
   return chunk;
@@ -739,8 +740,8 @@ static void __kfree(void* ptr) {
       getTag(chunk).free = 1;
       getFooter(chunk)->pid = 0;
       getFooter(chunk)->free = 1;
+      chunk->prev = BAD_PPTR;
       chunk->next = BAD_PTR;
-      chunk->prev = BAD_PTR;
       clearBitmap(ptr);
       binChunk(chunk, BinRecent);
     }
