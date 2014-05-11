@@ -268,6 +268,7 @@ static void insertChunkAfter(ChunkHeader* that, ChunkHeader* this) {
  * Removes 'this' from its list and returns it.
  */
 ChunkHeader* removeChunk(ChunkHeader* this) {
+  ASSERT(this != NULL && "removeChunk() this is NULL");
   *(this->prev) = this->next;
   if (this->next != BAD_PTR)
     this->next->prev = this->prev;
@@ -400,7 +401,6 @@ static void initRam(void) {
  */
 static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
   if (chunk->prev != BAD_PPTR || chunk->next != BAD_PTR) {
-    ASSERT(chunk != NULL && "unlinkChunk() NULL");
     chunk = removeChunk(chunk);
     chunk->prev = BAD_PPTR;
     chunk->next = BAD_PTR;
