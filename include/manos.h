@@ -8,20 +8,28 @@
 
 #define MANOS_QUANTUM_IN_MILLIS 50
 
+#ifdef NDEBUG
+#define ASSERT assert
+#else
+
 #ifdef PLATFORM_K70CW
-#define ASSERT(x) do {      \
-    __asm("bkpt #1\n\t");   \
-    assert((x));            \
+#define ASSERT(x) do {                                                                      \
+    if (!(x)) {                                                                             \
+        sysprintln("Assertion failed: %s (%s: %s: %d)", #x, __FILE__, __func__, __LINE__);  \
+        __asm volatile ("bkpt #1");                                                         \
+    }                                                                                       \
 }while(0)
 #else
 #define ASSERT assert
 #endif
 
+#endif
+
 extern int criticalRegionCount;
 
 #ifdef PLATFORM_K70CW
-#define DISABLE_INTERRUPTS() __asm("cpsid i")
-#define ENABLE_INTERRUPTS() __asm("cpsie i")
+#define DISABLE_INTERRUPTS() __asm volatile ("cpsid i")
+#define ENABLE_INTERRUPTS() __asm volatile ("cpsie i")
 #else
 #define DISABLE_INTERRUPTS() while(0)
 #define ENABLE_INTERRUPTS() while(0)
