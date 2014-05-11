@@ -492,7 +492,7 @@ static ChunkHeader* exactFitSearch(ChunkHeader* chunks, size_t size, ExactFitReb
       chunk = chunk->next;
     }
   }
-  return NULL;
+  return BAD_PTR;
 }
 
 /*
@@ -510,7 +510,7 @@ static ChunkHeader* firstFitSearch(ChunkHeader* chunks, size_t size) {
     }
     chunk = chunk->next;
   }
-  return NULL;
+  return BAD_PTR;
 }
 
 /*
