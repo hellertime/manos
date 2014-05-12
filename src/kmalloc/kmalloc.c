@@ -776,6 +776,7 @@ static void __kfree(void* ptr) {
       getTag(chunk).free = 1;
       getFooter(chunk)->pid = 0;
       getFooter(chunk)->free = 1;
+      kmemset(ptr, 0xde, chunkSize - (2 * sizeof(ChunkTag)));
       chunk->prev = BAD_PPTR;
       chunk->next = BAD_PTR;
       clearBitmap(ptr);
