@@ -54,7 +54,7 @@ static void _exitsSyscall(int* args) {
     leaveCriticalRegion();
 }
 
-static int postsignalSyscall(int* argc) {
+static int postsignalSyscall(int* args) {
     return syspostsignal((Pid)args[0], (ProcSig)args[1]);
 }
 
