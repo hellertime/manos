@@ -32,7 +32,7 @@ int cmdPs__Main(int argc, char * const argv[]) {
     fprintln(rp->tty, "PID\t\tSTATE\t\tCMD");
     lock(&runQLock);
     printProc(rp);
-    LIST_FOR_EACH_ENTRY(p, procRunQ, nextRunQ) {
+    LIST_FOR_EACH_ENTRY(p, &procRunQ, nextRunQ) {
         printProc(p);
     }
     unlock(&runQLock);
