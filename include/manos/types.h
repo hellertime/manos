@@ -209,7 +209,7 @@ typedef enum {
 typedef struct Proc {
     Pid          pid;
     int          tty;
-    const * char argv
+    const * char argv;
     ProcState    state;
     Portal*      descriptorTable[MANOS_MAXFD];
     Portal*      slash;
