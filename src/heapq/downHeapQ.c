@@ -58,7 +58,7 @@ HeapQ* upHeapQ(HeapQ* q, size_t startIndex, size_t bottomIndex) {
  *   1 - OK
  *   0 - No room
  */
-int pushHeapQ(HeapQ* q, uint32_t x) {
+int enqueueHeapQ(HeapQ* q, uint32_t x) {
     int ok;
     if ((ok = (q->n < q->size))) {
         q->buf[q->n] = x;
