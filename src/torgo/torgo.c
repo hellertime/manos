@@ -190,8 +190,10 @@ int torgo_main(int argc, char * const argv[]) {
 
   fputstr(rp->tty, "[2J[f");
   fputstr(rp->tty, harvard_ansi);
+  fprintln(rp->tty, "");
   fputstr(rp->tty, manos_ansi);
   fputstr(rp->tty, "[G[m");
+  fprintln(rp->tty, "");
   
   const char *ps = ps1;
   while (shell->state == ShellStateRun) {
