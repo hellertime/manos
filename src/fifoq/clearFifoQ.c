@@ -1,5 +1,4 @@
 #include <manos.h>
-#include <string.h>
 
 /**
  * clearFifoQ() - reset the queue, discard contents

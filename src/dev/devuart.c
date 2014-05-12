@@ -152,22 +152,8 @@ static ptrdiff_t readUart(Portal* p, void* buf, size_t size, Offset offset) {
             return -1;
         }
         while (bytes < size) {
-            char c = uart->hw->getc(uart);
-            switch (c) {
-            case 0x03:
-                sysprintln("%s: ctrl-C", uart->name);
-                break;
-            case 0x04:
-                sysprintln("%s: ctrl-D", uart->name);
-                break;
-            case 0x1a:
-                sysprintln("%s: ctrl-Z", uart->name);
-                break;
-            default:
-                *((char*)buf + bytes) = c;
-                bytes++;
-                break;
-            }
+            *((char*)buf + bytes) = uart->hw->getc(uart);
+            bytes++;
         }
         return bytes;
     default:

@@ -118,6 +118,11 @@ int    isFullFifoQ(FifoQ*);
 int    enqueueFifoQ(FifoQ*, char);
 int    dequeueFifoQ(FifoQ*, char*);
 
+HeapQ* newHeapQ(size_t);
+HeapQ* clearHeapQ(HeapQ*);
+int    enqueueHeapQ(HeapQ*, intptr_t);
+int    dequeueHeapQ(HeapQ*, intptr_t*);
+
 void secondsToDate(uint64_t, struct Date* date);
 uint64_t dateToSeconds(const struct Date*);
 

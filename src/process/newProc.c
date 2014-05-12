@@ -29,12 +29,15 @@ void recycleProc(Proc* p) {
     INIT_LIST_HEAD(&p->waitQ);
     INIT_LIST_HEAD(&p->nextWaitQ);
     INIT_LIST_HEAD(&p->nextRunQ);
+    clearHeapQ(p->signalQ);
+    p->sigPending = 0;
     leaveProcGroup(p->pgrp);
     p->pgrp = 0;
     p->ppid = 0;
     p->sp = 0;
     syslock(&freelistLock);
     listAddBefore(&p->nextFreelist, &procFreelist);
+    procTable[p->pid] = 0;
     sysunlock(&freelistLock);
 }
 
@@ -69,8 +72,14 @@ Proc* newProc(void) {
         p->stack = (uint32_t*)stack;
         ASSERT(*p->canary1 == *p->canary2 && "newProc() canaries are not equal");
     }
+    if (!p->signalQ)
+        p->signalQ = newHeapQ(MANOS_MAXSIGPENDING);
+    clearHeapQ(p->signalQ);
     p->pgrp = newProcGroup(p->pid);
     p->ppid = rp ? rp->pid : 0;
+    p->sigPending = 0;
+    ASSERT(procTable[p->pid] == NULL && "newProc() existing proc in table");
+    procTable[p->pid] = p;
 
     return p;
 }

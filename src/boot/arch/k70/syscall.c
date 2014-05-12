@@ -211,6 +211,25 @@ void waitpid(int pid) {
 
 #ifdef PLATFORM_K70CW
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+int __attribute__((naked, noinline)) postsignal(Pid pid, ProcSig sig) {
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_POSTSIGNAL)
+    );
+}
+#pragma GCC diagnostic pop
+#else
+int postsignal(Pid pid, ProcSig sig) {
+    syspostsignal(pid, sig);
+}
+#endif
+
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
 void __attribute__((naked, noinline)) _exits(void) {
 __asm(
     "svc %[syscall]\n\t"

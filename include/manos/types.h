@@ -64,6 +64,12 @@ typedef struct FifoQ {
     char   buf[];
 } FifoQ;
 
+typedef struct HeapQ {
+    size_t   n;
+    size_t   size;
+    intptr_t buf[];
+} HeapQ;
+
 /*
  * A Crumb is a namespace object identifier and metadata
  */
@@ -182,6 +188,7 @@ struct UartHW {
 };
 
 #define MANOS_MAXFD 1024
+#define MANOS_MAXSIGPENDING 32
 
 typedef enum {
     ProcDead,
@@ -189,6 +196,7 @@ typedef enum {
     ProcReady,
     ProcRunning,
     ProcWaiting,
+    ProcStopped,
 } ProcState;
 
 /**
@@ -203,11 +211,22 @@ typedef struct ProcGroup {
 } ProcGroup;
 
 /**
+ * enum ProcSig - process signals
+ */
+typedef enum ProcSig {
+    SigAbort
+,   SigContinue
+,   SigStop
+} ProcSig;
+
+/**
  * struct Proc - a process thread
  *
  * @pid:             process id
  * @ppid:            parent pid
  * @tty:             process console
+ * @argv:            argv of the Proc
+ * @state:           Proc scheduler state
  * @descriptorTable: open file descriptors
  * @slash:           /
  * @dot:             ./
@@ -215,8 +234,13 @@ typedef struct ProcGroup {
  * @nextWaitQ:       list head to add to other wait queues
  * @nextRunQ:        list head to add to procRunQ
  * @nextFreelist:    list head to add to procFreelist (TODO: consolidate these)
+ * @pgrp:            ProcGroup pointer
+ * @canary1:         stack canary at the top of the stack
+ * @canart2:         stack canary at the bottom of the stack
  * @stack:           process stack
  * @sp:              stack pointer
+ * @sigPending:      flag to note a posted signal
+ * @signalQ:         signal heap
  */
 typedef struct Proc {
     Pid        pid;
@@ -237,6 +261,7 @@ typedef struct Proc {
     uint64_t*  canary2;
     uint32_t*  stack;
     uint32_t   sp;
+    HeapQ*     signalQ;
 } Proc;
 
 typedef struct StackFrame {

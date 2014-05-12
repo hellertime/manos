@@ -50,6 +50,8 @@ int main(int argc, char** argv) {
         listAddAfter(&p->nextFreelist, &procFreelist);
     }
 
+    procTable = syskmalloc0(MANOS_MAXPROC * sizeof(procTable));
+
     sysprintln("Total System RAM: %" PRIu32 "", totalRAM);
     sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
     sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);

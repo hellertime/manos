@@ -54,6 +54,10 @@ static void _exitsSyscall(int* args) {
     leaveCriticalRegion();
 }
 
+static int postsignalSyscall(int* argc) {
+    return syspostsignal((Pid)args[0], (ProcSig)args[1]);
+}
+
 #include <arch/k70/syscall.x>
 
 #include "syscall.h"

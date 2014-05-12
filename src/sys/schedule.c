@@ -18,9 +18,24 @@ Proc* nextRunnableProc(void) {
         if (p->state == ProcDead) {
             listUnlink(&p->nextRunQ);
             recycleProc(p);
-        } else if (p->state == ProcReady) {
-            listUnlinkAndInit(&p->nextRunQ);
-            break;
+        } else {
+            if (p->sigPending) {
+                ProcSig sig;
+                while (dequeueHeapQ(p->signalQ, &sig)) {
+                    switch (sig) {
+                    case SigStop:
+                        p->state = ProcStopped;
+                        break;
+                    default:
+                        sysprintln("ignoring signal: %d pid: %d", sig, p->pid);
+                        break;
+                    }
+                }
+            }
+            if (p->state == ProcReady) {
+                listUnlinkAndInit(&p->nextRunQ);
+                break;
+            }
         }
     }
 

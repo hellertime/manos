@@ -201,7 +201,8 @@ void k70UartInterrupt(void) {
             sysprintln("%s: ctrl-D", uart->name);
             break;
         case 0x1a:
-            sysprintln("%s: ctrl-Z", uart->name);
+            if (rp)
+                syspostsignal(rp->pid, SigStop);
             break;
         default:
             enqueueFifoQ(uart->inQ, c);
