@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <manos/list.h>
 
 void printProc(Proc* p) {
     const char* state;
@@ -35,5 +36,7 @@ int cmdPs__Main(int argc, char * const argv[]) {
         printProc(p);
     }
     unlock(&runQLock);
+    UNUSED(argc);
+    UNUSED(argv);
     return 0;
 }
