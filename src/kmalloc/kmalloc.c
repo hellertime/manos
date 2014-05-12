@@ -491,7 +491,6 @@ static ChunkHeader* exactFitSearch(ChunkHeader* chunks, size_t size, ExactFitReb
 
   while (chunk != BAD_PTR) {
     if (isExactMatch(chunk, size)) {
-      sysprintln("[exactMatchSearch] found chunk size: %d for request size: %d", getSize(chunk), size);
       return chunk;
     }
     if (rebinMismatch) {
@@ -516,7 +515,6 @@ static ChunkHeader* firstFitSearch(ChunkHeader* chunks, size_t size) {
 
   while (chunk != BAD_PTR) {
     if (getSize(chunk) >= size) {
-      sysprintln("[firstFitSearch] found chunk size: %d for request size: %d", getSize(chunk), size);
       return chunk;
     }
     chunk = chunk->next;
@@ -536,8 +534,7 @@ ChunkHeader* splitChunk(ChunkHeader* chunk, size_t size, ChunkHeader** rest) {
   ASSERT(IS_WORD_ALIGNED(size) && "Something is wrong. Size is not WORD aligned");
   ASSERT(IS_WORD_ALIGNED(getSize(chunk)) && "Something is wrong. Chunk is not WORD aligned");
 
-  volatile size_t oldSize = getSize(chunk);
-  sysprintln("[splitChunk] size: %d addr: 0x%08" PRIxPTR "", oldSize, (uintptr_t)chunk);
+  size_t oldSize = getSize(chunk);
   ChunkHeader* chunkA = initChunk(chunk, size);
   ChunkHeader* chunkB = initChunk((char*)chunk + size, oldSize - size);
 
@@ -566,7 +563,6 @@ static ChunkHeader* allocateChunk(size_t size) {
    *         does not exceed the requested size by no more than
    *         MIN_ALLOC_BYTES
    */
-  sysprintln("[allocateChunk] #1");
   if (isExactMatch(RECENT_CHUNK_BIN, size)) {
     chunk = unlinkChunk(RECENT_CHUNK_BIN);
     goto exit;
@@ -576,7 +572,6 @@ static ChunkHeader* allocateChunk(size_t size) {
    *
    * Use this time to coalesce too.
    */
-  sysprintln("[allocateChunk] #2 bin: %d", getBinIndex(size));
   if ((chunk = exactFitSearch(getBin(size).dirty, size, ExactFitDontRebin)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto exit;
@@ -594,7 +589,6 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Step 3: See if there is an exact chunk anywhere in the recent bin.
    *         Failed matches get pushed onto a dirty bin list of the correct size
    */
-  sysprintln("[allocateChunk] #3");
   if ((chunk = exactFitSearch(RECENT_CHUNK_BIN, size, ExactFitDoRebin)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto exit;
@@ -603,37 +597,31 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Step 4: Check if the last split produced a remainder which can be used
    *         to satisfy this allocation
    */
-  sysprintln("[allocatedChunk] #4");
   if ((chunk = firstFitSearch(REMAINDER_CHUNK_BIN, size)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto split;
   }
 
   /* Step 5: Does the bin have a chunk in its clean list */
-  sysprintln("[allocatedChunk] #5 bin: %d", getBinIndex(size));
   if ((chunk = firstFitSearch(getBin(size).clean, size)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto split;
   }
 
   /* Step 6: Scan all larger bins for a chunk ... */
-  sysprintln("[allocatedChunk] #6");
   for (int i = getBinIndex(size) + 1; i < MAX_BINS; i++) {
     if ((chunk = firstFitSearch(getBinByIndex(i).clean, size)) != BAD_PTR) {
-      sysprintln("[allocatedChunk] bin: %d", i);
       chunk = unlinkChunk(chunk);
       goto split;
     }
   }
 
   /* Step 7: Coalesce space until a fit is found */
-  sysprintln("[allocatedChunk] #7");
   for (int i = getBinIndex(size) + 1; i < MAX_BINS; i++) {
       /*
 	coalesce(getBinByIndex(i).dirty);
         */
     if ((chunk = firstFitSearch(getBinByIndex(i).clean, size)) != BAD_PTR) {
-      sysprintln("[allocatedChunk] bin: %d", i);
       chunk = unlinkChunk(chunk);
       goto split;
     }
@@ -647,14 +635,12 @@ split:
   if (getSize(chunk) - size < MIN_ALLOC_BYTES) {
     goto exit;
   }
-  sysprintln("[allocatedChunk] #9");
   /* Step 9: carve off a chunk of memory */
   chunk = splitChunk(chunk, size, &rest);
 
 
-  volatile size_t sizeRest = getSize(rest);
+  size_t sizeRest = getSize(rest);
   if (header->lastAllocSize == size) {
-    sysprintln("[allocateChunk] Preallocating for size: %d from size: %d", size, sizeRest);
     for (int i = 0; i < MAX_PRE_ALLOCATIONS && sizeRest > size && (sizeRest - size) >= MIN_ALLOC_BYTES; i++) {
       ChunkHeader* pre = splitChunk(rest, size, &rest);
       binChunk(pre, BinRecent);
