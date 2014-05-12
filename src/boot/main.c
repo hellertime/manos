@@ -15,6 +15,7 @@ extern char* heap;
  * Kernel entry point. For now it just launches the shell.
  */
 int main(int argc, char** argv) {
+    char * const firstArgv[] = { "/bin/sh", 0 };
     INIT_LIST_HEAD(&procRunQ);
     INIT_LIST_HEAD(&procFreelist);
     INIT_LOCK(&freelistLock);
@@ -54,7 +55,7 @@ int main(int argc, char** argv) {
     sysprintln("    Heap Address: 0x%.8" PRIx32 "", (uintptr_t)heap);
 
     /* OK. Still in supervisor mode */
-    schedProc(torgo_main, 1, (char * const *)"/bin/sh");
+    schedProc(torgo_main, 1, firstArgv);
 #ifdef PLATFORM_K70CW
     schedInit(50, MANOS_ARCH_K70_SCHED_INT_PRIORITY);
     sysprint("Entering User Mode");
