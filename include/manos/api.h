@@ -25,6 +25,7 @@ void syskfree(void*);
 void* kmemset(void*,int,size_t);
 
 void syswaitpid(int);
+int syspostsignal(Pid, ProcSig);
 
 WalkTrail* emptyWalkTrail(unsigned);
 void freeWalkTrail(WalkTrail*);
