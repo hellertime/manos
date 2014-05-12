@@ -217,6 +217,8 @@ typedef struct Proc {
     ListHead  nextWaitQ;
     ListHead  nextRunQ;
     ListHead  nextFreelist;
+    uint64_t* canary1;
+    uint64_t* canary2;
     uint32_t* stack;
     uint32_t  sp;
 } Proc;

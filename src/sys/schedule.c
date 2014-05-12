@@ -41,6 +41,7 @@ Proc* nextRunnableProc(void) {
 uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     STOP_SYSTICK();
     if (rp) {
+        ASSERT(*rp->canary1 == *rp->carary2 && "scheduleProc() old proc canaries are not equal");
         if (rp->state == ProcRunning) {
             rp->state = ProcReady;
         }
@@ -48,6 +49,7 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     }
     Proc* p = nextRunnableProc();
     rp = p;
+    ASSERT(*rp->canary1 == *rp->carary2 && "scheduleProc() new proc canaries are not equal");
     rp->state = ProcRunning;
     RESET_SYSTICK();
     START_SYSTICK();
