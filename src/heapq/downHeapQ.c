@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <stddef.h>
 
 /**
  * downHeapQ() - maintain the heap invariant after removing a heap item

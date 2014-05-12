@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <manos.h>
+#include <stddef.h>
 
 /**
  * newHeapQ() - allocate memory for a priority heap
