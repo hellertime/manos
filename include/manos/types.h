@@ -261,6 +261,7 @@ typedef struct Proc {
     uint64_t*  canary2;
     uint32_t*  stack;
     uint32_t   sp;
+    int        sigPending;
     HeapQ*     signalQ;
 } Proc;
 
