@@ -29,7 +29,7 @@ void recycleProc(Proc* p) {
     INIT_LIST_HEAD(&p->waitQ);
     INIT_LIST_HEAD(&p->nextWaitQ);
     INIT_LIST_HEAD(&p->nextRunQ);
-    leaveProcGroup(pgrp);
+    leaveProcGroup(p->pgrp);
     p->pgrp = 0;
     p->sp = 0;
     syslock(&freelistLock);
