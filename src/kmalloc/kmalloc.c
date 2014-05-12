@@ -424,7 +424,7 @@ static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
  * Chunks are scanned for free pred and succ chunks, and merged
  * appropriately. The new larger chunk is placed in a new bin
  */
-static void __attribute__((used)) coalesce(ChunkHeader* chunks) {
+static void coalesce(ChunkHeader* chunks) {
   ChunkHeader* chunk = chunks;
 
   while (chunk != BAD_PTR) {
@@ -578,13 +578,11 @@ static ChunkHeader* allocateChunk(size_t size) {
   }
 
   /* Only coalesce if there are dirty chunks, but no match */
-  /*
   if (getBin(size).dirty != BAD_PTR) {
     coalesce(getBin(size).dirty);
     struct ChunkHeader *rb = RECENT_CHUNK_BIN;
     coalesce(rb);
   }
-  */
 
   /* Step 3: See if there is an exact chunk anywhere in the recent bin.
    *         Failed matches get pushed onto a dirty bin list of the correct size
@@ -618,9 +616,7 @@ static ChunkHeader* allocateChunk(size_t size) {
 
   /* Step 7: Coalesce space until a fit is found */
   for (int i = getBinIndex(size) + 1; i < MAX_BINS; i++) {
-      /*
-	coalesce(getBinByIndex(i).dirty);
-        */
+    coalesce(getBinByIndex(i).dirty);
     if ((chunk = firstFitSearch(getBinByIndex(i).clean, size)) != BAD_PTR) {
       chunk = unlinkChunk(chunk);
       goto split;
