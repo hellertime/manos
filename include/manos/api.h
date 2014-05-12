@@ -120,8 +120,8 @@ int    dequeueFifoQ(FifoQ*, char*);
 
 HeapQ* newHeapQ(size_t);
 HeapQ* clearHeapQ(HeapQ*);
-int    enqueueHeapQ(HeapQ*, intptr_t);
-int    dequeueHeapQ(HeapQ*, intptr_t*);
+int    enqueueHeapQ(HeapQ*, uint32_t);
+int    dequeueHeapQ(HeapQ*, uint32_t*);
 
 void secondsToDate(uint64_t, struct Date* date);
 uint64_t dateToSeconds(const struct Date*);
