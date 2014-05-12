@@ -42,7 +42,7 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     STOP_SYSTICK();
     if (rp) {
         ASSERT(*rp->canary1 == *rp->canary2 && "scheduleProc() old proc canaries are not equal");
-        ASSERT(rp->sp < (uintptr_t)rp->canary2 && "scheduleProc() old proc sp below canary");
+        ASSERT(sp < (uintptr_t)rp->canary2 && "scheduleProc() old proc sp below canary");
         if (rp->state == ProcRunning) {
             rp->state = ProcReady;
         }
