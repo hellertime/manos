@@ -9,5 +9,10 @@ ptrdiff_t sysread(int fd, void* buf, size_t n) {
         return -1;
     }
 
+    if (p->device >= MANOS_MAXDEV) {
+        errno = ENODEV;
+        return -1;
+    }
+
     return deviceTable[p->device]->read(p, buf, n, p->offset);
 }

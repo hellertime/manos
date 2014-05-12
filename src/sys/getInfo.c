@@ -8,6 +8,11 @@ int sysgetInfoFd(int fd, NodeInfo* ni) {
         return -1;
     }
 
+    if (p->device >= MANOS_MAXDEV) {
+        errno = ENODEV;
+        return -1;
+    }
+
     if (p->crumb.flags & CRUMB_ISDIR) {
         errno = EISDIR;
         return -1;
