@@ -9,7 +9,7 @@ Pid getpid(void);
 Proc* newProc(void);
 void recycleProc(Proc*);
 
-ProcGroup newProcGroup(int);
+ProcGroup* newProcGroup(int);
 void leaveProcGroup(ProcGroup*);
 void joinProcGroup(ProcGroup*, Proc*);
 

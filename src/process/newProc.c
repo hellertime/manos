@@ -5,7 +5,7 @@
 uint64_t canary = 0xdecade0fc0ffecab;
 
 ProcGroup* newProcGroup(int pgid) {
-    ProcGroup* pgrp = sysmalloc0(sizeof *pgrp);
+    ProcGroup* pgrp = syskmalloc0(sizeof *pgrp);
     INIT_REF(&pgrp->memberCount);
     incRef(&pgrp->memberCount);
     pgrp->pgid = pgid;
