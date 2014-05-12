@@ -369,7 +369,7 @@ static void initRam(void) {
     ramHighAddress = (char*)SDRAM_END;
 
     /* Zero out the header RAM */
-    memset(ram0, 0, sizeof *header);
+    kmemset(ram0, 0, sizeof *header);
     
     /* Overlay the header at the base of ram */
     header = (struct AllocHeader*)ram0;
@@ -390,7 +390,7 @@ static void initRam(void) {
     totalRAM = (uint32_t)(ramHighAddress - heap);
     
     /* invalidate the heap */
-    memset(heap, 0xfa, totalRAM);
+    kmemset(heap, 0xfa, totalRAM);
     numChunkOffsets = totalRAM / MIN_ALLOC_BYTES;
 
     ChunkHeader* firstChunk = initChunk(heap, totalRAM);
@@ -758,7 +758,6 @@ static void __kfree(void* ptr) {
       getTag(chunk).free = 1;
       getFooter(chunk)->pid = 0;
       getFooter(chunk)->free = 1;
-      kmemset(ptr, 0xde, chunkSize - (2 * sizeof(ChunkTag)));
       chunk->prev = BAD_PPTR;
       chunk->next = BAD_PTR;
       clearBitmap(ptr);
