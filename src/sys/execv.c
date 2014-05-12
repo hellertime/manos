@@ -23,7 +23,7 @@ static void __manos_exit(void) {
 }
 
 static void setupStack(Proc* p, Cmd cmd, int argc, char * const argv[]) {
-    uint32_t* sp = p->stack + MANOS_ARCH_K70_STACK_SIZE;
+    uint32_t* sp = (uint32_t*)((char*)p->stack + MANOS_ARCH_K70_STACK_SIZE);
 
     *(--sp) = 0x1000000;              /* XPSR */
     *(--sp) = (uint32_t)cmd;          /* PC   */
