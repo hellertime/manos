@@ -33,7 +33,7 @@ HeapQ* downHeapQ(HeapQ* q, size_t startIndex, size_t bottomIndex) {
     return q;
 }
 
-HeapQ* upHeapQ(HeapQ* q, size_t startInde, size_t bottomIndex) {
+HeapQ* upHeapQ(HeapQ* q, size_t startIndex, size_t bottomIndex) {
     size_t upIndex;
 
     if (bottomIndex > startIndex) {
@@ -42,7 +42,7 @@ HeapQ* upHeapQ(HeapQ* q, size_t startInde, size_t bottomIndex) {
             uint32_t tmp = q->buf[upIndex];
             q->buf[upIndex] = q->buf[bottomIndex];
             q->buf[bottomIndex] = tmp;
-            q = upHeapQ(startIndex, upIndex);
+            q = upHeapQ(q, startIndex, upIndex);
         }
     }
 
@@ -60,7 +60,7 @@ HeapQ* upHeapQ(HeapQ* q, size_t startInde, size_t bottomIndex) {
  */
 int pushHeapQ(HeapQ* q, uint32_t x) {
     int ok;
-    if (ok = (q->n < q->size)) {
+    if ((ok = (q->n < q->size))) {
         q->buf[q->n] = x;
         upHeapQ(q, 0, q->n);
         q->n++;
@@ -82,6 +82,6 @@ int dequeueHeapQ(HeapQ* q, uint32_t* x) {
     *x = q->buf[0];
     q->n--;
     q->buf[0] = q->buf[q->n];
-    downHeapQ(q, q->n - 1);
+    downHeapQ(q, 0, q->n - 1);
     return (q->n > 0);
 }
