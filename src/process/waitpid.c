@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <manos/list.h>
 #include <arch/k70/derivative.h>
 
 void syswaitpid(int pid) {
