@@ -3,7 +3,7 @@
 int syspostsignal(Pid pid, ProcSig signal) {
     Proc* p;
     enterCriticalRegion();
-    p = procTable[pid];
+    p = &procTable[pid];
     enqueueHeapQ(p->signalQ, signal);
     p->sigPending = 1;
     leaveCriticalRegion();

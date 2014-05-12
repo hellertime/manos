@@ -21,7 +21,7 @@ Proc* nextRunnableProc(void) {
         } else {
             if (p->sigPending) {
                 ProcSig sig;
-                while (dequeueHeapQ(p->signalQ, &sig)) {
+                while (dequeueHeapQ(p->signalQ, (uint32_t*)&sig)) {
                     switch (sig) {
                     case SigStop:
                         p->state = ProcStopped;
