@@ -757,7 +757,6 @@ static void __kfree(void* ptr) {
     if (checkBitmap(ptr)) {
       ChunkHeader* chunk = (ChunkHeader*)((uintptr_t)ptr - sizeof(ChunkTag));
       size_t chunkSize = getSize(chunk);
-      memset(ptr, 0xfb, chunkSize);
       allocInUse -= chunkSize;
       allocFree += chunkSize;
       freeCount++;
