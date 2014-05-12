@@ -31,6 +31,7 @@ void recycleProc(Proc* p) {
     INIT_LIST_HEAD(&p->nextRunQ);
     leaveProcGroup(p->pgrp);
     p->pgrp = 0;
+    p->ppid = 0;
     p->sp = 0;
     syslock(&freelistLock);
     listAddBefore(&p->nextFreelist, &procFreelist);
@@ -69,6 +70,7 @@ Proc* newProc(void) {
         ASSERT(*p->canary1 == *p->canary2 && "newProc() canaries are not equal");
     }
     p->pgrp = newProcGroup(p->pid);
+    p->ppid = rp ? rp->pid : 0;
 
     return p;
 }

@@ -206,6 +206,7 @@ typedef struct ProcGroup {
  * struct Proc - a process thread
  *
  * @pid:             process id
+ * @ppid:            parent pid
  * @tty:             process console
  * @descriptorTable: open file descriptors
  * @slash:           /
@@ -219,6 +220,7 @@ typedef struct ProcGroup {
  */
 typedef struct Proc {
     Pid        pid;
+    Pid        ppid;
     int        tty;
     char**     argv;
     ProcState  state;
