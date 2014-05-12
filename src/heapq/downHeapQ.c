@@ -1,5 +1,4 @@
 #include <manos.h>
-#include <stddef.h>
 
 /**
  * downHeapQ() - maintain the heap invariant after removing a heap item
@@ -24,7 +23,7 @@ HeapQ* downHeapQ(HeapQ* q, size_t startIndex, size_t bottomIndex) {
             maxIndex = (q->buf[leftIndex] <= q->buf[rightIndex]) ? rightIndex : leftIndex;
 
         if (q->buf[startIndex] <= q->buf[maxIndex]) {
-            intptr_t tmp = q->buf[startIndex];
+            uint32_t tmp = q->buf[startIndex];
             q->buf[startIndex] = q->buf[maxIndex];
             q->buf[maxIndex] = tmp;
             q = downHeapQ(q, maxIndex, bottomIndex);
@@ -40,7 +39,7 @@ HeapQ* upHeapQ(HeapQ* q, size_t startInde, size_t bottomIndex) {
     if (bottomIndex > startIndex) {
         upIndex = (bottomIndex - 1) / 2;
         if (q->buf[upIndex] < q->buf[bottomIndex]) {
-            intptr_t tmp = q->buf[upIndex];
+            uint32_t tmp = q->buf[upIndex];
             q->buf[upIndex] = q->buf[bottomIndex];
             q->buf[bottomIndex] = tmp;
             q = upHeapQ(startIndex, upIndex);
@@ -59,7 +58,7 @@ HeapQ* upHeapQ(HeapQ* q, size_t startInde, size_t bottomIndex) {
  *   1 - OK
  *   0 - No room
  */
-int pushHeapQ(HeapQ* q, intptr_t x) {
+int pushHeapQ(HeapQ* q, uint32_t x) {
     int ok;
     if (ok = (q->n < q->size)) {
         q->buf[q->n] = x;
@@ -79,7 +78,7 @@ int pushHeapQ(HeapQ* q, intptr_t x) {
  *  1 - x is valid
  *  0 - x is invalid, queue empty
  */
-int dequeueHeapQ(HeapQ* q, intptr_t* x) {
+int dequeueHeapQ(HeapQ* q, uint32_t* x) {
     *x = q->buf[0];
     q->n--;
     q->buf[0] = q->buf[q->n];

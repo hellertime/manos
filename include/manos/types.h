@@ -67,7 +67,7 @@ typedef struct FifoQ {
 typedef struct HeapQ {
     size_t   n;
     size_t   size;
-    intptr_t buf[];
+    uint32_t buf[];
 } HeapQ;
 
 /*
