@@ -1,5 +1,7 @@
 #include <manos.h>
 
+extern void __manos_exit(void);
+
 void exits(void) {
-    _exits();
+    __manos_exit();
 }

@@ -8,7 +8,7 @@
 
 extern int __sysopen(Proc*, const char*, Caps);
 
-static void __manos_exit(void) {
+void __manos_exit(void) {
 #ifdef PLATFORM_K70CW
     Proc* p;
     Proc* save;
@@ -18,7 +18,7 @@ static void __manos_exit(void) {
     }
     INIT_LIST_HEAD(&rp->waitQ);
     rp->state = ProcDead;
-    exits();
+    _exits();
 #endif
 }
 
