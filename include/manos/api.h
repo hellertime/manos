@@ -9,6 +9,10 @@ Pid getpid(void);
 Proc* newProc(void);
 void recycleProc(Proc*);
 
+ProcGroup newProcGroup(int);
+void leaveProcGroup(ProcGroup*);
+void joinProcGroup(ProcGroup*, Proc*);
+
 void* kmalloc(size_t);
 void kfree(void*);
 
@@ -134,6 +138,7 @@ int trylock(Lock*);
 void lock(Lock*);
 void unlock(Lock*);
 
+int getRef(Ref*);
 int incRef(Ref*);
 int decRef(Ref*);
 

@@ -4,11 +4,33 @@
 
 uint64_t canary = 0xdecade0fc0ffecab;
 
+ProcGroup* newProcGroup(int pgid) {
+    ProcGroup* pgrp = sysmalloc0(sizeof *pgrp);
+    INIT_REF(&pgrp->memberCount);
+    incRef(&pgrp->memberCount);
+    pgrp->pgid = pgid;
+    return pgrp;
+}
+
+void leaveProcGroup(ProcGroup* pgrp) {
+    if (decRef(&pgrp->memberCount) == 0) {
+        syskfree(pgrp);
+    }
+}
+
+void joinProcGroup(ProcGroup* pgrp, Proc* p) {
+    leaveProcGroup(p->pgrp);
+    incRef(&pgrp->memberCount);
+    p->pgrp = pgrp;
+}
+
 void recycleProc(Proc* p) {
     p->state = ProcDead;
     INIT_LIST_HEAD(&p->waitQ);
     INIT_LIST_HEAD(&p->nextWaitQ);
     INIT_LIST_HEAD(&p->nextRunQ);
+    leaveProcGroup(pgrp);
+    p->pgrp = 0;
     p->sp = 0;
     syslock(&freelistLock);
     listAddBefore(&p->nextFreelist, &procFreelist);
@@ -46,6 +68,7 @@ Proc* newProc(void) {
         p->stack = (uint32_t*)stack;
         ASSERT(*p->canary1 == *p->canary2 && "newProc() canaries are not equal");
     }
+    p->pgrp = newProcGroup(p->pid);
 
     return p;
 }

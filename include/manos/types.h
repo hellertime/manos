@@ -192,6 +192,17 @@ typedef enum {
 } ProcState;
 
 /**
+ * struct ProcGroup - a process group
+ *
+ * @memberCount: reference count on group membership
+ * @pgid:        process group id, takes the id of the first process in the group
+ */
+typedef struct ProcGroup {
+    Ref      memberCount;
+    int      pgid;
+} ProcGroup;
+
+/**
  * struct Proc - a process thread
  *
  * @pid:             process id
@@ -207,22 +218,23 @@ typedef enum {
  * @sp:              stack pointer
  */
 typedef struct Proc {
-    Pid       pid;
-    int       tty;
-    char**    argv;
-    ProcState state;
-    Portal*   descriptorTable[MANOS_MAXFD];
-    Portal*   slash;
-    Portal*   dot;
-    ListHead  waitQ;
-    ListHead  nextWaitQ;
-    ListHead  nextRunQ;
-    ListHead  nextFreelist;
+    Pid        pid;
+    int        tty;
+    char**     argv;
+    ProcState  state;
+    Portal*    descriptorTable[MANOS_MAXFD];
+    Portal*    slash;
+    Portal*    dot;
+    ListHead   waitQ;
+    ListHead   nextWaitQ;
+    ListHead   nextRunQ;
+    ListHead   nextFreelist;
+    ProcGroup* pgrp;
     /* TODO:  track memory allocations with asym-dll, release proc memory on exit, use allocation as storage for linkage */
-    uint64_t* canary1;
-    uint64_t* canary2;
-    uint32_t* stack;
-    uint32_t  sp;
+    uint64_t*  canary1;
+    uint64_t*  canary2;
+    uint32_t*  stack;
+    uint32_t   sp;
 } Proc;
 
 typedef struct StackFrame {
