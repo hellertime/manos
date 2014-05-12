@@ -694,6 +694,12 @@ static void* __kmalloc(size_t size, int pid) {
 
     /* tag this address as allocated in the bitmap */
     ASSERT(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
+    
+    /* DEBUG: Validate each 16k stride */
+    for (char* iter = mem; iter < (mem + size); iter += MIN_ALLOC_BYTES) {
+        ASSERT(!checkBitmap(iter) && "CORRUPT REGION DETECTED! DOUBLE ALLOCATION ERROR");
+    }
+
     setBitmap(mem);
     
     allocInUse += getSize(chunk);
