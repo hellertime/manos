@@ -571,7 +571,7 @@ static ChunkHeader* allocateChunk(size_t size) {
    *
    * Use this time to coalesce too.
    */
-  sysprintln("[allocateChunk] #2 bin: %d", getBin(size));
+  sysprintln("[allocateChunk] #2 bin: %d", getBinIndex(size));
   if ((chunk = exactFitSearch(getBin(size).dirty, size, ExactFitDontRebin)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto exit;
@@ -605,7 +605,7 @@ static ChunkHeader* allocateChunk(size_t size) {
   }
 
   /* Step 5: Does the bin have a chunk in its clean list */
-  sysprintln("[allocatedChunk] #5 bin: %d", getBin(size));
+  sysprintln("[allocatedChunk] #5 bin: %d", getBinIndex(size));
   if ((chunk = firstFitSearch(getBin(size).clean, size)) != BAD_PTR) {
     chunk = unlinkChunk(chunk);
     goto split;
