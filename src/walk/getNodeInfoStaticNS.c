@@ -18,8 +18,6 @@
  * and parent index values be 2^16, this acts as a sentinel value
  */
 NodeInfo* getNodeInfoStaticNS(const Portal* p, const StaticNS* ns, WalkDirection d, NodeInfo *ni) {
-    ASSERT(PORTAL_ISSTATICNS(p) && "Portal is not focuse on a StaticNS path");
-
     const StaticNS* sns = NULL;
 
     if (!ns) {
@@ -27,6 +25,7 @@ NodeInfo* getNodeInfoStaticNS(const Portal* p, const StaticNS* ns, WalkDirection
         return NULL;
     }
 
+    ASSERT(PORTAL_ISSTATICNS(p) && "Portal is not focuse on a StaticNS path");
     StaticIndex parentIdx = STATICNS_CRUMB_PARENT_IDX(p->crumb);
     StaticIndex selfIdx   = STATICNS_CRUMB_SELF_IDX(p->crumb);
 
