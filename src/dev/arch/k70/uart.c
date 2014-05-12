@@ -193,6 +193,19 @@ void k70UartInterrupt(void) {
 
     if (UART_C2_REG(ctrl->mmap) & UART_C2_RIE_MASK && rdrf) {
         char c = UART_D_REG(ctrl->mmap);
-        enqueueFifoQ(uart->inQ, c);
+        switch (c) {
+        case 0x03:
+            sysprintln("%s: ctrl-C", uart->name);
+            break;
+        case 0x04:
+            sysprintln("%s: ctrl-D", uart->name);
+            break;
+        case 0x1a:
+            sysprintln("%s: ctrl-Z", uart->name);
+            break;
+        default:
+            enqueueFifoQ(uart->inQ, c);
+            break;
+        }
     }
 }
