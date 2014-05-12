@@ -59,7 +59,7 @@ Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
 #endif
 
     setupStack(p, cmd, argc, argv);
-    p->argv = argv;
+    p->argv = (char**)argv;
     syslock(&runQLock);
     enterCriticalRegion();
     listAddBefore(&p->nextRunQ, &procRunQ);

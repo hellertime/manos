@@ -24,15 +24,15 @@ void printProc(Proc* p) {
         state = "Unknown";
         break;
     }
-    fprintln("%d\t\t%s\t\t%s", p->pid, state, p->argv[0]);
+    fprintln(rp->tty, "%d\t\t%s\t\t%s", p->pid, state, p->argv[0]);
 }
 
 int cmdPs__Main(int argc, char * const argv[]) {
     Proc* p;
-    fprintln("PID\t\tSTATE\t\tCMD");
+    fprintln(rp->tty, "PID\t\tSTATE\t\tCMD");
     lock(&runQLock);
     printProc(rp);
-    FOR_EACH_ENTRY(p, procRunQ, nextRunQ) {
+    LIST_FOR_EACH_ENTRY(p, procRunQ, nextRunQ) {
         printProc(p);
     }
     unlock(&runQLock);
