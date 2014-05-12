@@ -537,7 +537,7 @@ ChunkHeader* splitChunk(ChunkHeader* chunk, size_t size, ChunkHeader** rest) {
   ASSERT(IS_WORD_ALIGNED(getSize(chunk)) && "Something is wrong. Chunk is not WORD aligned");
 
   volatile size_t oldSize = getSize(chunk);
-  sysprintln("[splitChunk] size: %d", oldSize);
+  sysprintln("[splitChunk] size: %d addr: 0x%08" PRIxPTR "", oldSize, (uintptr_t)chunk);
   ChunkHeader* chunkA = initChunk(chunk, size);
   ChunkHeader* chunkB = initChunk((char*)chunk + size, oldSize - size);
 
