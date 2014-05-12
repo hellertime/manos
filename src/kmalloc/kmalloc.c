@@ -327,12 +327,17 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
     }
     return;
   case BinLastSplitRem:
+    /*
     if ((chunks = REMAINDER_CHUNK_BIN) == BAD_PTR) {
       REMAINDER_CHUNK_BIN = chunk;
       chunk->prev = &REMAINDER_CHUNK_BIN;
     } else {
       insertChunkBefore(chunks, chunk);
     }
+    */
+    ASSERT(REMAINDER_CHUNK_BIN == BAD_PTR && "binChunk() unexpected value in REMAINDER_CHUNK_BIN");
+    REMAINDER_CHUNK_BIN = chunk;
+    chunk->prev = &REMAINDER_CHUNK_BIN;
     return;
   }
 
