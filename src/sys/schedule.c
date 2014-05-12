@@ -11,6 +11,7 @@ Proc* nextRunnableProc(void) {
     Proc* p;
     Proc* save;
 
+    syslock(&runQLock);
     enterCriticalRegion();
 
     LIST_FOR_EACH_ENTRY_SAFE(p, save, &procRunQ, nextRunQ) {
@@ -30,6 +31,7 @@ Proc* nextRunnableProc(void) {
     }
 
     leaveCriticalRegion();
+    sysunlock(&runQLock);
     return p;
 }
 

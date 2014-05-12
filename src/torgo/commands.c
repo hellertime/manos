@@ -9,4 +9,5 @@ CmdTable builtinCmds[] = {
 ,   { "toast", cmdToast__Main }
 ,   { "sh", torgo_main }
 ,   { "lsmem", cmdLsmem__Main }
+,   { "ps", cmdPs__Main }
 };

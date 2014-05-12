@@ -207,21 +207,22 @@ typedef enum {
  * @sp:              stack pointer
  */
 typedef struct Proc {
-    Pid        pid;
-    int        tty;
-    ProcState  state;
-    Portal*    descriptorTable[MANOS_MAXFD];
-    Portal*    slash;
-    Portal*    dot;
-    ListHead   waitQ;
-    ListHead   nextWaitQ;
-    ListHead   nextRunQ;
-    ListHead   nextFreelist;
+    Pid          pid;
+    int          tty;
+    const * char argv
+    ProcState    state;
+    Portal*      descriptorTable[MANOS_MAXFD];
+    Portal*      slash;
+    Portal*      dot;
+    ListHead     waitQ;
+    ListHead     nextWaitQ;
+    ListHead     nextRunQ;
+    ListHead     nextFreelist;
     /* TODO:   track memory allocations with asym-dll, release proc memory on exit, use allocation as storage for linkage */
-    uint64_t*  canary1;
-    uint64_t*  canary2;
-    uint32_t*  stack;
-    uint32_t   sp;
+    uint64_t*    canary1;
+    uint64_t*    canary2;
+    uint32_t*    stack;
+    uint32_t     sp;
 } Proc;
 
 typedef struct StackFrame {
