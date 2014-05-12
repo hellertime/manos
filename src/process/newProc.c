@@ -1,9 +1,8 @@
 #include <manos.h>
 #include <manos/list.h>
-#include <stdint.h>
 #include <string.h>
 
-uint64_t canary = 0xdecade0fc0ffecat;
+uint64_t canary = 0xdecade0fc0ffecab;
 
 void recycleProc(Proc* p) {
     p->state = ProcDead;
