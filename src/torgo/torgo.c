@@ -169,7 +169,7 @@ int populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv)
   }
 
   char* lastArg = argv_[argc_ - 1];
-  if (lastArg + strlen(lastArg) == '&') {
+  if (*(lastArg + strlen(lastArg)) == '&') {
     *(lastArg + strlen(lastArg)) = '\0';
     bg = 1;
   }
