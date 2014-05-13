@@ -27,8 +27,10 @@ static void resetTimer(void) {
 
         hpCount++;
 
-        for (hpChain = timer; hpChain->next != NULL; hpChain = hpChain->next)
+        for (hpChain = timer; hpChain->next != NULL; hpChain = hpChain->next) {
+            LIST_HEAD_INIT(&timer->alarms);
             hpCount++;
+        }
     }
 
     timerSNSCount = 2 + (2 * hpCount); /* dot, sentinel, timer files */

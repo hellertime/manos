@@ -317,7 +317,7 @@ typedef struct Timer {
     int           clock;
     int           psd;
     int           mod;
-    void          (*oneShotAction)(void);
+    ListHead      alarms;
     Timestamp     timestamp;
     TimerHW*      hw;
     struct Timer* next;
