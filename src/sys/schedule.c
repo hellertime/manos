@@ -75,3 +75,10 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     START_SYSTICK();
     return rp->sp;
 }
+
+int syssleep(long millis) {
+    int fd = sysopen("/dev/timer/k70MilliTimer", CAP_WRITE);
+    ptrdiff_t status = syswrite(fd, &millis, sizeof millis);
+    sysclose(fd);
+    return status;
+}

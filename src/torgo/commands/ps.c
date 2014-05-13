@@ -20,6 +20,9 @@ void printProc(Proc* p) {
     case ProcWaiting:
         state = "Wait";
         break;
+    case ProcStopped:
+        state = "Stop";
+        break;
     default:
         state = "Unknown";
         break;

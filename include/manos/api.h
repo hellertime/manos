@@ -28,6 +28,7 @@ void* kmemset(void*,int,size_t);
 
 void syswaitpid(int);
 int syspostsignal(Pid, ProcSig);
+int syssleep(long);
 
 int setSignalMask(uint32_t, uint32_t*);
 int setSignalBlock(uint32_t, uint32_t*);
@@ -167,6 +168,7 @@ ptrdiff_t kread(int, void*, size_t);
 ptrdiff_t kwrite(int, void*, size_t);
 void _exits(void);
 void exits(void);
+int sleep(long);
 
 #define ATOMIC(expr) do {   \
     enterCriticalRegion();  \

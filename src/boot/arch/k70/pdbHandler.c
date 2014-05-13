@@ -1,4 +1,5 @@
 #include <manos.h>
+#include <manos/list.h>
 
 extern long long pdbInterruptCount;
 
@@ -11,8 +12,17 @@ void pdbHandler(void) {
     Timer* timer = hotpluggedTimers->next;
     if (timer) {
         timer->hw->clear(timer);
-        if (timer->oneShotAction)
-            timer->oneShotAction();
-        timer->oneShotAction = 0;
+        enterCriticalRegion();
+        int fd = sysopen("/dev/timer/k70Timer", CAP_READ);
+        uint64_t now;
+        sysread(fd, &now, sizeof now);
+        sysclose(fd);
+        FOR_EACH_ENTRY_SAFE(iter, save, &timer->alarms, next) {
+            if (iter->wakeTime <= now) {
+                syspostsignal(iter->pid, SigAlarm);
+                listUnlink(&iter->next);
+                syskfree(iter);
+            }
+        }
     }
 }

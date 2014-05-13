@@ -213,6 +213,25 @@ void waitpid(int pid) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+int __attribute__((naked, noinline)) sleep(long millis) {
+__asm(
+    "svc %[syscall]\n\t"
+    "bx lr"
+    :
+    : [syscall] "I" (MANOS_SYSCALL_SLEEP)
+    );
+}
+#pragma GCC diagnostic pop
+#else
+int sleep(long millis) {
+    return syssleep(millis);
+}
+#endif
+
+#ifdef PLATFORM_K70CW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 int __attribute__((naked, noinline)) postsignal(Pid pid, ProcSig sig) {
 __asm(
     "svc %[syscall]\n\t"

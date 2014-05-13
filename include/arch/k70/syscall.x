@@ -15,6 +15,7 @@
     X(UNLOCK,     unlock,    1)  \
     X(WAITPID,    waitpid,   1)  \
     X(EXITS,      _exits,    1)  \
-    X(POSTSIGNAL, postsignal, 0)
+    X(POSTSIGNAL, postsignal, 0) \
+    X(SLEEP,      sleep,     0)
 
 

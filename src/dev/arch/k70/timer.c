@@ -73,8 +73,8 @@ Timer k70Timer[] = {
 },
 {   .regs  = &k70Control[1]
 ,   .name  = "k70PDB0"
-,   .psd   = 7 /* 1 << 7 */
-,   .mod   = 0x5b8e /* clock is 60MHz, 60MZ / (128 * 40 -- prescalar * mult) == 11719Hz, mod is 11719 * 2 = 2Sec*/
+,   .psd   = 0 
+,   .mod   = 0x3a9 /* clock is 60MHz, 60MZ / 128 == 937.5Hz, mod is 937, gives us ~1ms resolution */
 ,   .hw    = &k70PDBHW
 ,   .next  = 0
 }
@@ -97,6 +97,7 @@ static void k70PDBStart(Timer* timer) {
     Control* ctrl = timer->regs;
     *ctrl->timerSc |= PDB_SC_PDBEN_MASK; /* enable pdb */
     *ctrl->timerSc |= PDB_SC_SWTRIG_MASK; /* then enable sw trigger */
+    *ctrl->timerSc |= PDB_SC_CONT_MASK;  /* run as a continuous timer */
 }
 
 static void k70TimerStart(Timer* timer) {
@@ -194,7 +195,7 @@ TimerHW k70TimerHW = {
 };
 
 TimerHW k70PDBHW = {
-    .name    = "k70OneShot"
+    .name    = "k70MilliTimer"
 ,   .hotplug = k70TimerHotplug
 ,   .disable = k70PDBDisable
 ,   .power   = k70PDBPower

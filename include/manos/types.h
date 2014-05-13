@@ -217,6 +217,7 @@ typedef enum ProcSig {
     SigAbort    = 0x00000001
 ,   SigContinue = 0x00000002
 ,   SigStop     = 0x00000004
+,   SigAlarm    = 0x00000008
 } ProcSig;
 
 /**
@@ -341,5 +342,11 @@ typedef struct Date {
     int month;
     int year;
 } Date;
+
+typedef struct AlarmChain {
+    uint64_t wakeTime;
+    Pid      pid;
+    ListHead next;
+} AlarmChain;
 
 #endif /* ! MANOS_TYPES_H */

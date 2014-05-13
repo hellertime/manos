@@ -15,19 +15,8 @@ void showToast(void) {
 int cmdToast__Main(int argc, char * const argv[]) {
     UNUSED(argc);
     UNUSED(argv);
-
-#ifdef PLATFORM_K70CW
-    uintptr_t action = (uintptr_t)&showToast;
-    int fd = kopen("/dev/timer/k70OneShot", CAP_WRITE);
-    ptrdiff_t status = kwrite(fd, &action, sizeof action);
-    kclose(fd);
-
-    if (status == -1)
-        fprintln(rp->tty, "Someone's making toast...");
-    else
-        fprintln(rp->tty, "Get ready for toast...");
-#else
+    fprintln(rp->tty, "Get ready for toast...");
+    sleep(2 * 1000); /* 2 second sleep */
     showToast();
-#endif
     return 0;
 }
