@@ -580,8 +580,10 @@ static ChunkHeader* allocateChunk(size_t size) {
   /* Only coalesce if there are dirty chunks, but no match */
   if (getBin(size).dirty != BAD_PTR) {
     coalesce(getBin(size).dirty);
+    /*
     struct ChunkHeader *rb = RECENT_CHUNK_BIN;
     coalesce(rb);
+    */
   }
 
   /* Step 3: See if there is an exact chunk anywhere in the recent bin.
