@@ -84,71 +84,11 @@ static inline void listUnlinkAndInit(ListHead* node) {
 }
 
 /**
- * listJumpBefore() - jump the head from a list to other
- * @head:             the node to jump
- * @other:            the list to jump to
- */
-static inline void listJumpBefore(ListHead* head, ListHead* other) {
-    __listUnlink(head->prev, head->next);
-    listAddBefore(head, other);
-}
-
-/**
- * listJumpAfter() - jump the head from a list to other
- * @head:            the node to jump
- * @other:           the list to jump to
- */
-static inline void listJumpAfter(ListHead* head, ListHead* other) {
-    __listUnlink(head->prev, head->next);
-    listAddAfter(head, other);
-}
-
-/**
  * listIsEmpty() - test for emptiness
  * @head:          head of the list to check
  */
 static inline int listIsEmpty(ListHead* head) {
     return head->next == head;
-}
-
-/**
- * __listSplice() - splice two lists at head
- * @list:           the list to add
- * @head:           the splice point
- *
- * WARNING: This is an unsafe routine, and does no checking for empty lists
- */
-static inline void __listSplice(ListHead* list, ListHead* head) {
-    ListHead* first = list->next;
-    ListHead* last  = list->prev;
-    ListHead* at    = head->next;
-
-    first->prev = head;
-    head->next  = first;
-    last->next  = at;
-    at->prev    = last;
-}
-
-/**
- * listSplice() - splice two lists if list isn't empty
- * @list:         list to splice in
- * @head:         splice point
- */
-static inline void listSplice(ListHead* list, ListHead* head) {
-    if (! listIsEmpty(list))
-        __listSplice(list, head);
-}
-
-/**
- * listSpliceAndInit() - splice and re init the spliced in list
- * @list:                list to splice in and re init
- * @head:                splice point
- */
-static inline void listSpliceAndInit(ListHead* list, ListHead* head) {
-    if (! listIsEmpty(list)) {
-        __listSplice(list, head);
-        INIT_LIST_HEAD(list);
-    }
 }
 
 #define CONTAINER_OF(ptr, type, member) ({                  \
@@ -180,7 +120,7 @@ static inline void listSpliceAndInit(ListHead* list, ListHead* head) {
  * @head:                 start of iteration
  */
 #define LIST_FOR_EACH_SAFE(pos, x, head) \
-    for (pos = (head)->next, n = pos->next; pos != (head); \
+    for (pos = (head)->next, x = pos->next; pos != (head); \
             pos = x, x = pos->next)
 
 /**
