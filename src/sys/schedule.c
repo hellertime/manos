@@ -11,7 +11,9 @@ static void processSignals(Proc* p) {
         wakeWaiting(p);
         p->state = ProcStopped;
     } else if (p->sigPending & SigContinue) {
-        /* noop */
+        p->state = ProcReady;
+        listAddAfter(&procTable[p->ppid]->nextWaitQ, &p->waitQ);
+        procTable[p->ppid]->state = ProcWaiting;
     } else if (p->sigPending & SigAlarm) {
         p->state = ProcReady;
     }

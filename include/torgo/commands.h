@@ -17,6 +17,7 @@ int cmdDate__Main(int, char * const []);
 int cmdToast__Main(int, char * const []);
 int cmdLsmem__Main(int, char * const[]);
 int cmdPs__Main(int, char * const[]);
+int cmdFg__Main(int, char * const[]);
 
-extern CmdTable builtinCmds[9];
+extern CmdTable builtinCmds[10];
 #endif /* ! SHELL_COMMANDS_H */

@@ -10,4 +10,5 @@ CmdTable builtinCmds[] = {
 ,   { "sh", torgo_main }
 ,   { "lsmem", cmdLsmem__Main }
 ,   { "ps", cmdPs__Main }
+,   { "fg", cmdFg__Main }
 };
