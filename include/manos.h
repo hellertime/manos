@@ -91,7 +91,7 @@ extern ListHead procFreelist;
 extern Lock runQLock;
 extern ListHead procRunQ;
 extern Ref nextPid;
-extern Proc* procTable;
+extern Proc** procTable;
 extern Proc* rp; /* always the current running process */
 
 extern Uart* consoleUart; /* UART connected to the console */
