@@ -1,6 +1,7 @@
 #include <manos.h>
 #include <manos/list.h>
 #include <arch/k70/derivative.h>
+#include <string.h>
 
 static void processSignals(Proc* p) {
     uint32_t newPending = 0; /* allow signals to generate signals */
