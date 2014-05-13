@@ -9,6 +9,8 @@ extern long long pdbInterruptCount;
 void pdbHandler(void) {
     ATOMIC(pdbInterruptCount++);
 
+    AlarmChain* iter;
+    AlarmChain* save;
     Timer* timer = hotpluggedTimers->next;
     if (timer) {
         timer->hw->clear(timer);
