@@ -19,6 +19,7 @@ Proc* nextRunnableProc(void) {
             listUnlink(&p->nextRunQ);
             recycleProc(p);
         } else {
+            /*
             if (p->sigPending) {
                 ProcSig sig;
                 while (dequeueHeapQ(p->signalQ, (uint32_t*)&sig)) {
@@ -32,6 +33,7 @@ Proc* nextRunnableProc(void) {
                     }
                 }
             }
+            */
             if (p->state == ProcReady) {
                 listUnlinkAndInit(&p->nextRunQ);
                 break;
