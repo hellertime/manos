@@ -18,7 +18,7 @@ void pdbHandler(void) {
         if (listIsEmpty(&timer->alarms))
             return;
 
-        timer->hw->stop();
+        timer->hw->stop(timer);
         enterCriticalRegion();
         int fd = sysopen("/dev/timer/k70Timer", CAP_READ);
         uint64_t now;
@@ -32,6 +32,6 @@ void pdbHandler(void) {
             }
         }
         leaveCriticalRegion();
-        timer->hw->start();
+        timer->hw->start(timer);
     }
 }
