@@ -77,8 +77,10 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
 }
 
 int syssleep(long millis) {
+    char duration[21] = {0};
+    fmtSnprintf(duration, 20, "%ld", millis);
     int fd = sysopen("/dev/timer/k70MilliTimer", CAP_WRITE);
-    ptrdiff_t status = syswrite(fd, &millis, sizeof millis);
+    ptrdiff_t status = syswrite(fd, duration, strlen(duration));
     sysclose(fd);
     return status;
 }

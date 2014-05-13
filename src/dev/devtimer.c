@@ -145,15 +145,15 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
             return -1;
         }
 
-        uint32_t duration;
-        memcpy(&duration, buf, sizeof duration);
+        char duration[21] = {0};
+        memcpy(duration, buf, size > 20 ? 20 : size);
         AlarmChain* alarm = syskmalloc0(sizeof *alarm);
         enterCriticalRegion();
         int fd = sysopen("/dev/timer/k70Timer", CAP_READ);
         uint64_t now;
         sysread(fd, &now, sizeof now);
         sysclose(fd);
-        alarm->wakeTime = now + duration;
+        alarm->wakeTime = now + atoi(duration);
         alarm->pid = rp ? rp->pid : 0;
         INIT_LIST_HEAD(&alarm->next);
         listAddBefore(&timer->alarms);
