@@ -28,6 +28,7 @@
 
 #endif
 
+extern volatile uint64_t systime;
 extern volatile int criticalRegionCount;
 
 #ifdef PLATFORM_K70CW

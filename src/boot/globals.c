@@ -61,6 +61,8 @@ Uart* hotpluggedUarts = NULL;
 
 Timer* hotpluggedTimers = NULL;
 
+volatile uint64_t systime = 0; /* monotonic timer */
+
 volatile int criticalRegionCount;
 
 #ifdef PLATFORM_K70CW

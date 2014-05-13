@@ -143,11 +143,7 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
         memcpy(duration, buf, size > 20 ? 20 : size);
         AlarmChain* alarm = syskmalloc0(sizeof *alarm);
         enterCriticalRegion();
-        int fd = sysopen("/dev/timer/k70Timer", CAP_READ);
-        uint64_t now;
-        sysread(fd, &now, sizeof now);
-        sysclose(fd);
-        alarm->wakeTime = now + atoi(duration);
+        alarm->wakeTime = systime + atoi(duration);
         alarm->pid = rp ? rp->pid : 0;
         INIT_LIST_HEAD(&alarm->next);
         listAddBefore(&alarm->next, &timer->alarms);

@@ -12,6 +12,9 @@ void toieHandler(void) {
     if (timer) {
         timer->hw->disable(timer);
         timer->hw->start(timer);
-        ATOMIC(timer->timestamp.msecs++);
+        enterCriticalRegion();
+        timer->timestamp.msecs++;
+        systime++;
+        leaveCriticalRegion();
     }
 }

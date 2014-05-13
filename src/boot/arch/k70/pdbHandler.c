@@ -20,10 +20,7 @@ void pdbHandler(void) {
 
         timer->hw->stop(timer);
         enterCriticalRegion();
-        int fd = sysopen("/dev/timer/k70Timer", CAP_READ);
-        uint64_t now;
-        sysread(fd, &now, sizeof now);
-        sysclose(fd);
+        uint64_t now = systime;
         LIST_FOR_EACH_ENTRY_SAFE(iter, save, &timer->alarms, next) {
             if (iter->wakeTime <= now) {
                 syspostsignal(iter->pid, SigAlarm);
