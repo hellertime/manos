@@ -61,7 +61,7 @@ Uart* hotpluggedUarts = NULL;
 
 Timer* hotpluggedTimers = NULL;
 
-int criticalRegionCount;
+volatile int criticalRegionCount;
 
 #ifdef PLATFORM_K70CW
 extern LcdHw k70LcdHw;
