@@ -25,7 +25,6 @@ Proc* nextRunnableProc(void) {
                     switch (sig) {
                     case SigStop:
                         p->state = ProcStopped;
-                        procTable[p->ppid]->state = ProcReady;
                         break;
                     default:
                         sysprintln("ignoring signal: %d pid: %d", sig, p->pid);
