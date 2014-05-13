@@ -9,7 +9,7 @@ static Uart* enableUart(Uart* uart) {
         sysuartctl(uart, "l8");
 
     if (uart->baud == 0)
-        sysuartctl(uart, "b9600");
+        sysuartctl(uart, "b115200");
 
     uart->enabled = 1;
     return uart;
