@@ -1,6 +1,8 @@
 #include <manos.h>
 
 int cmdFizzbuzz__Main(int argc, char * const argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     int fizz = kopen("/dev/led/green", CAP_WRITE);
     int buzz = kopen("/dev/led/blue", CAP_WRITE);
 
