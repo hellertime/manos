@@ -30,5 +30,6 @@ void pdbHandler(void) {
                 syskfree(iter);
             }
         }
+        leaveCriticalRegion();
     }
 }
