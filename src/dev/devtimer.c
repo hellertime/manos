@@ -27,10 +27,8 @@ static void resetTimer(void) {
 
         hpCount++;
 
-        for (hpChain = timer; hpChain->next != NULL; hpChain = hpChain->next) {
-            LIST_HEAD_INIT(&timer->alarms);
+        for (hpChain = timer; hpChain->next != NULL; hpChain = hpChain->next)
             hpCount++;
-        }
     }
 
     timerSNSCount = 2 + (2 * hpCount); /* dot, sentinel, timer files */
@@ -141,12 +139,6 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
     Timer* timer = (Timer*)ni.contents;
 
     if (strcmp(timer->name, "k70PDB0") == 0) {
-
-        if (timer->oneShotAction) {
-            errno = EPERM;
-            return -1;
-        }
-
         char duration[21] = {0};
         memcpy(duration, buf, size > 20 ? 20 : size);
         AlarmChain* alarm = syskmalloc0(sizeof *alarm);
@@ -158,7 +150,7 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
         alarm->wakeTime = now + atoi(duration);
         alarm->pid = rp ? rp->pid : 0;
         INIT_LIST_HEAD(&alarm->next);
-        listAddBefore(&timer->alarms);
+        listAddBefore(&alarm->next, &timer->alarms);
         leaveCriticalRegion();
         return (sizeof duration);
     }
@@ -177,7 +169,7 @@ static int getInfoTimer(const Portal* p, NodeInfo* ni) {
 static void powerTimer(OnOff onoff) {
     for (Timer* timer = hotpluggedTimers; timer; timer = timer->next) {
         if (timer->hw->power) {
-            timer->oneShotAction = 0;
+            INIT_LIST_HEAD(&timer->alarms);
             timer->hw->power(timer, onoff);
             timer->hw->start(timer);
         }
