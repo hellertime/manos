@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
         listAddAfter(&p->nextFreelist, &procFreelist);
     }
 
-    procTable = syskmalloc0(MANOS_MAXPROC * sizeof(procTable));
+    procTable = syskmalloc0(MANOS_MAXPROC * sizeof(Proc*));
 
     sysprintln("Total System RAM: %" PRIu32 "", totalRAM);
     sysprintln(" # Chunk Offsets: %" PRIu32 "", numChunkOffsets);
