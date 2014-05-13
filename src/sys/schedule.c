@@ -42,7 +42,7 @@ Proc* nextRunnableProc(void) {
         }
     }
 
-    if (p->state != ProcReady && rp->state == ProcRunning) {
+    if (p->state != ProcReady && rp->state == ProcReady) {
         p = rp; /* nothing ready, cycle another quantum */
         p->state = ProcReady;
     } else if (rp != NULL) {
