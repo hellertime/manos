@@ -24,7 +24,8 @@ Proc* nextRunnableProc(void) {
                 while (dequeueHeapQ(p->signalQ, (uint32_t*)&sig)) {
                     switch (sig) {
                     case SigStop:
-                        p->state = ProcStopped;
+                        if (p->pid != 1)
+                            p->state = ProcStopped;
                         break;
                     default:
                         sysprintln("ignoring signal: %d pid: %d", sig, p->pid);
