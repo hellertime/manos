@@ -2,7 +2,7 @@
 #include <manos/list.h>
 #include <arch/k70/derivative.h>
 
-static processSignals(Proc* p) {
+static void processSignals(Proc* p) {
     uint32_t newPending = 0; /* allow signals to generate signals */
     if (p->sigPending & SigAbort) {
         /* noop */
@@ -63,7 +63,7 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
         if (rp->state == ProcRunning) {
             rp->state = ProcReady;
         }
-        processSignals(p);
+        processSignals(rp);
         rp->sp = sp;
     }
     Proc* p = nextRunnableProc();
