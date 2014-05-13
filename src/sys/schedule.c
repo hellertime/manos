@@ -23,8 +23,8 @@ static void processSignals(Proc* p) {
  * This does not return until a process is ready to run
  */
 Proc* nextRunnableProc(void) {
-    Proc* p;
-    Proc* save;
+    Proc* p = NULL;
+    Proc* save = NULL;
 
     syslock(&runQLock);
     enterCriticalRegion();
