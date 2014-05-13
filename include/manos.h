@@ -28,7 +28,7 @@
 
 #endif
 
-extern int criticalRegionCount;
+extern volatile int criticalRegionCount;
 
 #ifdef PLATFORM_K70CW
 #define DISABLE_INTERRUPTS() __asm volatile ("cpsid i")
@@ -40,8 +40,6 @@ extern int criticalRegionCount;
 
 #ifdef __GNUC__
 
-#pragma GCC push_options
-#pragma GCC optimize ("O0")
 static inline void enterCriticalRegion(void) {
     if (criticalRegionCount == 0)
         DISABLE_INTERRUPTS();
@@ -53,7 +51,6 @@ static inline void leaveCriticalRegion(void) {
     if (criticalRegionCount == 0)
         ENABLE_INTERRUPTS();
 }
-#pragma GCC pop_options
 
 #else
 #error "Critical Region Code Not Supported on this architecture"
