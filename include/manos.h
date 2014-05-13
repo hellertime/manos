@@ -38,17 +38,20 @@ extern int criticalRegionCount;
 #define ENABLE_INTERRUPTS() while(0)
 #endif
 
-#define enterCriticalRegion() do {  \
-    if (criticalRegionCount == 0)   \
-        DISABLE_INTERRUPTS();       \
-    criticalRegionCount++;          \
-}while(0)
+#pragma GCC push_options
+#pragma GCC optimize("O0")
+static inline void enterCriticalRegion(void) {
+    if (criticalRegionCount == 0)
+        DISABLE_INTERRUPTS();
+    criticalRegionCount++;
+}
 
-#define leaveCriticalRegion() do {  \
-    criticalRegionCount--;          \
-    if (criticalRegionCount == 0)   \
-        ENABLE_INTERRUPTS();        \
-}while(0)
+static inline void leaveCriticalRegion(void) {
+    criticalRegionCount--;
+    if (criticalRegionCount == 0)
+        ENABLE_INTERRUPTS();
+}
+#pragma GCC pop_options
 
 #ifdef PLATFORM_K70CW
 #define YIELD() (SCB_ICSR |= SCB_ICSR_PENDSVSET_MASK)
