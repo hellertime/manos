@@ -58,6 +58,10 @@ static int postsignalSyscall(int* args) {
     return syspostsignal((Pid)args[0], (ProcSig)args[1]);
 }
 
+static int sleepSyscall(int* args) {
+    return syssleep((long)args[0]);
+}
+
 #include <arch/k70/syscall.x>
 
 #include "syscall.h"
