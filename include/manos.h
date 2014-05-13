@@ -38,6 +38,8 @@ extern int criticalRegionCount;
 #define ENABLE_INTERRUPTS() while(0)
 #endif
 
+#ifdef __GNUC__
+
 #pragma GCC push_options
 #pragma GCC optimize("O0")
 static inline void enterCriticalRegion(void) {
@@ -52,6 +54,10 @@ static inline void leaveCriticalRegion(void) {
         ENABLE_INTERRUPTS();
 }
 #pragma GCC pop_options
+
+#else
+#error "Critical Region Code Not Supported on this architecture"
+#endif
 
 #ifdef PLATFORM_K70CW
 #define YIELD() (SCB_ICSR |= SCB_ICSR_PENDSVSET_MASK)
