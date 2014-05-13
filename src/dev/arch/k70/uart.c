@@ -195,6 +195,9 @@ void k70UartInterrupt(void) {
         char c = UART_D_REG(ctrl->mmap);
         switch (c) {
         case 0x03:
+            if (rp) {
+                syspostsignal(rp->pid, SigAbort);
+            }
             break;
         case 0x04:
             enqueueFifoQ(uart->inQ, 0);

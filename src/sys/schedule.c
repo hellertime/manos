@@ -6,9 +6,12 @@
 static void processSignals(Proc* p) {
     uint32_t newPending = 0; /* allow signals to generate signals */
     if (p->sigPending & SigAbort) {
-        /* noop */
+        wakeWaiting(p);
+        INIT_LIST_HEAD(&p->waitQ);
+        p->state = ProcDead;
     } else if (p->sigPending & SigStop) {
         wakeWaiting(p);
+        INIT_LIST_HEAD(&p->waitQ);
         p->state = ProcStopped;
     } else if (p->sigPending & SigContinue) {
         p->state = ProcReady;
