@@ -14,6 +14,10 @@ void pdbHandler(void) {
     Timer* timer = hotpluggedTimers->next;
     if (timer) {
         timer->hw->clear(timer);
+
+        if (listIsEmpty(&timer->alarms))
+            return;
+
         enterCriticalRegion();
         int fd = sysopen("/dev/timer/k70Timer", CAP_READ);
         uint64_t now;
