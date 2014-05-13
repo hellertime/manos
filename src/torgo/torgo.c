@@ -120,13 +120,15 @@ const CharBuf* readPromptShell(Shell *shell, const char *promptStr, int readMax)
  * Sets up 'argc' and expands variables in the process of populating
  * the vector.
  */
-void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv) {
+int populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv) {
   int argc_ = getLengthParseResult(result);
   char **argv_ = kmalloc((1 + argc_) * sizeof *argv_); /* sysexecv must have a NULL terminated array of pointers */
 
   ParseTokenIterator *tokens = getParseTokenIteratorParseResult(result);
   CharBuf *tokenBuilder = mkCharBuf(32);
   CharBuf *varBuilder = mkCharBuf(32);
+
+  int bg = 0;
 
   for (int i = 0; i < argc_; i++) {
     const String *token = getNextParseTokenIterator(tokens);
@@ -166,11 +168,18 @@ void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv
     memcpy(argv_[i], arg, strlen(arg));
   }
 
+  char* lastArg = argv_[argc_ - 1];
+  if (lastArg + strlen(lastArg) == '&') {
+    *(lastArg + strlen(lastArg)) = '\0';
+    bg = 1;
+  }
+
   freeCharBuf(tokenBuilder);
   freeCharBuf(varBuilder);
   freeParseTokenIterator(tokens);
   *argc = argc_;
   *argv = argv_;
+  return bg;
 }
 
 /*
@@ -221,10 +230,11 @@ int torgo_main(int argc, char * const argv[]) {
       if (isCompleteParseResult(result)) {
         int cmdArgc;
         char **cmdArgv;
-        populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
-
+        int bg = populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
         int pid = kexec(cmdArgv[0], cmdArgv);
-        waitpid(pid);
+
+        if (bg)
+            waitpid(pid);
 
         /*
          * Some commands need shell environment access and so cannot be passed of to 'exec' at the moment
