@@ -31,8 +31,8 @@
 extern volatile int criticalRegionCount;
 
 #ifdef PLATFORM_K70CW
-#define DISABLE_INTERRUPTS() __asm volatile ("cpsid i")
-#define ENABLE_INTERRUPTS() __asm volatile ("cpsie i")
+#define DISABLE_INTERRUPTS() __asm volatile ("cpsid i;isb")
+#define ENABLE_INTERRUPTS() __asm volatile ("cpsie i;isb")
 #else
 #define DISABLE_INTERRUPTS() while(0)
 #define ENABLE_INTERRUPTS() while(0)
