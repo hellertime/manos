@@ -197,7 +197,7 @@ void k70UartInterrupt(void) {
         case 0x03:
             break;
         case 0x04:
-            enqueueFifo(uart->inQ, 0);
+            enqueueFifoQ(uart->inQ, 0);
             break;
         case 0x1a:
             if (rp) {
