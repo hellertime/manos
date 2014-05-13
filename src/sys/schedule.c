@@ -12,6 +12,8 @@ static void processSignals(Proc* p) {
         p->state = ProcStopped;
     } else if (p->sigPending & SigContinue) {
         /* noop */
+    } else if (p->sigPending & SigAlarm) {
+        p->state = ProcReady;
     }
     p->sigPending = newPending;
 }
@@ -83,6 +85,9 @@ int syssleep(long millis) {
     int fd = sysopen("/dev/timer/k70MilliTimer", CAP_WRITE);
     ptrdiff_t status = syswrite(fd, duration, strlen(duration));
     sysclose(fd);
+    enterCriticalRegion();
     rp->state = ProcWaiting;
+    YIELD();
+    leaveCriticalRegion();
     return status;
 }
