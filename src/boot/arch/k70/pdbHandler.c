@@ -17,7 +17,7 @@ void pdbHandler(void) {
         uint64_t now;
         sysread(fd, &now, sizeof now);
         sysclose(fd);
-        FOR_EACH_ENTRY_SAFE(iter, save, &timer->alarms, next) {
+        LIST_FOR_EACH_ENTRY_SAFE(iter, save, &timer->alarms, next) {
             if (iter->wakeTime <= now) {
                 syspostsignal(iter->pid, SigAlarm);
                 listUnlink(&iter->next);
