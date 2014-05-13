@@ -669,10 +669,12 @@ static void* __kmalloc(size_t size, int pid) {
     header->lastAllocSize = getSize(chunk);
 
     /* store the PID of the caller in the previously reserved byte just before the footer */
-    getTag(chunk).pid = getFooter(chunk)->pid = pid;
+    getTag(chunk).pid = pid;
+    getFooter(chunk)->pid = pid;
 
     /* indicate this chunk is allocated */
-    getTag(chunk).free = getFooter(chunk)->free = 0;
+    getTag(chunk).free = 0;
+    getFooter(chunk)->free = 0;
 
     /* tag this address as allocated in the bitmap */
     ASSERT(!checkBitmap(mem) && "Memory error. Cannot allocate adress already allocated.");
