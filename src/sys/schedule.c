@@ -83,5 +83,6 @@ int syssleep(long millis) {
     int fd = sysopen("/dev/timer/k70MilliTimer", CAP_WRITE);
     ptrdiff_t status = syswrite(fd, duration, strlen(duration));
     sysclose(fd);
+    rp->state = ProcWaiting;
     return status;
 }
