@@ -156,7 +156,7 @@ static ptrdiff_t writeTimer(Portal* p, void* buf, size_t size, Offset offset) {
         alarm->wakeTime = now + duration;
         alarm->pid = rp ? rp->pid : 0;
         INIT_LIST_HEAD(&alarm->next);
-        listInsertBefore(&timer->alarms);
+        listAddBefore(&timer->alarms);
         leaveCriticalRegion();
         return (sizeof duration);
     }
