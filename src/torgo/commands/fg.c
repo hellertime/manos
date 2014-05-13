@@ -2,7 +2,7 @@
 
 int cmdFg__Main(int argc, char** argv) {
     if (argc != 2) {
-        fprintf(rp->tty, "usage: %s PID\n", argv[0]);
+        fprint(rp->tty, "usage: %s PID\n", argv[0]);
         return 1;
     }
 
