@@ -73,8 +73,8 @@ Timer k70Timer[] = {
 },
 {   .regs  = &k70Control[1]
 ,   .name  = "k70PDB0"
-,   .psd   = 0 
-,   .mod   = 0x3a9 /* clock is 60MHz, 60MZ / 128 == 937.5Hz, mod is 937, gives us ~1ms resolution */
+,   .psd   = 6 
+,   .mod   = 937 /* clock is 60MHz, 60MZ / 64 == 937.5Hz, mod is 937, gives us ~1ms resolution */
 ,   .hw    = &k70PDBHW
 ,   .next  = 0
 }
@@ -157,7 +157,7 @@ static void k70PDBPower(Timer* timer, int onoff) {
         *ctrl->timerSc = PDB_SC_PRESCALER(timer->psd)
                        | PDB_SC_TRGSEL(15) /* software trigger */
                        | PDB_SC_PDBIE_MASK
-                       | PDB_SC_MULT(3) /* psd * 40 */
+                       | PDB_SC_MULT(0) /* psd * 1 */
                        | PDB_SC_LDOK_MASK
                        | PDB_SC_PDBEN_MASK
                        ;

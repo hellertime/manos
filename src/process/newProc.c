@@ -29,6 +29,7 @@ void recycleProc(Proc* p) {
     INIT_LIST_HEAD(&p->waitQ);
     INIT_LIST_HEAD(&p->nextWaitQ);
     INIT_LIST_HEAD(&p->nextRunQ);
+    INIT_LIST_HEAD(&p->nextFreelist);
     p->sigPending = 0;
     p->sigMask    = 0;
     leaveProcGroup(p->pgrp);
