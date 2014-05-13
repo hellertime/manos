@@ -214,9 +214,9 @@ typedef struct ProcGroup {
  * enum ProcSig - process signals
  */
 typedef enum ProcSig {
-    SigAbort
-,   SigContinue
-,   SigStop
+    SigAbort    = 0x00000001
+,   SigContinue = 0x00000002
+,   SigStop     = 0x00000004
 } ProcSig;
 
 /**
@@ -261,8 +261,8 @@ typedef struct Proc {
     uint64_t*  canary2;
     uint32_t*  stack;
     uint32_t   sp;
-    int        sigPending;
-    HeapQ*     signalQ;
+    uint32_t   sigPending;
+    uint32_t   sigMask;
 } Proc;
 
 typedef struct StackFrame {

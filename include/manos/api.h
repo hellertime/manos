@@ -9,6 +9,8 @@ Pid getpid(void);
 Proc* newProc(void);
 void recycleProc(Proc*);
 
+void wakeWaiting(Proc*);
+
 ProcGroup* newProcGroup(int);
 void leaveProcGroup(ProcGroup*);
 void joinProcGroup(ProcGroup*, Proc*);
@@ -26,6 +28,10 @@ void* kmemset(void*,int,size_t);
 
 void syswaitpid(int);
 int syspostsignal(Pid, ProcSig);
+
+int setSignalMask(uint32_t, uint32_t*);
+int setSignalBlock(uint32_t, uint32_t*);
+int setSignalUnblock(uint32_t, uint32_t*);
 
 WalkTrail* emptyWalkTrail(unsigned);
 void freeWalkTrail(WalkTrail*);

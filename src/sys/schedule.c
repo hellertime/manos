@@ -19,19 +19,17 @@ Proc* nextRunnableProc(void) {
             listUnlink(&p->nextRunQ);
             recycleProc(p);
         } else {
-            if (p->sigPending) {
-                ProcSig sig;
-                while (dequeueHeapQ(p->signalQ, (uint32_t*)&sig)) {
-                    switch (sig) {
-                    case SigStop:
-                        if (p->pid != 1)
-                            p->state = ProcStopped;
-                        break;
-                    default:
-                        break;
-                    }
-                }
+            /* process any signals in order of priority */
+            if (p->sigPending & SigAbort) {
+                /* noop */
+            } else if (p->sigPending & SigStop) {
+                wakeWaiting(p);
+                p->state = ProcStopped;
+            } else if (p->sigPending & SigContinue) {
+                /* noop */
             }
+            p->sigPending = 0;
+
             if (p->state == ProcReady) {
                 listUnlinkAndInit(&p->nextRunQ);
                 break;
