@@ -4,17 +4,20 @@
 #include <string.h>
 
 static void processSignals(Proc* p) {
+    static char buf[32];
     uint32_t newPending = 0; /* allow signals to generate signals */
     if (p->sigPending & SigAbort) {
         wakeWaiting(p);
         INIT_LIST_HEAD(&p->waitQ);
         p->state = ProcDead;
-        fprintln(rp->tty, "Killed [%d]", p->pid);
+        int len = fmtSnprintf(buf, sizeof buf, "Killed [%d]", p->pid);
+        syswrite(rp->tty, buf, len);
     } else if (p->sigPending & SigStop) {
         wakeWaiting(p);
         INIT_LIST_HEAD(&p->waitQ);
         p->state = ProcStopped;
-        fprintln(rp->tty, "Stopped [%d]", p->pid);
+        int len = fmtSnprintf(buf, sizeof buf, "Stopped [%d]", p->pid);
+        syswrite(rp->tty, buf, len);
     } else if (p->sigPending & SigContinue) {
         p->state = ProcReady;
         listAddAfter(&procTable[p->ppid]->nextWaitQ, &p->waitQ);
