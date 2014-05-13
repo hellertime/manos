@@ -205,6 +205,7 @@ void k70UartInterrupt(void) {
                 syspostsignal(rp->pid, SigStop);
             break;
         default:
+            sysprintln("enqueue: %d", c);
             enqueueFifoQ(uart->inQ, c);
             break;
         }
