@@ -186,6 +186,9 @@ int torgo_main(int argc, char * const argv[]) {
   UNUSED(argc);
   UNUSED(argv);
   const char *ps1 = "torgo > ", *ps2 = "> ";
+
+  setSignalMask(SigStop, NULL);
+
   Shell *shell = mkShell();
 
   fputstr(rp->tty, "[2J[f");
