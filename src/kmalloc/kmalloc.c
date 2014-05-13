@@ -424,7 +424,7 @@ static ChunkHeader* unlinkChunk(ChunkHeader* chunk) {
  * Chunks are scanned for free pred and succ chunks, and merged
  * appropriately. The new larger chunk is placed in a new bin
  */
-static void coalesce(ChunkHeader* chunks) {
+static void __attribute__((used)) coalesce(ChunkHeader* chunks) {
   ChunkHeader* chunk = chunks;
 
   while (chunk != BAD_PTR) {
