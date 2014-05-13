@@ -18,6 +18,7 @@ int cmdToast__Main(int, char * const []);
 int cmdLsmem__Main(int, char * const[]);
 int cmdPs__Main(int, char * const[]);
 int cmdFg__Main(int, char * const[]);
+int cmdFizzbuzz__Main(int, char * const[]);
 
-extern CmdTable builtinCmds[10];
+extern CmdTable builtinCmds[11];
 #endif /* ! SHELL_COMMANDS_H */

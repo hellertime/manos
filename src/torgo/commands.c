@@ -11,4 +11,5 @@ CmdTable builtinCmds[] = {
 ,   { "lsmem", cmdLsmem__Main }
 ,   { "ps", cmdPs__Main }
 ,   { "fg", cmdFg__Main }
+,   { "fizzbuzz", cmdFizzbuzz__Main }
 };
