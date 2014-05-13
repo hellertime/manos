@@ -28,7 +28,6 @@ Proc* nextRunnableProc(void) {
                             p->state = ProcStopped;
                         break;
                     default:
-                        sysprintln("ignoring signal: %d pid: %d", sig, p->pid);
                         break;
                     }
                 }
