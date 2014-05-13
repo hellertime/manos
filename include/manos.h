@@ -41,7 +41,7 @@ extern int criticalRegionCount;
 #ifdef __GNUC__
 
 #pragma GCC push_options
-#pragma GCC optimize("O0")
+#pragma GCC optimize ("O0")
 static inline void enterCriticalRegion(void) {
     if (criticalRegionCount == 0)
         DISABLE_INTERRUPTS();
