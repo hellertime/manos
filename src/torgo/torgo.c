@@ -168,10 +168,12 @@ int populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv)
     memcpy(argv_[i], arg, strlen(arg));
   }
 
-  char* lastArg = argv_[argc_ - 1];
-  if (*(lastArg + strlen(lastArg)) == '&') {
-    *(lastArg + strlen(lastArg)) = 0;
-    bg = 1;
+  if (argc_) {
+     char* lastArg = argv_[argc_ - 1];
+     if (*(lastArg + strlen(lastArg)) == '&') {
+         *(lastArg + strlen(lastArg)) = 0;
+        bg = 1;
+     }
   }
 
   freeCharBuf(tokenBuilder);
