@@ -195,14 +195,12 @@ void k70UartInterrupt(void) {
         char c = UART_D_REG(ctrl->mmap);
         switch (c) {
         case 0x03:
-            sysprintln("%s: ctrl-C", uart->name);
             break;
         case 0x04:
-            sysprintln("%s: ctrl-D", uart->name);
+            enqueueFifo(uart->inQ, 0);
             break;
         case 0x1a:
             if (rp) {
-                sysprintln("post() SigStop. %d", rp->pid);
                 syspostsignal(rp->pid, SigStop);
             }
             break;

@@ -2,6 +2,18 @@
 #include <manos/list.h>
 #include <arch/k70/derivative.h>
 
+static processSignals(Proc* p) {
+    uint32_t newPending = 0; /* allow signals to generate signals */
+    if (p->sigPending & SigAbort) {
+        /* noop */
+    } else if (p->sigPending & SigStop) {
+        wakeWaiting(p);
+        p->state = ProcStopped;
+    } else if (p->sigPending & SigContinue) {
+        /* noop */
+    }
+    p->sigPending = newPending;
+}
 /**
  * nextRunnableProc() - return a proc to run to the caller
  *
@@ -19,17 +31,7 @@ Proc* nextRunnableProc(void) {
             listUnlink(&p->nextRunQ);
             recycleProc(p);
         } else {
-            /* process any signals in order of priority */
-            if (p->sigPending & SigAbort) {
-                /* noop */
-            } else if (p->sigPending & SigStop) {
-                wakeWaiting(p);
-                p->state = ProcStopped;
-            } else if (p->sigPending & SigContinue) {
-                /* noop */
-            }
-            p->sigPending = 0;
-
+            processSignals(p);
             if (p->state == ProcReady) {
                 listUnlinkAndInit(&p->nextRunQ);
                 break;
@@ -61,6 +63,7 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
         if (rp->state == ProcRunning) {
             rp->state = ProcReady;
         }
+        processSignals(p);
         rp->sp = sp;
     }
     Proc* p = nextRunnableProc();
