@@ -167,7 +167,7 @@ void populateCmdArgsShell(Env *env, ParseResult *result, int *argc, char ***argv
   }
 
   freeCharBuf(tokenBuilder);
-  freeCharBug(varBuilder);
+  freeCharBuf(varBuilder);
   freeParseTokenIterator(tokens);
   *argc = argc_;
   *argv = argv_;
