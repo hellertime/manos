@@ -46,6 +46,7 @@ typedef struct ParseToken {
 
 void freeParseToken(ParseToken *tok) {
   freeString(tok->token);
+  tok->next = NULL;
   kfree(tok);
 }
 
