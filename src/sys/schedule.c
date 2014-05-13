@@ -9,10 +9,12 @@ static void processSignals(Proc* p) {
         wakeWaiting(p);
         INIT_LIST_HEAD(&p->waitQ);
         p->state = ProcDead;
+        fprintln(rp->tty, "Killed [%d]", p->pid);
     } else if (p->sigPending & SigStop) {
         wakeWaiting(p);
         INIT_LIST_HEAD(&p->waitQ);
         p->state = ProcStopped;
+        fprintln(rp->tty, "Stopped [%d]", p->pid);
     } else if (p->sigPending & SigContinue) {
         p->state = ProcReady;
         listAddAfter(&procTable[p->ppid]->nextWaitQ, &p->waitQ);
