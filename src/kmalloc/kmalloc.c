@@ -366,7 +366,7 @@ static void assertChunk(ChunkHeader* chunk) {
     ChunkHeader* succ = getSucc(chunk);
 
     int firstChunk = ((void*)heap == (void*)chunk);
-    int lastChunk  = (((char*)chunk + readSize(chunk)) == ramHighAddress);
+    int lastChunk  = (((char*)chunk + getSize(chunk)) == ramHighAddress);
 
     if (firstChunk)
         sysprintln("validateChunk() first chunk 0x%08" PRIx32 "", (intptr_t)chunk);
