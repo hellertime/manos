@@ -365,20 +365,32 @@ static void assertChunk(ChunkHeader* chunk) {
     ChunkHeader* pred = getPred(chunk);
     ChunkHeader* succ = getSucc(chunk);
 
-    ASSERT(getSize(pred) == readSizePtr(getFooter(pred)) && "validateChunk() pred size consistency error");
-    ASSERT(getSize(succ) == readSizePtr(getFooter(succ)) && "validateChunk() succ size consistency error");
-    ASSERT(getSize(pred) == predSize && "validateChunk() pred size mismatch");
-    ASSERT(getSize(succ) == succSize && "validateChunk() succ size mismatch");
-    ASSERT(getTag(pred).free == getFooter(pred)->free && "validateChunk() pred free consistency error");
-    ASSERT(getTag(succ).free == getFooter(succ)->free && "validateChunk() succ free consistency error");
-    ASSERT(getTag(pred).free == predFree && "validateChunk() pred free mismatch");
-    ASSERT(getTag(succ).free == succFree && "validateChunk() succ free mismatch");
-    ASSERT(((!(predFree || checkBitmap(getPayload(pred))))
-           || (predFree && checkBitmap(getPayload(pred))))
-           && "validateChunk() pred free bitmap error");
-    ASSERT(((!(succFree || checkBitmap(getPayload(succ))))
-           || (succFree && checkBitmap(getPayload(succ))))
-           && "validateChunk() succ free bitmap error");
+    int predSizeConsistent = (getSize(pred) == readSizePtr(getFooter(pred)));
+    int succSizeConsistent = (getSize(succ) == readSizePtr(getFooter(succ)));
+    ASSERT(predSizeConsistent && "validateChunk() pred size consistency error");
+    ASSERT(succSizeConsistent && "validateChunk() succ size consistency error");
+
+    int predSizeOK = (getSize(pred) == predSize);
+    int succSizeOK = (getSize(succ) == succSize);
+    ASSERT(predSizeOK && "validateChunk() pred size mismatch");
+    ASSERT(succSizeOK && "validateChunk() succ size mismatch");
+
+    int predFreeConsistent = (getTag(pred).free == getFooter(pred)->free);
+    int succFreeConsistent = (getTag(succ).free == getFooter(succ)->free);
+    ASSERT(predFreeConsistent && "validateChunk() pred free consistency error");
+    ASSERT(succFreeConsistent && "validateChunk() succ free consistency error");
+
+    int predFreeOK = (getTag(pred).free == predFree);
+    int succFreeOK = (getTag(succ).free == succFree);
+    ASSERT(predFreeOK && "validateChunk() pred free mismatch");
+    ASSERT(succFreeOK && "validateChunk() succ free mismatch");
+
+    int predInBitmap = checkBitmap(getPayload(pred));
+    int succInBitmap = checkBitmap(getPayload(succ));
+    ASSERT((predFree && predInBitmap) && "validateChunk() pred bitmap error");
+    ASSERT(!(predFree || predInBitmap) && "validateChunk() pred lost");
+    ASSERT((succFree && succInBitmap) && "validateChunk() succ bitmap error");
+    ASSERT(!(succFree || succInBitmap) && "validateChunk() succ lost");
 }
 
 /*
