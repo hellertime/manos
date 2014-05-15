@@ -356,6 +356,10 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   return;
 }
 
+static volatile ChunkHeader * const assertChunkAddr     = NULL;
+static volatile ChunkHeader * const assertChunkPredAddr = NULL;
+static volatile ChunkHeader * const assertChunkSuccAddr = NULL;
+
 static void assertChunk(ChunkHeader* chunk) {
     int predFree    = getTagPred(chunk)->free;
     size_t predSize = readSizePtr(getTagPred(chunk));
@@ -364,6 +368,10 @@ static void assertChunk(ChunkHeader* chunk) {
 
     ChunkHeader* pred = getPred(chunk);
     ChunkHeader* succ = getSucc(chunk);
+
+    assertChunkAddr = chunk;
+    assertChunkPredAddr = pred;
+    assertChunkSuccAddr = succ;
 
     int firstChunk = ((void*)heap == (void*)chunk);
     int lastChunk  = (((char*)chunk + getSize(chunk)) == ramHighAddress);
