@@ -8,6 +8,7 @@
 Pid getpid(void);
 Proc* newProc(void);
 void recycleProc(Proc*);
+void abortProc(Proc*);
 
 void wakeWaiting(Proc*);
 

@@ -3,6 +3,6 @@
 extern void __manos_exit(void);
 
 void exits(void) {
-    recycleProc(rp);
+    abortProc(rp);
     __manos_exit();
 }

@@ -24,13 +24,16 @@ void joinProcGroup(ProcGroup* pgrp, Proc* p) {
     p->pgrp = pgrp;
 }
 
-void recycleProc(Proc* p) {
+void abortProc(Proc* p) {
     wakeWaiting(p);
     for (unsigned i = 0; i < COUNT_OF(p->descriptorTable); i++) {
         syskfree(p->descriptorTable[i]);
     }
-    kmemset(p->descriptorTable, 0, sizeof (p->descriptorTable));
+}
+
+void recycleProc(Proc* p) {
     p->state = ProcDead;
+    kmemset(p->descriptorTable, 0, sizeof (p->descriptorTable));
     INIT_LIST_HEAD(&p->waitQ);
     INIT_LIST_HEAD(&p->nextWaitQ);
     INIT_LIST_HEAD(&p->nextRunQ);

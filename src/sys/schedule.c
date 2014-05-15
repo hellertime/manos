@@ -7,7 +7,7 @@ static void processSignals(Proc* p) {
     static char buf[32];
     uint32_t newPending = 0; /* allow signals to generate signals */
     if (p->sigPending & SigAbort) {
-        recycleProc(p);
+        abortProc(p);
         p->state = ProcDead;
         int len = fmtSnprintf(buf, sizeof buf, "Killed [%d]\n", p->pid);
         syswrite(rp->tty, buf, len);
