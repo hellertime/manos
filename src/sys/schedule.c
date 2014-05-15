@@ -7,10 +7,9 @@ static void processSignals(Proc* p) {
     static char buf[32];
     uint32_t newPending = 0; /* allow signals to generate signals */
     if (p->sigPending & SigAbort) {
-        wakeWaiting(p);
-        INIT_LIST_HEAD(&p->waitQ);
+        recycleProc(p);
         p->state = ProcDead;
-        int len = fmtSnprintf(buf, sizeof buf, "Killed [%d]", p->pid);
+        int len = fmtSnprintf(buf, sizeof buf, "Killed [%d]\n", p->pid);
         syswrite(rp->tty, buf, len);
     } else if (p->sigPending & SigStop) {
         wakeWaiting(p);
@@ -96,13 +95,15 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
 
 int syssleep(long millis) {
     char duration[21] = {0};
-    fmtSnprintf(duration, 20, "%ld", millis);
+    fmtSnprintf(duration, sizeof duration, "%ld", millis);
     int fd = sysopen("/dev/timer/k70MilliTimer", CAP_WRITE);
     ptrdiff_t status = syswrite(fd, duration, strlen(duration));
     sysclose(fd);
-    enterCriticalRegion();
-    rp->state = ProcWaiting;
-    YIELD();
-    leaveCriticalRegion();
+    if (status == 0) {
+        enterCriticalRegion();
+        rp->state = ProcWaiting;
+        YIELD();
+        leaveCriticalRegion();
+    }
     return status;
 }

@@ -25,6 +25,13 @@ void joinProcGroup(ProcGroup* pgrp, Proc* p) {
 }
 
 void recycleProc(Proc* p) {
+    wakeWaiting(p);
+    for (unsigned i = 0; i < COUNT_OF(p->descriptorTable); i++) {
+        Portal* px = p->descriptorTable[i];
+        if (px)
+            px->close(px);
+    }
+    kmemset(p->descriptorTable, 0, sizeof (p->descriptorTable));
     p->state = ProcDead;
     INIT_LIST_HEAD(&p->waitQ);
     INIT_LIST_HEAD(&p->nextWaitQ);

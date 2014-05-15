@@ -23,28 +23,28 @@
  */
 
 #define NAMESPACE_MAP     \
-    X(".", STATICNS_SENTINEL, Dot, CRUMB_ISDIR, 0, 0555, 0) \
-    X("bin", FidDot, Bin, CRUMB_ISDIR, 0, 0555, 0) \
-    X("dev", FidDot, Dev, CRUMB_ISDIR, 0, 0555, 0) \
-    X("pwd", FidBin, BinPwd, CRUMB_ISFILE, 5, 0555, "#!pwd") \
-    X("ls", FidBin, BinLs, CRUMB_ISFILE, 4, 0555, "#!ls") \
-    X("cat", FidBin, BinCat, CRUMB_ISFILE, 5, 0555, "#!cat") \
-    X("echo", FidBin, BinEcho, CRUMB_ISFILE, 6, 0555, "#!echo") \
-    X("date", FidBin, BinDate, CRUMB_ISFILE, 6, 0555, "#!date") \
-    X("toast", FidBin, BinToast, CRUMB_ISFILE, 7, 0555, "#!toast") \
-    X("lsmem", FidBin, BinLsmem, CRUMB_ISFILE, 7, 0555, "#!lsmem") \
-    X("ps", FidBin, BinPs, CRUMB_ISFILE, 4, 0555, "#!ps") \
-    X("fg", FidBin, BinFg, CRUMB_ISFILE, 4, 0555, "#!fg") \
-    X("fizzbuzz", FidBin, BinFizzbuzz, CRUMB_ISFILE, 10, 0555, "#!fizzbuzz") \
-    X("swpb", FidDev, DevSwpb, CRUMB_ISMOUNT, DEV_DEVSWPB, 0444, 0) \
-    X("led", FidDev, DevLed, CRUMB_ISMOUNT, DEV_DEVLED, 0444, 0) \
-    X("uart", FidDev, DevUart, CRUMB_ISMOUNT, DEV_DEVUART, 0444, 0) \
-    X("lcd", FidDev, DevLcd, CRUMB_ISMOUNT, DEV_DEVLCD, 0444, 0) \
-    X("adc", FidDev, DevAdc, CRUMB_ISMOUNT, DEV_DEVADC, 0444, 0) \
-    X("timer", FidDev, DevTimer, CRUMB_ISMOUNT, DEV_DEVTIMER, 0444, 0) \
-    X("date", FidDev, DevDevDate, CRUMB_ISMOUNT, DEV_DEVDEV, 0644, "date") \
-    X("kprint", FidDev, DevDevKPrint, CRUMB_ISMOUNT, DEV_DEVDEV, 0222, "kprint") \
-    X("interrupts", FidDev, DecDevInterrupts, CRUMB_ISMOUNT, DEV_DEVDEV, 0444, "interrupts")
+    X(".", STATICNS_SENTINEL,   Dot,                CRUMB_ISDIR,    0,              0555,   0)              \
+    X("bin",        FidDot,     Bin,                CRUMB_ISDIR,    0,              0555,   0)              \
+    X("dev",        FidDot,     Dev,                CRUMB_ISDIR,    0,              0555,   0)              \
+    X("pwd",        FidBin,     BinPwd,             CRUMB_ISFILE,   5,              0555,   "#!pwd")        \
+    X("ls",         FidBin,     BinLs,              CRUMB_ISFILE,   4,              0555,   "#!ls")         \
+    X("cat",        FidBin,     BinCat,             CRUMB_ISFILE,   5,              0555,   "#!cat")        \
+    X("echo",       FidBin,     BinEcho,            CRUMB_ISFILE,   6,              0555,   "#!echo")       \
+    X("date",       FidBin,     BinDate,            CRUMB_ISFILE,   6,              0555,   "#!date")       \
+    X("toast",      FidBin,     BinToast,           CRUMB_ISFILE,   7,              0555,   "#!toast")      \
+    X("lsmem",      FidBin,     BinLsmem,           CRUMB_ISFILE,   7,              0555,   "#!lsmem")      \
+    X("ps",         FidBin,     BinPs,              CRUMB_ISFILE,   4,              0555,   "#!ps")         \
+    X("fg",         FidBin,     BinFg,              CRUMB_ISFILE,   4,              0555,   "#!fg")         \
+    X("fizzbuzz",   FidBin,     BinFizzbuzz,        CRUMB_ISFILE,   10,             0555,   "#!fizzbuzz")   \
+    X("swpb",       FidDev,     DevSwpb,            CRUMB_ISMOUNT,  DEV_DEVSWPB,    0444,   0)              \
+    X("led",        FidDev,     DevLed,             CRUMB_ISMOUNT,  DEV_DEVLED,     0444,   0)              \
+    X("uart",       FidDev,     DevUart,            CRUMB_ISMOUNT,  DEV_DEVUART,    0444,   0)              \
+    X("lcd",        FidDev,     DevLcd,             CRUMB_ISMOUNT,  DEV_DEVLCD,     0444,   0)              \
+    X("adc",        FidDev,     DevAdc,             CRUMB_ISMOUNT,  DEV_DEVADC,     0444,   0)              \
+    X("timer",      FidDev,     DevTimer,           CRUMB_ISMOUNT,  DEV_DEVTIMER,   0444,   0)              \
+    X("date",       FidDev,     DevDevDate,         CRUMB_ISMOUNT,  DEV_DEVDEV,     0644,   "date")         \
+    X("kprint",     FidDev,     DevDevKPrint,       CRUMB_ISMOUNT,  DEV_DEVDEV,     0222,   "kprint")       \
+    X("interrupts", FidDev,     DecDevInterrupts,   CRUMB_ISMOUNT,  DEV_DEVDEV,     0444,   "interrupts")
 
 #define X(p, u, s, t, z, m, c) Fid##s,
 typedef enum {

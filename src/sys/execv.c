@@ -10,8 +10,6 @@ extern int __sysopen(Proc*, const char*, Caps);
 
 void __manos_exit(void) {
 #ifdef PLATFORM_K70CW
-    wakeWaiting(rp);
-    INIT_LIST_HEAD(&rp->waitQ);
     rp->state = ProcDead;
     _exits();
 #endif

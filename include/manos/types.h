@@ -142,20 +142,20 @@ typedef struct Dev {
     DeviceId id;
     char *name;
 
-    void (*power)(OnOff);
-    void (*init)(void);
-    void (*reset)(void);
-    void (*shutdown)(void);
-    Portal* (*attach)(char*);
-    WalkTrail* (*walk)(Portal*, char**, unsigned);
-    int (*create)(Portal*, char*, Caps, Mode);
-    Portal* (*open)(Portal*, Caps);
-    void (*close)(Portal*);
-    int (*remove)(Portal*);
-    int (*getInfo)(const Portal*, NodeInfo*);
-    int (*setInfo)(Portal*, NodeInfo*);
-    ptrdiff_t (*read)(Portal*, void*, size_t, Offset);
-    ptrdiff_t (*write)(Portal*, void*, size_t, Offset);
+    void       (*power)     (OnOff);
+    void       (*init)      (void);
+    void       (*reset)     (void);
+    void       (*shutdown)  (void);
+    Portal*    (*attach)    (char*);
+    WalkTrail* (*walk)      (Portal*, char**, unsigned);
+    int        (*create)    (Portal*, char*, Caps, Mode);
+    Portal*    (*open)      (Portal*, Caps);
+    void       (*close)     (Portal*);
+    int        (*remove)    (Portal*);
+    int        (*getInfo)   (const Portal*, NodeInfo*);
+    int        (*setInfo)   (Portal*, NodeInfo*);
+    ptrdiff_t  (*read)      (Portal*, void*, size_t, Offset);
+    ptrdiff_t  (*write)     (Portal*, void*, size_t, Offset);
 } Dev;
 
 typedef struct Uart Uart;
