@@ -91,6 +91,7 @@ typedef struct ChunkBin {
  */
 #define getTag(chk) ((chk)->tag)
 #define zeroTag(chk) do{\
+        getTag(chk).pid=0;  \
 	getTag(chk).size=0; \
 	getTag(chk).free=0; \
 	}while(0)
@@ -227,6 +228,7 @@ ChunkHeader* initChunk(void* mem, size_t size) {
   ASSERT((size >= MIN_ALLOC_BYTES) && "Attempt to initialize chunk of diminutive size");
   ASSERT(!((char*)mem + size > ramHighAddress) && "Attempt to initialize chunk larger than RAM");
   ChunkHeader *chunk = (ChunkHeader*)mem;
+  zeroTag(chunk);
   writeSize(getTag(chunk), size);
   writeSizePtr(getFooter(chunk), size);
   getTag(chunk).free = 1;
