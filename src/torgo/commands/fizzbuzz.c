@@ -13,10 +13,10 @@ int cmdFizzbuzz__Main(int argc, char * const argv[]) {
         if (tick % 15) {
             kwrite(fizz, "1", 1);
             kwrite(buzz, "1", 1);
-        } else if (i % 5 == 0) {
+        } else if (tick % 5 == 0) {
             kwrite(fizz, "0", 1);
             kwrite(buzz, "1", 1);
-        } else if (i % 3 == 0) {
+        } else if (tick % 3 == 0) {
             kwrite(buzz, "0", 1);
             kwrite(fizz, "1", 1);
         }
