@@ -396,8 +396,7 @@ static void assertChunk(ChunkHeader* chunk) {
         ASSERT(predFreeOK && "validateChunk() pred free mismatch");
 
         int predInBitmap = checkBitmap(getPayload(pred));
-        ASSERT((predFree && predInBitmap) && "validateChunk() pred bitmap error");
-        ASSERT(!(predFree || predInBitmap) && "validateChunk() pred lost");
+        ASSERT((predFree || predInBitmap) && "validateChunk() pred bitmap error");
     }
 
     if (! lastChunk) {
@@ -414,8 +413,7 @@ static void assertChunk(ChunkHeader* chunk) {
         ASSERT(succFreeOK && "validateChunk() succ free mismatch");
 
         int succInBitmap = checkBitmap(getPayload(succ));
-        ASSERT((succFree && succInBitmap) && "validateChunk() succ bitmap error");
-        ASSERT(!(succFree || succInBitmap) && "validateChunk() succ lost");
+        ASSERT((succFree || succInBitmap) && "validateChunk() succ bitmap error");
     }
 }
 
