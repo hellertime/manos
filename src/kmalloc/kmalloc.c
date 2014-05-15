@@ -356,9 +356,9 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   return;
 }
 
-static volatile ChunkHeader * const assertChunkAddr     = NULL;
-static volatile ChunkHeader * const assertChunkPredAddr = NULL;
-static volatile ChunkHeader * const assertChunkSuccAddr = NULL;
+static volatile const ChunkHeader* assertChunkAddr     = NULL;
+static volatile const ChunkHeader* assertChunkPredAddr = NULL;
+static volatile const ChunkHeader* assertChunkSuccAddr = NULL;
 
 static void assertChunk(ChunkHeader* chunk) {
     int predFree    = getTagPred(chunk)->free;
