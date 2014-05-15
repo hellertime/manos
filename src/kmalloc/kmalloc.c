@@ -365,7 +365,7 @@ static void assertChunk(ChunkHeader* chunk) {
     ChunkHeader* pred = getPred(chunk);
     ChunkHeader* succ = getSucc(chunk);
 
-    int firstChunk = (heap == chunk);
+    int firstChunk = ((void*)heap == (void*)chunk);
     int lastChunk  = (((char*)chunk + readSize(chunk)) == ramHighAddress);
 
     if (firstChunk)
