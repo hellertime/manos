@@ -373,12 +373,12 @@ static void assertChunk(ChunkHeader* chunk) {
     ASSERT(getTag(succ).free == getFooter(succ)->free && "validateChunk() succ free consistency error");
     ASSERT(getTag(pred).free == predFree && "validateChunk() pred free mismatch");
     ASSERT(getTag(succ).free == succFree && "validateChunk() succ free mismatch");
-    ASSERT((!(predFree || checkBitmap(getPayload(pred))))
-          || (predFree && checkBitmap(getPayload(pred)))
-          && "validateChunk() pred free bitmap error");
-    ASSERT((!(succFree || checkBitmap(getPayload(succ))))
-          || (succFree && checkBitmap(getPayload(succ)))
-          && "validateChunk() succ free bitmap error");
+    ASSERT(((!(predFree || checkBitmap(getPayload(pred))))
+           || (predFree && checkBitmap(getPayload(pred))))
+           && "validateChunk() pred free bitmap error");
+    ASSERT(((!(succFree || checkBitmap(getPayload(succ))))
+           || (succFree && checkBitmap(getPayload(succ))))
+           && "validateChunk() succ free bitmap error");
 }
 
 /*
