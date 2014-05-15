@@ -356,6 +356,31 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   return;
 }
 
+static void assertChunk(Chunk* chunk) {
+    int predIsFree  = getTagPred(chunk)->free;
+    size_t predSize = readSizePtr(getTagPred(chunk));
+    int succIsFree  = getTagSucc(chunk)->free;
+    size_t succSize = readSizePtr(getTagSucc(chunk));
+
+    ChunkHeader* pred = getPred(chunk);
+    ChunkHeader* succ = getSucc(chunk);
+
+    ASSERT(getSize(pred) == readSizePtr(getFooter(pred)) && "validateChunk() pred size consistency error");
+    ASSERT(getSize(succ) == readSizePtr(getFooter(succ)) && "validateChunk() succ size consistency error");
+    ASSERT(getSize(pred) == predSize && "validateChunk() pred size mismatch");
+    ASSERT(getSize(succ) == predSize && "validateChunk() succ size mismatch");
+    ASSERT(getTag(pred).free == getFooter(pred)->free && "validateChunk() pred free consistency error");
+    ASSERT(getTag(succ).free == getFooter(succ)->free && "validateChunk() succ free consistency error");
+    ASSERT(getTag(pred).free == predFree && "validateChunk() pred free mismatch");
+    ASSERT(getTag(succ).free == succFree && "validateChunk() succ free mismatch");
+    ASSERT((!(predFree || checkBitmap(getPayload(pred))))
+          || (predFree && checkBitmap(getPayload(pred)))
+          && "validateChunk() pred free bitmap error");
+    ASSERT((!(succFree || checkBitmap(getPayload(succ))))
+          || (succFree && checkBitmap(getPayload(succ)))
+          && "validateChunk() succ free bitmap error");
+}
+
 /*
  * initRam :: ()
  *
@@ -755,6 +780,8 @@ static void __kfree(void* ptr) {
     ASSERT(((char*)ptr >= heap) && ((char*)ptr <= ramHighAddress) && "Memory error. Address out of allocator zone");
     if (checkBitmap(ptr)) {
       ChunkHeader* chunk = (ChunkHeader*)((uintptr_t)ptr - sizeof(ChunkTag));
+      assertChunk(chunk);
+
       size_t chunkSize = getSize(chunk);
       allocInUse -= chunkSize;
       allocFree += chunkSize;
