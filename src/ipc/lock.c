@@ -22,6 +22,7 @@ int systrylock(Lock* l) {
 }
 
 void syslock(Lock* l) {
+    ASSERT(l && "syslock() NULL Lock");
 #ifdef PLATFORM_K70CW
     if (!rp)
         return;
