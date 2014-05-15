@@ -356,7 +356,7 @@ static void binChunk(ChunkHeader* chunk, BinChunkMode mode) {
   return;
 }
 
-static void assertChunk(Chunk* chunk) {
+static void assertChunk(ChunkHeader* chunk) {
     int predIsFree  = getTagPred(chunk)->free;
     size_t predSize = readSizePtr(getTagPred(chunk));
     int succIsFree  = getTagSucc(chunk)->free;
