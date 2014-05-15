@@ -27,7 +27,7 @@ void joinProcGroup(ProcGroup* pgrp, Proc* p) {
 void recycleProc(Proc* p) {
     wakeWaiting(p);
     for (unsigned i = 0; i < COUNT_OF(p->descriptorTable); i++) {
-        kfree(p->descriptorTable[i]);
+        syskfree(p->descriptorTable[i]);
     }
     kmemset(p->descriptorTable, 0, sizeof (p->descriptorTable));
     p->state = ProcDead;
