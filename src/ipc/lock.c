@@ -51,6 +51,7 @@ void sysunlock(Lock* l) {
         Proc* p = CONTAINER_OF(&l->q, Proc, nextWaitQ);
         listUnlinkAndInit(&l->q);
         p->state = ProcReady;
+        YIELD();
     }
     leaveCriticalRegion();
 }
