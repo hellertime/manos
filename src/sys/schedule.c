@@ -47,19 +47,7 @@ Proc* nextRunnableProc(void) {
             processSignals(p);
             if (p->state == ProcReady) {
                 listUnlinkAndInit(&p->nextRunQ);
-                foundReady = 1;
                 break;
-            }
-        }
-    }
-
-    if (!foundReady) {
-        p = NULL;
-        if (rp) {
-            if (rp->state == ProcReady) {
-                p = rp;
-            } else {
-                listAddBefore(&rp->nextRunQ, &procRunQ);
             }
         }
     }
@@ -76,6 +64,7 @@ Proc* nextRunnableProc(void) {
  */
 uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     STOP_SYSTICK();
+
     if (rp) {
         ASSERT(*rp->canary1 == *rp->canary2 && "scheduleProc() old proc canaries are not equal");
         ASSERT(sp < (uintptr_t)rp->canary2 && "scheduleProc() old proc sp below canary");
@@ -83,14 +72,12 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
             rp->state = ProcReady;
         }
         processSignals(rp);
+        listAddBefore(&rp->nextRunQ, &procRunQ);
         rp->sp = sp;
+        rp = NULL;
     }
 
-    Proc* p = NULL;
-    while ((p = nextRunnableProc()) == NULL)
-        ;
-
-    rp = p;
+    rp = nextRunnableProc();
     ASSERT(*rp->canary1 == *rp->canary2 && "scheduleProc() new proc canaries are not equal");
     ASSERT(rp->sp < (uintptr_t)rp->canary2 && "scheduleProc() new proc sp below canary");
     rp->state = ProcRunning;
