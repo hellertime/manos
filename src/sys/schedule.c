@@ -16,7 +16,7 @@ static Proc badProc = {
 ,   .ppid            = 0
 ,   .pid             = -1
 ,   .sp              = 0
-}
+};
 
 static void processSignals(Proc* p) {
     static char buf[32];
