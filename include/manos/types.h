@@ -47,6 +47,7 @@ typedef struct ListHead {
 } ListHead;
 
 typedef struct Lock {
+    int             count;
     int             pid;
     int             locked;
     struct ListHead q;

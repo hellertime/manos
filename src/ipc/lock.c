@@ -16,6 +16,7 @@ int systrylock(Lock* l) {
     if (! l->locked) {
         l->locked = 1;
         haveLock = 1;
+        l->count++;
         l->pid = rp->pid;
     }
     leaveCriticalRegion();
@@ -40,6 +41,7 @@ void syslock(Lock* l) {
         leaveCriticalRegion();
         enterCriticalRegion();
     }
+    l->count++;
     l->locked = 1;
     l->pid    = rp->pid;
     leaveCriticalRegion();
@@ -53,6 +55,7 @@ void sysunlock(Lock* l) {
     enterCriticalRegion();
     l->locked = 0;
     l->pid    = -1;
+    l->count--;
     /*
     if (! listIsEmpty(&l->q)) {
         Proc* p = CONTAINER_OF(&l->q, Proc, nextWaitQ);

@@ -103,6 +103,7 @@ extern LcdHw* lcdHw;     /* attached LCD hardware */
 #define INIT_LOCK(lock) do {      \
     (lock)->locked = 0;           \
     (lock)->pid    = -1;          \
+    (lock)->count  = 0;           \
     INIT_LIST_HEAD(&((lock)->q)); \
 }while(0)
 
