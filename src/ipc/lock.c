@@ -35,8 +35,8 @@ void syslock(Lock* l) {
         ASSERT(listIsEmpty(&rp->nextWaitQ) && "lock() running process already waiting on something else!");
         listAddBefore(&rp->nextWaitQ, &l->q);
         rp->state = ProcWaiting;
-        YIELD();
         */
+        YIELD();
         leaveCriticalRegion();
         enterCriticalRegion();
     }
