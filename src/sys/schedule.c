@@ -34,7 +34,6 @@ static void processSignals(Proc* p) {
 Proc* nextRunnableProc(void) {
     Proc* p = NULL;
     Proc* save = NULL;
-    int   foundReady = 0;
 
     syslock(&runQLock);
     enterCriticalRegion();
