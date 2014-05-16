@@ -6,10 +6,10 @@
 static Proc badProc = {
     .state           = ProcDead
 ,   .descriptorTable = {0}
-,   .waitQ           = LIST_HEAD_INIT(waitQ)
-,   .nextWaitQ       = LIST_HEAD_INIT(nextWaitQ)
-,   .nextRunQ        = LIST_HEAD_INIT(nextRunQ)
-,   .nextFreelist    = LIST_HEAD_INIT(nextFreelist)
+,   .waitQ           = LIST_HEAD_INIT(badProc.waitQ)
+,   .nextWaitQ       = LIST_HEAD_INIT(badProc.nextWaitQ)
+,   .nextRunQ        = LIST_HEAD_INIT(badProc.nextRunQ)
+,   .nextFreelist    = LIST_HEAD_INIT(badProc.nextFreelist)
 ,   .sigPending      = 0
 ,   .sigMask         = (uint32_t)-1
 ,   .pgrp            = 0
