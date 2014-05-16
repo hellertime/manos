@@ -795,7 +795,7 @@ void* syskmalloc0(size_t size) {
     return mem;
 }
 
-static void __kfree(void* ptr) {
+void __kfree(void* ptr) {
   /*
    * Safety check #0: NULL has no effect.
    */
