@@ -77,9 +77,9 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
         processSignals(rp);
         listAddBefore(&rp->nextRunQ, &procRunQ);
         rp->sp = sp;
-        rp = &badProc; /* cannot set to NULL as code checks that there is an 'rp' when doing things like taking locks */
-    }
+    } 
 
+    rp = &badProc;
     while (rp == &badProc)
         rp = nextRunnableProc();
 
