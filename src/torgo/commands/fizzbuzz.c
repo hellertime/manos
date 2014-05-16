@@ -5,11 +5,12 @@ int cmdFizzbuzz__Main(int argc, char * const argv[]) {
     UNUSED(argv);
     int fizz = kopen("/dev/led/green", CAP_WRITE);
     int buzz = kopen("/dev/led/blue", CAP_WRITE);
-    int time = kopen("/dev/timers/k70Timer", CAP_READ);
 
     while (1) {
         uint64_t tick;
+        int time = kopen("/dev/timers/k70Timer", CAP_READ);
         kread(time, &tick, sizeof tick);
+        kclose(time);
         tick /= 1000; /* scale to seconds */
         if (tick % 15) {
             kwrite(fizz, "1", 1);
