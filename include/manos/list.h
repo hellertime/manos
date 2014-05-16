@@ -95,6 +95,16 @@ static inline int listIsEmpty(ListHead* head) {
         const typeof(((type*)0)->member) *__mptr = (ptr);   \
         (type*)((char*)__mptr - offsetof(type,member));})
 
+#define LIST_FIRST_ENTRY(ptr, type, member) \
+    CONTAINER_OF((ptr)->next, type, member)
+
+#define LIST_NEXT_ENTRY(pos, member) \
+    CONTAINER_OF((pos)->member.next, typeof(*(pos)), member)
+
+#define LIST_FIRST_ENTRY_OR_NULL(ptr, type, member) \
+    (!listIsEmpty(ptr) ? LIST_FIRST_ENTRY(ptr, type, member) : NULL)
+
+
 /**
  * LIST_FOR_EACH() - iterate forward over a list
  * @pos:             node used as a cursor
@@ -130,9 +140,9 @@ static inline int listIsEmpty(ListHead* head) {
  * @member:                list member of pos struct
  */
 #define LIST_FOR_EACH_ENTRY(pos, head, member)                      \
-    for (pos = CONTAINER_OF((head)->next, typeof(*pos), member);    \
-            &pos->member != (head);                                 \
-            pos = CONTAINER_OF(pos->member.next, typeof(*pos), member))
+    for (pos = LIST_FIRST_ENTRY_OR_NULL(head, typeof(*pos), member);\
+            pos && &pos->member != (head);                          \
+            pos = LIST_NEXT_ENTRY(pos, member))
 
 /**
  * LIST_FOR_EACH_ENTRY_SAFE() - safe iterator over list by container
@@ -141,10 +151,10 @@ static inline int listIsEmpty(ListHead* head) {
  * @head:                       start of iteration
  * @member:                     member of struct for list pointer
  */
-#define LIST_FOR_EACH_ENTRY_SAFE(pos, x, head, member)                  \
-    for (pos = CONTAINER_OF((head)->next, typeof(*pos), member),        \
-            x = CONTAINER_OF(pos->member.next, typeof(*pos), member);   \
-            &pos->member != (head);                                     \
-            pos = x, x = CONTAINER_OF(x->member.next, typeof(*x), member))
+#define LIST_FOR_EACH_ENTRY_SAFE(pos, x, head, member)              \
+    for (pos = LIST_FIRST_ENTRY_OR_NULL(head, typeof(*pos), member),\
+            x = (pos != NULL ? LIST_NEXT_ENTRY(pos, member);        \
+            pos && &pos->member != (head);                          \
+            pos = x, x = LIST_NEXT_ENTRY(x, member))
 
 #endif /* ! MANOS_LIST_H */
