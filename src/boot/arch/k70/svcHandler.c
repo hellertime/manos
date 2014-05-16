@@ -50,7 +50,6 @@ static void waitpidSyscall(int* args) {
 static void _exitsSyscall(int* args) {
     UNUSED(args);
     enterCriticalRegion();
-    abortProc(rp);
     YIELD();
     leaveCriticalRegion();
 }

@@ -27,6 +27,7 @@ void syslock(Lock* l) {
     if (!rp || rp->pid == -1)
         return;
 
+    ASSERT(rp->state != ProcDead && "lock() dead procs can't hold locks");
     enterCriticalRegion();
     while (l->locked) {
         ASSERT(listIsEmpty(&rp->nextWaitQ) && "lock() running process already waiting on something else!");

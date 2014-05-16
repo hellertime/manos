@@ -28,7 +28,7 @@ void abortProc(Proc* p) {
     wakeWaiting(p);
     listUnlinkAndInit(&p->nextWaitQ);
     for (unsigned i = 0; i < COUNT_OF(p->descriptorTable); i++) {
-        syskfree(p->descriptorTable[i]);
+        kfree(p->descriptorTable[i]);
     }
 }
 

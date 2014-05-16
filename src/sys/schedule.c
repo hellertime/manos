@@ -22,10 +22,13 @@ static void processSignals(Proc* p) {
     static char buf[32];
     uint32_t newPending = 0; /* allow signals to generate signals */
     if (p->sigPending & SigAbort) {
+        wakeWaiting(p);
+        for (unsigned i = 0; i < COUNT_OF(p->descriptorTable); i++) {
+            syskfree(p->descriptorTable[i]);
+        }
         p->state = ProcDead;
         int len = fmtSnprintf(buf, sizeof buf, "\nKilled [%d]\n", p->pid);
         syswrite(rp->tty, buf, len);
-        abortProc(p);
     } else if (p->sigPending & SigStop) {
         int len = fmtSnprintf(buf, sizeof buf, "\nStopped [%d]\n", p->pid);
         syswrite(rp->tty, buf, len);
