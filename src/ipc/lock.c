@@ -9,7 +9,7 @@
 int systrylock(Lock* l) {
     int haveLock = 0;
 
-    if (!rp)
+    if (!rp || rp->pid == -1)
         return 1;
 
     enterCriticalRegion();
@@ -24,7 +24,7 @@ int systrylock(Lock* l) {
 void syslock(Lock* l) {
     ASSERT(l && "syslock() NULL Lock");
 #ifdef PLATFORM_K70CW
-    if (!rp)
+    if (!rp || rp->pid == -1)
         return;
 
     enterCriticalRegion();
@@ -42,7 +42,7 @@ void syslock(Lock* l) {
 }
 
 void sysunlock(Lock* l) {
-    if (!rp)
+    if (!rp || rp->pid == -1)
         return;
 
     enterCriticalRegion();
