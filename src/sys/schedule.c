@@ -97,7 +97,7 @@ int syssleep(long millis) {
     int fd = sysopen("/dev/timer/k70MilliTimer", CAP_WRITE);
     ptrdiff_t status = syswrite(fd, duration, strlen(duration));
     sysclose(fd);
-    if (status == 0) {
+    if (status > 0) {
         enterCriticalRegion();
         rp->state = ProcWaiting;
         YIELD();
