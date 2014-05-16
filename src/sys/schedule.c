@@ -3,7 +3,20 @@
 #include <arch/k70/derivative.h>
 #include <string.h>
 
-static Proc badProc;
+static Proc badProc = {
+    .state           = ProcDead
+,   .descriptorTable = {0}
+,   .waitQ           = LIST_HEAD_INIT(waitQ)
+,   .nextWaitQ       = LIST_HEAD_INIT(nextWaitQ)
+,   .nextRunQ        = LIST_HEAD_INIT(nextRunQ)
+,   .nextFreelist    = LIST_HEAD_INIT(nextFreelist)
+,   .sigPending      = 0
+,   .sigMask         = (uint32_t)-1
+,   .pgrp            = 0
+,   .ppid            = 0
+,   .pid             = -1
+,   .sp              = 0
+}
 
 static void processSignals(Proc* p) {
     static char buf[32];
