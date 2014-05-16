@@ -235,7 +235,7 @@ int torgo_main(int argc, char * const argv[]) {
         int bg = populateCmdArgsShell(shell->env, result, &cmdArgc, &cmdArgv);
         int pid = kexec(cmdArgv[0], cmdArgv);
 
-        if (!bg)
+        if (pid > 0 && !bg)
             waitpid(pid);
 
         /*
