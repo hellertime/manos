@@ -10,7 +10,6 @@ extern int __sysopen(Proc*, const char*, Caps);
 
 void __manos_exit(void) {
 #ifdef PLATFORM_K70CW
-    abortProc(rp);
     rp->state = ProcDead;
     _exits();
 #endif
