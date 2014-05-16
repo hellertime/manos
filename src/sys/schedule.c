@@ -3,6 +3,8 @@
 #include <arch/k70/derivative.h>
 #include <string.h>
 
+static Proc badProc;
+
 static void processSignals(Proc* p) {
     static char buf[32];
     uint32_t newPending = 0; /* allow signals to generate signals */
@@ -47,6 +49,8 @@ Proc* nextRunnableProc(void) {
             if (p->state == ProcReady) {
                 listUnlinkAndInit(&p->nextRunQ);
                 break;
+            } else {
+                p = &badProc;
             }
         }
     }
@@ -73,10 +77,12 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
         processSignals(rp);
         listAddBefore(&rp->nextRunQ, &procRunQ);
         rp->sp = sp;
-        rp = NULL;
+        rp = &badProc; /* cannot set to NULL as code checks that there is an 'rp' when doing things like taking locks */
     }
 
-    rp = nextRunnableProc();
+    while (rp == &badProc)
+        rp = nextRunnableProc();
+
     ASSERT(*rp->canary1 == *rp->canary2 && "scheduleProc() new proc canaries are not equal");
     ASSERT(rp->sp < (uintptr_t)rp->canary2 && "scheduleProc() new proc sp below canary");
     rp->state = ProcRunning;
