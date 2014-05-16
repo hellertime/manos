@@ -1,0 +1,14 @@
+**1
+C:/Users/Chris/CodeWarrior/manos/cw/manos/.Analysis Data/manos_RAM_PnE U-MultiLink_0.elf
+
+**Lines
+
+"Function": "Function Name"(width 200, sort, string); "Num Calls"(width 80, sort, int); "Inclusive"(width 60, sort, float); "Min Inclusive"(width 60, sort, float); "Max Inclusive"(width 70, sort, float); "Avg Inclusive"(width 70, sort, float); "Percent Inclusive"(width 60, sort, float); "Exclusive"(width 60, sort, float); "Min Exclusive"(width 60, sort, float); "Max Exclusive"(width 70, sort, float); "Avg Exclusive"(width 70, sort, float); "Percent Exclusive"(width 60, sort, float); "Percent Total Calls"(width 70, sort, float); "Code Size"(width 70, sort, int)
+"Call Pair": "Caller"(width 200, sort, string); "Callee"(width 200, sort, string); "Num Calls"(width 80, sort, int); "Inclusive"(width 60, sort, float); "Min Inclusive"(width 60, sort, float); "Max Inclusive"(width 70, sort, float); "Avg Inclusive"(width 70, sort, float); "Percent Callee"(width 60, sort, float); "Percent Caller"(width 60, sort, float); "Call Site"(width 60, sort, int)
+**Data
+
+*0
+"Function": "__fill_mem"(link 122867); "1"; "235279336166"; "235279336166"; "235279336166"; "235279336166"; "100.00"; "235279336166"; "235279336166"; "235279336166"; "235279336166"; "100.00"; "100.00"; "118"
+
+*122867
+
