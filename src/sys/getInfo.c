@@ -3,7 +3,7 @@
 
 int sysgetInfoFd(int fd, NodeInfo* ni) {
     Portal* p = rp->descriptorTable[fd];
-    if (!p) {
+    if (fd < 0 || !p) {
         errno = EBADF;
         return -1;
     }

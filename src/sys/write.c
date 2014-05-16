@@ -4,7 +4,7 @@
 
 ptrdiff_t syswrite(int fd, void* buf, size_t n) {
     Portal* p = rp->descriptorTable[fd];
-    if (!p) {
+    if (fd < 0 || !p) {
         errno = EBADF;
         return -1;
     }

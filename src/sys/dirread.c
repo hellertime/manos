@@ -16,7 +16,7 @@
  */
 int dirread(int fd, NodeInfo** buf) {
     Portal* p = rp->descriptorTable[fd];
-    if (!p) {
+    if (fd < 0 || !p) {
         errno = EBADF;
         return -1;
     }
