@@ -775,23 +775,23 @@ static void* __kmalloc(size_t size, int pid) {
  * If size is 0, a chunk of MIN_ALLOC_BYTES is returned.
  */
 void* kmalloc(size_t size) {
-    lock(&malLock);
+    enterCriticalRegion();
     void* mem = __kmalloc(size, getpid());
-    unlock(&malLock);
+    leaveCriticalRegion();
     return mem;
 }
 
 void* syskmalloc(size_t size) {
-    syslock(&malLock);
+    enterCriticalRegion();
     void* mem = __kmalloc(size, getpid());
-    sysunlock(&malLock);
+    leaveCriticalRegion();
     return mem;
 }
 
 void* syskmalloc0(size_t size) {
-    syslock(&malLock);
+    enterCriticalRegion();
     void* mem = __kmalloc(size, 0);
-    sysunlock(&malLock);
+    leaveCriticalRegion();
     return mem;
 }
 
@@ -832,7 +832,9 @@ void __kfree(void* ptr) {
       chunk->prev = BAD_PPTR;
       chunk->next = BAD_PTR;
       clearBitmap(ptr);
+      enterCriticalRegion();
       binChunk(chunk, BinRecent);
+      leaveCriticalRegion();
     }
   }
 }
@@ -843,9 +845,9 @@ void __kfree(void* ptr) {
  * free allocated chunk. If ptr is NULL or not from malloc, this is a noop.
  */
 void kfree(void* ptr) {
-    lock(&malLock);
+    enterCriticalRegion();
     __kfree(ptr);
-    unlock(&malLock);
+    leaveCriticalRegion();
 }
 
 /**
@@ -854,9 +856,9 @@ void kfree(void* ptr) {
  * like kfree, but callable from handler
  */
 void syskfree(void* ptr) {
-    syslock(&malLock);
+    enterCriticalRegion();
     __kfree(ptr);
-    sysunlock(&malLock);
+    leaveCriticalRegion();
 }
 
 
