@@ -38,6 +38,7 @@ Proc* nextRunnableProc(void) {
     syslock(&runQLock);
     enterCriticalRegion();
 
+    volatile int isEmpty = listIsEmpty(&procRunQ);
     LIST_FOR_EACH_ENTRY_SAFE(p, save, &procRunQ, nextRunQ) {
         if (p->state == ProcDead) {
             listUnlink(&p->nextRunQ);
