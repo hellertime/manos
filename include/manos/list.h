@@ -153,7 +153,7 @@ static inline int listIsEmpty(ListHead* head) {
  */
 #define LIST_FOR_EACH_ENTRY_SAFE(pos, x, head, member)              \
     for (pos = LIST_FIRST_ENTRY_OR_NULL(head, typeof(*pos), member),\
-            x = (pos != NULL ? LIST_NEXT_ENTRY(pos, member);        \
+            x = (pos != NULL ? LIST_NEXT_ENTRY(pos, member) : NULL);\
             pos && &pos->member != (head);                          \
             pos = x, x = LIST_NEXT_ENTRY(x, member))
 
