@@ -16,7 +16,7 @@ int cmdFizzbuzz__Main(int argc, char * const argv[]) {
         kread(time, &tick, sizeof tick);
         kclose(time);
         tick /= 1000; /* scale to seconds */
-        if (tick % 15) {
+        if (tick % 15 == 0) {
             kwrite(fizz, "1", 1);
             kwrite(buzz, "1", 1);
         } else if (tick % 5 == 0) {
