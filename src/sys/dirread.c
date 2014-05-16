@@ -36,7 +36,7 @@ int dirread(int fd, NodeInfo** buf) {
 
     if (dirs < 1) return dirs; /* -1 error, 0 eof */
 
-    char* backing = kmalloc(sizeof **buf * DIRREAD_N);
+    char* backing = kmalloc(sizeof **buf * dirs); /* DIRREAD_N); -- ??? */
     NodeInfo *ni = (NodeInfo*)backing;
 
     Crumb fake = MKSTATICNS_SENTINEL_CRUMB;
