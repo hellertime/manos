@@ -158,6 +158,6 @@ static inline int listIsEmpty(ListHead* head) {
     for (pos = LIST_FIRST_ENTRY_OR_NULL(head, typeof(*pos), member),\
             x = (pos != NULL ? LIST_NEXT_ENTRY_OR_NULL(pos, member, head) : NULL);\
             pos && &pos->member != (head);                          \
-            pos = x, x = LIST_NEXT_ENTRY(x, member))
+            pos = x, x = LIST_NEXT_ENTRY_OR_NULL(x, member, head))
 
 #endif /* ! MANOS_LIST_H */
