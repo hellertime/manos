@@ -31,10 +31,12 @@ void syslock(Lock* l) {
     ASSERT(rp->state != ProcDead && "lock() dead procs can't hold locks");
     enterCriticalRegion();
     while (l->locked) {
+        /*
         ASSERT(listIsEmpty(&rp->nextWaitQ) && "lock() running process already waiting on something else!");
         listAddBefore(&rp->nextWaitQ, &l->q);
         rp->state = ProcWaiting;
         YIELD();
+        */
         leaveCriticalRegion();
         enterCriticalRegion();
     }
@@ -51,11 +53,13 @@ void sysunlock(Lock* l) {
     enterCriticalRegion();
     l->locked = 0;
     l->pid    = -1;
+    /*
     if (! listIsEmpty(&l->q)) {
         Proc* p = CONTAINER_OF(&l->q, Proc, nextWaitQ);
         listUnlinkAndInit(&l->q);
         p->state = ProcReady;
         YIELD();
     }
+    */
     leaveCriticalRegion();
 }
