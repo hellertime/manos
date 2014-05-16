@@ -98,7 +98,6 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
     rp = &badProc;
     while (rp == &badProc) {
         rp = nextRunnableProc();
-        syssleep(100);
     }
 
     ASSERT(*rp->canary1 == *rp->canary2 && "scheduleProc() new proc canaries are not equal");
