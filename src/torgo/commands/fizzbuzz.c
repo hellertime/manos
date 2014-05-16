@@ -8,7 +8,11 @@ int cmdFizzbuzz__Main(int argc, char * const argv[]) {
 
     while (1) {
         uint64_t tick;
-        int time = kopen("/dev/timers/k70Timer", CAP_READ);
+        int time = kopen("/dev/timer/k70Timer", CAP_READ);
+        if (time == -1) {
+            fprintln(rp->tty, "Failed to open timer");
+            exits();
+        }
         kread(time, &tick, sizeof tick);
         kclose(time);
         tick /= 1000; /* scale to seconds */
