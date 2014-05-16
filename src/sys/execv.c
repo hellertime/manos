@@ -41,6 +41,8 @@ static void setupStack(Proc* p, Cmd cmd, int argc, char * const argv[]) {
 }
 
 Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
+    syslock(&runQLock);
+    enterCriticalRegion();
     Proc* p = newProc();
 
     p->slash = deviceTable[fromDeviceId(DEV_DEVROOT)]->attach("");
@@ -53,10 +55,9 @@ Proc* schedProc(Cmd cmd, int argc, char * const argv[]) {
 
     setupStack(p, cmd, argc, argv);
     p->argv = (char**)argv;
-    syslock(&runQLock);
-    enterCriticalRegion();
     listAddBefore(&p->nextRunQ, &procRunQ);
     p->state = ProcReady;
+    
     leaveCriticalRegion();
     sysunlock(&runQLock);
     return p;
