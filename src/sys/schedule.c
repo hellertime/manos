@@ -53,9 +53,8 @@ Proc* nextRunnableProc(void) {
         }
     }
 
-    if (p->state != ProcReady && rp->state == ProcReady) {
+    if (p == NULL && rp->state == ProcReady) {
         p = rp; /* nothing ready, cycle another quantum */
-        p->state = ProcReady;
     } else if (rp != NULL) {
         listAddBefore(&rp->nextRunQ, &procRunQ);
     }
@@ -81,11 +80,11 @@ uint32_t __attribute__((used)) scheduleProc(uint32_t sp) {
         processSignals(rp);
         rp->sp = sp;
     }
+
     Proc* p = NULL;
-    while ((p = nextRunnableProc())) {
-        if (p->state == ProcReady)
-            break;
-    }
+    while ((p = nextRunnableProc()) == NULL)
+        ;
+
     rp = p;
     ASSERT(*rp->canary1 == *rp->canary2 && "scheduleProc() new proc canaries are not equal");
     ASSERT(rp->sp < (uintptr_t)rp->canary2 && "scheduleProc() new proc sp below canary");

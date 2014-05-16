@@ -101,6 +101,9 @@ static inline int listIsEmpty(ListHead* head) {
 #define LIST_NEXT_ENTRY(pos, member) \
     CONTAINER_OF((pos)->member.next, typeof(*(pos)), member)
 
+#define LIST_NEXT_ENTRY_OR_NULL(pos, member, head) \
+    (&pos->member != (head) ? LIST_NEXT_ENTRY(pos, member) : NULL)
+
 #define LIST_FIRST_ENTRY_OR_NULL(ptr, type, member) \
     (!listIsEmpty(ptr) ? LIST_FIRST_ENTRY(ptr, type, member) : NULL)
 
@@ -153,7 +156,7 @@ static inline int listIsEmpty(ListHead* head) {
  */
 #define LIST_FOR_EACH_ENTRY_SAFE(pos, x, head, member)              \
     for (pos = LIST_FIRST_ENTRY_OR_NULL(head, typeof(*pos), member),\
-            x = (pos != NULL ? LIST_NEXT_ENTRY(pos, member) : NULL);\
+            x = (pos != NULL ? LIST_NEXT_ENTRY_OR_NULL(pos, member) : NULL);\
             pos && &pos->member != (head);                          \
             pos = x, x = LIST_NEXT_ENTRY(x, member))
 
