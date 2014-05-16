@@ -3,6 +3,7 @@
 
 extern long long pdbInterruptCount;
 
+extern void __kfree(void*);
 /**
  * pdbHandler() - programmable delay block handler
  */
@@ -25,7 +26,7 @@ void pdbHandler(void) {
             if (iter->wakeTime <= now) {
                 syspostsignal(iter->pid, SigAlarm);
                 listUnlink(&iter->next);
-                syskfree(iter);
+                __kfree(iter);
             }
         }
         leaveCriticalRegion();
